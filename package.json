@@ -1,0 +1,13 @@
+{
+  "name": "lagrange-battle-sim",
+  "version": "0.1.0",
+  "private": true,
+  "description": "星际猎人（无尽的拉格朗日）交战模拟器",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm test --workspace=@lagrange/engine"
+  }
+}

@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.js
+*.d.ts
+*.js.map
+# (keep ts source; track only via tsc output dirs)
+!*.config.js
+
+# Test / dump artifacts
+coverage/
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
