@@ -21,7 +21,7 @@ export type EventKind =
 
 /** 事件基础接口 */
 export interface SimEvent {
-  /** 触发时刻（秒） */
+  /** 触发时刻（浮点秒） */
   time: number;
   kind: EventKind;
   payload: WeaponFirePayload | SkillPayload | GenericPayload;
@@ -50,6 +50,7 @@ export interface GenericPayload {
 
 /** 一次攻击的完整结算结果，写入事件日志供人工核对 */
 export interface AttackRecord {
+  /** 攻击发生时刻（浮点秒） */
   time: number;
   attackerShipId: string;
   attackerWeaponId: string;
@@ -66,7 +67,7 @@ export interface AttackRecord {
 
 /** 战斗报告 */
 export interface BattleReport {
-  /** 仿真总时长（秒） */
+  /** 仿真总时长（浮点秒） */
   duration: number;
   /** 胜方（'ally'|'enemy'|'draw'） */
   winner: 'ally' | 'enemy' | 'draw';

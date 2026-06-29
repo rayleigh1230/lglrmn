@@ -1,16 +1,18 @@
 /**
  * 主仿真器 —— 把所有部件串成完整的 DES 主循环。
  *
- * 主循环：
- *   for t in 0..maxTime:
- *     取出到点事件 → 执行 → 衍生新事件入队
+ * 主循环（事件驱动，非固定 tick）：
+ *   取出队列中下一个到点事件 → 执行 → 衍生新事件入队
  *   任一方全灭则提前结束。
+ *
+ * 时间为浮点秒：游戏面板冷却/持续/锁定可能出现小数（如 5.5s），调度器用浮点比较，
+ * 不取整。整除场景自然得整数秒，非整除场景精确还原小数循环。
  *
  * 每个武器按攻击循环周期产生 weaponFire 事件：
  *   循环 = fireDuration（持续开火）+ cooldown（冷却）
  *   fireDuration 内按 shotsPerCycle 均匀打出多发。
  *
- * MVP-1 简化：fireDuration 内的多次开火拆成多个 weaponFire 事件，
+ * fireDuration 内的多次开火拆成多个 weaponFire 事件，
  * 间隔 = fireDuration / shotsPerCycle；一个循环结束后排下一轮首发的
  * weaponCooldownEnd 事件（time + cooldown）。
  */
@@ -25,7 +27,7 @@ import { critCheck } from '../phases/crit.js';
 import { damageCalc } from '../phases/damage.js';
 
 export interface SimulateOptions {
-  /** 最大仿真时长（秒） */
+  /** 最大仿真时长（浮点秒） */
   maxTime: number;
   /** 随机数源 */
   rng: RNG;
@@ -108,16 +110,20 @@ class Simulator {
    * 为一个武器排一个完整循环的开火事件。
    * fireDuration 内按 shotsPerCycle 均匀打出多发（每发间隔 = fireDuration/shots）。
    * 注意：锁定时间仅在战斗开始首次生效，后续循环直接从 startTime 开火。
+   *
+   * 时间为浮点秒（游戏面板冷却/持续/锁定会出现小数，如 5.5s），不做取整。
+   * 整除场景（如 3发/3秒）自然得到整数秒，向后兼容；非整除场景（如 2发/3秒）
+   * 得到 1.5s 间隔，精确还原游戏循环节奏。
    */
   private scheduleWeaponCycle(ship: RuntimeShip, weapon: RuntimeWeapon, startTime: number): void {
     if (weapon.disabled || ship.destroyed) return;
     const def = weapon.def;
     // 多发分布：shots 发在 fireDuration 秒内均匀分布，间隔 = fireDuration/shots
-    // 例：3发/3秒 → 间隔1秒 → t=0,1,2 开火
+    // 例：3发/3秒 → 间隔1秒 → t=0,1,2 开火；2发/3秒 → 间隔1.5秒 → t=0,1.5 开火
     const interval = def.shotsPerCycle > 0 ? def.fireDuration / def.shotsPerCycle : 0;
     for (let i = 0; i < def.shotsPerCycle; i++) {
-      // 首发在 startTime，第 i 发在 startTime + i*interval
-      const fireTime = startTime + Math.round(i * interval);
+      // 首发在 startTime，第 i 发在 startTime + i*interval（浮点，不取整）
+      const fireTime = startTime + i * interval;
       this.scheduler.schedule({
         time: fireTime,
         kind: 'weaponFire',

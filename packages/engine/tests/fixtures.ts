@@ -33,7 +33,7 @@ export function makeShip(over: Partial<Ship> & Pick<Ship, 'id' | 'cell'>): Ship 
     class: 'destroyer',
     structure: 30000,
     resistance: 10, // 标准抵抗值（面板火力基准）
-    shield: 0,
+    shield: 0, // 护盾减伤系数（0=无护盾）。能量伤害 = dph×(1−shield)
     dodge: 0,
     weapons: [],
     ...over,

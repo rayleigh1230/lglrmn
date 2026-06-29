@@ -23,7 +23,7 @@
 │     │  ├─ model/            # RuntimeShip/RuntimeWeapon 运行时状态
 │     │  ├─ phases/           # 结算阶段（目标→拦截→命中→暴击→伤害→摧毁）
 │     │  └─ index.ts          # 公共 API
-│     └─ tests/               # 35 个断言测试 + FG300实测回归 + 事件日志dump
+│     └─ tests/               # 55 个断言测试 + FG300实测回归 + 事件日志dump
 ├─ docs/
 │  ├─ 01-战斗机制研究文档.md   # 机制调研（公式来源）
 │  └─ 02-采样测试方案.md       # 黑盒参数标定方案 + 首轮实测结论
@@ -36,16 +36,16 @@
 |------|------|---------|
 | 实弹伤害 | `max(dph − resistance, dph×10%)` | ✅ 实测校准（保底10%） |
 | 能量伤害 | `dph × (1 − shield)` | ⏳ 待采样 |
-| 命中率 | `base × (1 + bonus − dodge)`，夹[10%,95%] | ✅ 实测验证（误差1.2pp） |
+| 命中率 | `base × (1 + bonus − dodge)`，夹[10%,95%]；base 为面板区间每发独立 roll | ✅ 实测验证（误差1.2pp） |
 | 暴击 | 无基础暴击率，需明确数值；倍率默认×2 | ✅ 模型确定 |
-| 攻击循环 | 持续N秒打M发，间隔=fireDuration/shots；含锁定时间 | ✅ 实测校准 |
+| 攻击循环 | 持续N秒打M发，间隔=fireDuration/shots；含锁定时间；浮点秒精度 | ✅ 实测校准 |
 
 ## 开发
 
 ```bash
 npm install              # 安装依赖
 npm run build            # 编译引擎
-npm test                 # 运行全部测试（35个）
+npm test                 # 运行全部测试（55个）
 npm run test:dump -w @lagrange/engine   # 跑FG300场景打印事件日志
 ```
 

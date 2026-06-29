@@ -54,6 +54,13 @@ export type TargetClass =
 /** 拦截/防空的作用范围，基于格位拓扑关系 */
 export type InterceptScope = 'sameCell' | 'sameRow' | 'sameSide' | 'anywhere';
 
+/**
+ * 命中率取值：单值或区间。
+ * 游戏面板命中率显示为区间（如 50%-70%），引擎每发开火在区间内独立 roll。
+ * 单值（如 0.8）等价于区间 {min:0.8,max:0.8}，向后兼容。
+ */
+export type HitRate = number | { min: number; max: number };
+
 // ===== 武器系统（仿真最小单元）=====
 
 /**
@@ -85,8 +92,15 @@ export interface WeaponSystem {
   lockOnTime?: number;
 
   // --- 命中（docs §3）---
-  /** 基础命中率，按目标类型分别记录（0~1） */
-  baseHit: Partial<Record<TargetClass, number>>;
+  /**
+   * 基础命中率，按目标类型分别记录。
+   * 取值可为：
+   *   - 单值（如 0.8）：确定性命中基准，常用于测试/已标定武器
+   *   - 区间（如 {min:0.5, max:0.7}）：游戏面板给的就是命中率区间，
+   *     每发开火在区间内独立 roll 一次 base 值
+   * 单值 0.8 等价于区间 {min:0.8, max:0.8}，二者可混用。
+   */
+  baseHit: Partial<Record<TargetClass, HitRate>>;
   /** 命中加成（蓝图强化等，0~1，默认0） */
   hitBonus?: number;
   /** 暴击率（0~1，默认 0.15） */
