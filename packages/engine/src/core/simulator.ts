@@ -103,6 +103,22 @@ class Simulator {
         const firstFireTime = weapon.def.lockOnTime ?? 0;
         this.scheduleWeaponCycle(ship, weapon, firstFireTime);
       }
+      // 排周期类 buff 的首次触发事件（threshold 类由伤害结算触发）
+      this.initPeriodicBuffs(ship);
+    }
+  }
+
+  /** 排周期类 buff 的首次触发事件 */
+  private initPeriodicBuffs(ship: RuntimeShip): void {
+    const buffs = ship.def.tempBuffs ?? [];
+    for (const buff of buffs) {
+      if (buff.trigger.kind === 'periodic') {
+        this.scheduler.schedule({
+          time: buff.trigger.period,
+          kind: 'skillReady',
+          payload: { shipId: ship.def.id, skillId: buff.id },
+        });
+      }
     }
   }
 
@@ -147,10 +163,53 @@ class Simulator {
       case 'weaponCooldownEnd':
         this.handleCooldownEnd(evt);
         break;
+      case 'skillReady':
+        this.handleSkillReady(evt, now);
+        break;
+      case 'skillExpire':
+        this.handleSkillExpire(evt);
+        break;
       default:
         // 后期事件占位
         break;
     }
+  }
+
+  /** 处理 buff 触发：激活 buff，排到期事件，周期类排下次触发 */
+  private handleSkillReady(evt: SimEvent, now: number): void {
+    const { shipId, skillId } = evt.payload as { shipId: string; skillId: string };
+    const ship = this.findShip(shipId);
+    if (!ship || ship.destroyed) return;
+    const buff = ship.def.tempBuffs?.find((b) => b.id === skillId);
+    if (!buff) return;
+    const activated = ship.tryActivateBuff(buff, now);
+    if (!activated) return;
+    // 排到期清理事件（到点 RuntimeShip.expireBuffs 会自动过滤，这里仅做时序占位）
+    this.scheduler.schedule({
+      time: now + buff.duration,
+      kind: 'skillExpire',
+      payload: { shipId, skillId },
+    });
+    // 周期类：排下次触发
+    if (buff.trigger.kind === 'periodic') {
+      this.scheduler.schedule({
+        time: now + buff.trigger.period,
+        kind: 'skillReady',
+        payload: { shipId, skillId },
+      });
+    }
+  }
+
+  /** buff 到期：仅清理（RuntimeShip 的 activeBuffs 按时间自动过滤） */
+  private handleSkillExpire(_evt: SimEvent): void {
+    // 无需主动操作；collectActiveBuffs 已按 expiresAt 过滤
+  }
+
+  /** 在两侧舰队中查找舰船 */
+  private findShip(shipId: string): RuntimeShip | null {
+    for (const s of this.ally.ships) if (s.def.id === shipId) return s;
+    for (const s of this.enemy.ships) if (s.def.id === shipId) return s;
+    return null;
   }
 
   /** 处理一次武器开火：目标选择→拦截→命中→暴击→伤害→摧毁判定 */
@@ -226,8 +285,10 @@ class Simulator {
       return this.makeRecord(now, _ship, weapon, target, 0, false, false, true);
     }
 
-    // 2. 命中判定
-    const hit = hitCheck(weapon.def, target.def, this.rng);
+    // 2. 命中判定（含目标当前激活的临时 buff，加法叠加进命中括号）
+    target.expireBuffs(now);
+    const activeBuffs = target.collectActiveBuffs(now);
+    const hit = hitCheck(weapon.def, target.def, this.rng, activeBuffs);
     if (!hit.hit) {
       return this.makeRecord(now, _ship, weapon, target, 0, false, false, false);
     }
@@ -239,11 +300,22 @@ class Simulator {
     const dmg = damageCalc(weapon.def, target.def, crit.crit);
     const destroyed = target.takeDamage(dmg.final);
 
-    if (destroyed) {
-      // 击沉：标记，后续事件会被 aliveShips 过滤
+    // 5. 阈值 buff 触发检查（结构值跨过阈值时立即激活）
+    if (!destroyed) {
+      this.checkThresholdBuffs(target, now);
     }
 
     return this.makeRecord(now, _ship, weapon, target, dmg.final, true, crit.crit, false);
+  }
+
+  /** 检查目标是否触发阈值类 buff（结构值低于阈值时） */
+  private checkThresholdBuffs(target: RuntimeShip, now: number): void {
+    const buffs = target.def.tempBuffs ?? [];
+    for (const buff of buffs) {
+      if (buff.trigger.kind === 'threshold') {
+        target.tryActivateBuff(buff, now);
+      }
+    }
   }
 
   private makeRecord(

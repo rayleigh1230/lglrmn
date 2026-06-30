@@ -15,6 +15,7 @@ export type {
   Cell,
   DamageType,
   WeaponDelivery,
+  WeaponCategory,
   TargetClass,
   InterceptScope,
   HitRate,
@@ -23,6 +24,9 @@ export type {
   Fighter,
   Fleet,
   RNG,
+  TempBuff,
+  BuffTrigger,
+  BuffStat,
 } from './types/index.js';
 
 export type { SimEvent, AttackRecord, BattleReport } from './types/events.js';
@@ -49,6 +53,7 @@ export {
 // 结算阶段（便于单独写断言测试）
 export {
   computeHitRate,
+  resolveModifiers,
   clampHitRate,
   hitCheck,
   rollBaseHit,
@@ -56,6 +61,7 @@ export {
   HIT_RATE_MIN,
   HIT_RATE_MAX,
   type HitCalc,
+  type ActiveBuffs,
 } from './phases/hit.js';
 
 export {

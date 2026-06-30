@@ -6,7 +6,15 @@
  *  - 多次复现（同一编队可重跑）
  *  - 对比战前/战后
  */
-import type { Ship, WeaponSystem, Fleet } from '../types/index.js';
+import type { Ship, WeaponSystem, Fleet, TempBuff } from '../types/index.js';
+
+/** 一个 buff 实例的运行时激活记录 */
+interface ActiveBuffInst {
+  /** 对应的 buff 定义 */
+  def: TempBuff;
+  /** 到期时刻（秒） */
+  expiresAt: number;
+}
 
 /** 武器运行时状态 */
 export class RuntimeWeapon {
@@ -42,6 +50,10 @@ export class RuntimeShip {
   destroyed = false;
   /** 武器运行时状态 */
   weapons: RuntimeWeapon[];
+  /** 当前激活的 buff 实例（含到期时刻） */
+  private activeBuffs: ActiveBuffInst[] = [];
+  /** threshold 类 buff 是否已触发过（避免重复触发） */
+  private triggeredThresholds = new Set<string>();
 
   constructor(def: Ship) {
     this.def = def;
@@ -63,6 +75,45 @@ export class RuntimeShip {
       return true; // 本次伤害导致击沉
     }
     return false;
+  }
+
+  /**
+   * 尝试触发 buff（由 simulator 在合适时机调用）。
+   * - threshold：结构值低于阈值且未触发过时激活，记入已触发集合
+   * - periodic：直接激活
+   * 激活 = 加入 activeBuffs，到期时刻 = now + duration
+   */
+  tryActivateBuff(buff: TempBuff, now: number): boolean {
+    if (buff.trigger.kind === 'threshold') {
+      const threshold = this.def.structure * buff.trigger.hpFrac;
+      if (this.structure > threshold) return false; // 还没到阈值
+      if (this.triggeredThresholds.has(buff.id)) return false; // 已触发过
+      this.triggeredThresholds.add(buff.id);
+    }
+    this.activeBuffs.push({ def: buff, expiresAt: now + buff.duration });
+    return true;
+  }
+
+  /** 清理已到期的 buff（每次结算前调用） */
+  expireBuffs(now: number): void {
+    this.activeBuffs = this.activeBuffs.filter((b) => b.expiresAt > now);
+  }
+
+  /** 收集当前激活 buff 对命中公式的加法修饰（按 stat 聚合） */
+  collectActiveBuffs(now: number): { dodge: number; hitBonus: number } {
+    let dodge = 0;
+    let hitBonus = 0;
+    for (const b of this.activeBuffs) {
+      if (b.expiresAt <= now) continue;
+      if (b.def.stat === 'dodge') dodge += b.def.value;
+      else hitBonus += b.def.value;
+    }
+    return { dodge, hitBonus };
+  }
+
+  /** 是否还有任何激活的 buff */
+  hasActiveBuffs(now: number): boolean {
+    return this.activeBuffs.some((b) => b.expiresAt > now);
   }
 }
 

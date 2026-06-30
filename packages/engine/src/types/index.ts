@@ -38,6 +38,24 @@ export type DamageType = 'kinetic' | 'energy';
 export type WeaponDelivery = 'direct' | 'projectile';
 
 /**
+ * 武器【命中/闪避分类】—— 决定该武器吃哪种"按武器类别的闪避词条"。
+ *
+ * 与 WeaponDelivery 是两个正交维度：
+ *   - delivery：能否跨格、能否被反导（拓扑/拦截语义）
+ *   - category：吃哪种闪避词条（命中公式语义）
+ *
+ * 游戏里有三类针对特定武器类别的闪避词条：
+ *   - 直射武器闪避（最通用）
+ *   - 制导武器/导弹/鱼雷闪避
+ *   - 慢速武器闪避（轨道炮、离子炮——虽属直射，但有专门词条）
+ *
+ * 因此轨道炮/离子炮标为 'slow' 而非 'direct'：它们命中时匹配的是
+ * "慢速武器闪避"词条（若目标有），而不是"直射武器闪避"。
+ * 缺省 'direct'。
+ */
+export type WeaponCategory = 'direct' | 'guided' | 'slow';
+
+/**
  * 目标类型 —— 命中率与攻击序列按此分类。
  * 决定武器对哪种目标有怎样的基础命中、攻击序列优先级。
  */
@@ -74,11 +92,31 @@ export interface WeaponSystem {
 
   damageType: DamageType;
   delivery: WeaponDelivery;
+  /**
+   * 武器命中/闪避分类（吃哪种闪避词条）。
+   * 与 delivery 正交：direct 武器可能细分为 'direct' 或 'slow'（轨道炮/离子炮）。
+   * 缺省 'direct'。
+   */
+  category?: WeaponCategory;
 
   // --- 攻击循环参数（docs §2）---
   /** 单发伤害 DPH */
   dph: number;
-  /** 每循环开火次数 */
+  /**
+   * 每个攻击循环打出的【总开火次数】（每发独立判定命中/暴击/伤害）。
+   *
+   * 与游戏面板"弹药 × 次数"的映射关系（实测校准，2026-06）：
+   *   shotsPerCycle = 弹药 × 次数
+   *   - "弹药" = 每次开火打出的弹数（如弹药2 = 一次打2发）
+   *   - "次数" = 一个循环内开火几轮（如次数3 = 打3轮）
+   *   例：FG300 武器1 "弹药1 次数3" → shotsPerCycle=3
+   *       阋神星 武器2 "弹药2 次数1" → shotsPerCycle=2
+   *
+   * 多发在 fireDuration 内均匀分布，间隔 = fireDuration/shotsPerCycle：
+   *   - fireDuration>0：按间隔依次打出（如 3发/3秒 → t=0,1,2）
+   *   - fireDuration=0：interval=0，多发在同一时刻作为独立事件打出
+   *     （如 阋神星武器2 弹药2 持续0 → 2发同时打出，各自独立判定命中）
+   */
   shotsPerCycle: number;
   /** 持续开火时长（秒） */
   fireDuration: number;
@@ -92,17 +130,23 @@ export interface WeaponSystem {
   lockOnTime?: number;
 
   // --- 命中（docs §3）---
-  /**
-   * 基础命中率，按目标类型分别记录。
+  /** 基础命中率，按目标类型分别记录。
    * 取值可为：
    *   - 单值（如 0.8）：确定性命中基准，常用于测试/已标定武器
    *   - 区间（如 {min:0.5, max:0.7}）：游戏面板给的就是命中率区间，
    *     每发开火在区间内独立 roll 一次 base 值
-   * 单值 0.8 等价于区间 {min:0.8, max:0.8}，二者可混用。
+   * 单值 0.8 等价于区间 {min:0.8,max:0.8}，二者可混用。
    */
   baseHit: Partial<Record<TargetClass, HitRate>>;
   /** 命中加成（蓝图强化等，0~1，默认0） */
   hitBonus?: number;
+  /**
+   * 对特定舰种的命中率提升（如"对驱逐/护卫命中+15%"）。
+   * 实测验证：该数值作为【加法项】塞进命中括号的 +槽（与 hitBonus 同位置）。
+   * 命中公式：base × (1 + hitBonus + 本项 − 目标闪避)。
+   * 键为目标舰种，命中时按 target.class 查表。
+   */
+  hitBonusByTargetClass?: Partial<Record<TargetClass, number>>;
   /** 暴击率（0~1，默认 0.15） */
   critRate?: number;
   /** 暴击伤害倍率（默认 2.0 = 造成 200% 伤害） */
@@ -143,8 +187,65 @@ export interface Ship {
   shield: number;
   /** 闪避率（0~1） */
   dodge: number;
+  /**
+   * 对特定武器类别的闪避提升（如"被直射武器命中率下降15%"）。
+   * 实测验证：该数值作为【加法项】塞进命中括号的 −槽（与通用 dodge 同位置）。
+   * 命中公式：base × (1 + hitBonus + 对舰种命中 − dodge − 本项[匹配武器类别时])。
+   * 仅当攻击武器的 category 匹配时才叠加；不匹配则忽略。
+   *
+   * 注：面板文案"被X武器命中率下降"与"对X武器闪避提升"数学等价，都落到这里。
+   */
+  dodgeByWeaponType?: Partial<Record<WeaponCategory, number>>;
 
   weapons: WeaponSystem[];
+
+  /**
+   * 临时 buff（策略类技能）—— 战斗中按条件触发的时效性修饰。
+   *
+   * 实测验证（2026-06，10艘斗牛跨度判据）：
+   *   临时 buff 的修饰值作为【加法项】叠加进命中括号，与面板层修饰共用同一对槽：
+   *     final = base × (1 + hitBonus + 对舰种命中 + buff加成 − dodge − 武器类别闪避 − buff闪避)
+   *   即临时 buff 不走独立的乘法通道，而是和面板修饰一样做加法。
+   *
+   * 多舰场景存在【批次不同步】（各舰开火相位错开），导致多舰总时长系统性偏离
+   * "N×单舰"模型；但命中率公式本身（加法）不受影响，已由单舰实验铁证。
+   */
+  tempBuffs?: TempBuff[];
+}
+
+// ===== 临时 buff（策略类技能，docs §4）=====
+
+/** buff 修饰的命中级属性（与面板层同槽，加法叠加） */
+export type BuffStat = 'dodge' | 'hitBonus';
+
+/** buff 触发条件 */
+export type BuffTrigger =
+  | {
+      /** 周期触发：每 period 秒触发一次 */
+      kind: 'periodic';
+      period: number;
+    }
+  | {
+      /** 阈值触发：结构值低于 hpFrac 时触发（仅触发一次） */
+      kind: 'threshold';
+      /** 触发血量阈值，0~1（如 0.60 = 结构低于 60% 时触发） */
+      hpFrac: number;
+    };
+
+/**
+ * 单个临时 buff 定义。
+ * 触发后激活 duration 秒，期间把 value 加法叠加到 stat 槽。
+ */
+export interface TempBuff {
+  id: string;
+  /** 触发条件 */
+  trigger: BuffTrigger;
+  /** 持续时长（秒） */
+  duration: number;
+  /** 修饰的属性 */
+  stat: BuffStat;
+  /** 修饰值（加法，正=提升/负=下降），如 dodge +0.40、hitBonus −0.15 */
+  value: number;
 }
 
 // ===== 舰载机（后期，接口先留，docs §8.1）=====
