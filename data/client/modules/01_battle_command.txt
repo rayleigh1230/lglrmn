@@ -1,0 +1,910 @@
+# dumped from game runtime
+
+# ====== scene_zoom0.battle_command.battle_command ======
+# file: script:/scene_zoom0/battle_command/battle_command.nxz
+  BATTLE_ACTION_ID_ACTION_PACK = 10000
+  TYPE_CHECKING = False
+  class BattleCommand(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'action_id', 'parse_data', 'on_create']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class BattleCommandPack(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'command_list']
+      names: ['team_id', 'command_list', 'BATTLE_ACTION_ID_ACTION_PACK', 'action_id']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      names: ['command_list', 'on_create']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['command_list', 'execute']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      names: ['command_list', 'execute_on_end']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['command_list', 'execute_on_tactic_mgr']
+      consts: ['None']
+
+# ====== scene_zoom0.battle_command.battle_command_factory ======
+# file: script:/scene_zoom0/battle_command/battle_command_factory.nxz
+  logging = <module logging>
+  battle_action = <module common.config.battle_action>
+  class AircraftFormationCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['form_op', 'ship_uid_list', 'super', '__init__']
+      consts: ['None']
+    create = <classmethod(<function AircraftFormationCommand.create at 0x000001A435BDF380>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['form_op', 'ship_uid_list']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'form_op', 'ship_uid_list']
+      consts: ['None', '0', "('GameEventManager',)", "'aircraft_formation_group_update'"]
+  class AircraftMoveCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'state_id', 'super', 'AircraftMoveCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function AircraftMoveCommand.create at 0x000001A435BDF740>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'state_id']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['scene_zoom0.battle', 'WeaponState', 'aircraft_manager', 'get_aircraft_group', 'ship_uid', 'state_id', 'STATE_ID_ATTACK_PREPARE', 'STATE_ID_0_ATTACK_CD', 'STATE_ID_1_ACTION_CD', 'move_away_command']
+      consts: ['None', '0', "('WeaponState',)"]
+  class BattleCommandPack(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'command_list']
+      names: ['team_id', 'command_list', 'BATTLE_ACTION_ID_ACTION_PACK', 'action_id']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      names: ['command_list', 'on_create']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['command_list', 'execute']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      names: ['command_list', 'execute_on_end']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['command_list', 'execute_on_tactic_mgr']
+      consts: ['None']
+  class ShipDeadCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'super', 'ShipDeadCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipDeadCommand.create at 0x000001A435CAE520>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid']
+      consts: ['None', '0']
+    def on_create(...):
+      args: ['self']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'ship_uid']
+      consts: ['None', '0', "('GameEventManager',)", "'battle_action_ship_dead'"]
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['_do_die', 'zoom0_mode', 'Zoom0SceneMode', 'PERPETUAL_WARZONE', 'GameEventManager', 'notify', 'PerpetualWarzoneEventMsg', 'ACTION_LOG', 'time_utils', 'get_server_time', 'action_id', 'ship_uid']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      names: ['_do_die']
+      consts: ['None']
+    def _do_die(...):
+      args: ['self', 'scene']
+      names: ['common.config.db', 'Tb_cfg_ship', 'common.config.table_definition', 'ShipField', 'TableID', 'core_framework.game_event_manager', 'GameEventManager', 'data_manager.game_data_mgr', 'GameDataMgr', 'get_record', 'SHIP', 'ship_uid', 'ship_manager', 'cache_ship_record', 'get', 'USERID', 'SHIP_ID', 'SHIP_TYPE', 'notify', 'puppet_obj', 'ship_dead', 'get_ship_or_aircraft', 'synchronize_health', 'zoom0_mode', 'Zoom0SceneMode', 'PERPETUAL_WARZONE', 'do_moribund', 'do_die', 'is_defend_drone', 'detach_drone', 'is_any_aircraft_visible', 'is_drone', 'ShipDataMgr', 'set_health_without_notify', 'user_id', 'TEAM_ID', 'get_alive_ship_count']
+      consts: ['None', '0', "('Tb_cfg_ship',)", "('ShipField', 'TableID')", "('GameEventManager',)", "('GameDataMgr',)", "'ship_dead_sound'", 'False', "('use_control_effect',)", "('play_hit',)", "'ship_left_sound'", "'[battle]ship_dead'"]
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['tactic_battle_mgr', 'on_ship_dead_command_execute', 'ship_uid']
+      consts: ['None']
+  class ShipDroneShieldHpChangeCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'init_value', 'cur_value', 'super', 'ShipDroneShieldHpChangeCommand', '__init__']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'init_value', 'cur_value']
+      consts: ['None', '0', '1', '2']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['ShipDataMgr', 'get', 'ship_uid', 'init_value', 'shield_hp_max', 'set_shield_hp_max', 'cur_value', 'set_shield_hp']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class ShipGroupCountBuffCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['sub_skill_id', 'stack', 'affecting_ship_group_id_lst', 'super', 'ShipGroupCountBuffCommand', '__init__']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['sub_skill_id', 'stack', 'affecting_ship_group_id_lst']
+      consts: ['None', '0', '1', '2']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['BattleShipGroupDataMgr', 'update_sub_skill_stack', 'team_id', 'sub_skill_id', 'stack', 'affecting_ship_group_id_lst']
+      consts: ['None', "('affecting_ship_group_id_lst',)"]
+  class ShipGroupTacticalOperationCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['op_id', 'src_team_id', 'exec_info_list', 'target_team_id', 'target_info_list', 'row_idx_when_use', 'time_utils', 'get_server_time', 'timestamp', 'tac_op_cast_target_info', 'super', 'ShipGroupTacticalOperationCommand', '__init__']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['op_id', 'src_team_id', 'exec_info_list', 'target_team_id', 'target_info_list', 'row_idx_when_use', 'BattleShipGroupDataMgr', 'parse_tac_op_command', 'timestamp', 'tac_op_cast_target_info']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['op_id', 'tac_op_cast_target_info', 'exec_group_id', 'exec_team_id', 'team_id', 'target_group_id', 'target_team_id', 'zoom0_mode', 'Zoom0SceneMode', 'PERPETUAL_WARZONE', 'GameEventManager', 'notify', 'PerpetualWarzoneEventMsg', 'ACTION_LOG', 'timestamp', 'action_id', 'src_team_id', 'exec_info_list', 'target_info_list', 'row_idx_when_use', 'TacOpCfgInfo', 'create_from_cfg', 'tag', 'TacticalOperationTag', 'MOVE', 'perpetual_wz_data_utils', 'get_tac_op_main_effect_effect_id_and_param', 'divmod', 'BattleShipGroupDataMgr', 'get_battle_group_data', 'row_idx', 'max', 'min', 'set_group_row_idx', 'group_id', 'get_tactical_op_icon_show_time', 'op_cfg', 'TacOpEffectInfo', 'DEPLOY', 'push_tac_op_command', 'FOCUS', 'register_focus_fire_line', 'member_uids', 'get_ship_or_aircraft', 'clear_cached_attack_command']
+      consts: ['None', '10', '1', '0', '2', "('op_cfg',)", "'[battle_ship_group]deploy_command'"]
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class ShipJoinStrategicAirstrikeGroupCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'ship_uid', 'group_id', 'super', 'ShipJoinStrategicAirstrikeGroupCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipJoinStrategicAirstrikeGroupCommand.create at 0x000001A435BF8180>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'group_id']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['aircraft_manager', 'group_id', 'remove_aircraft_from_strategic_airstrike_group', 'ship_uid', 'add_aircraft_to_strategic_airstrike_group']
+      consts: ['None', '-1']
+  class ShipMoribundCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'super', 'ShipMoribundCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipMoribundCommand.create at 0x000001A435BDF560>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid']
+      consts: ['None', '0']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['_do_moribund']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      names: ['_do_moribund']
+      consts: ['None']
+    def _do_moribund(...):
+      args: ['self', 'scene']
+      names: ['common.config.table_definition', 'TableID', 'ShipField', 'core_framework.game_event_manager', 'GameEventManager', 'data_manager.game_data_mgr', 'GameDataMgr', '_battle', 'add_moribund_set', 'ship_uid', 'aircraft_manager', 'get_aircraft_group', 'is_defend_drone', 'puppet_obj', 'detach_drone', 'do_moribund', 'ship_manager', 'get_ship', 'notify', 'get_record', 'SHIP', 'cache_ship_record', 'get', 'USERID', 'user_id', 'TEAM_ID', 'get_alive_ship_count']
+      consts: ['None', '0', "('TableID', 'ShipField')", "('GameEventManager',)", "('GameDataMgr',)", "'zoom0_ship_moribund'", "'ship_left_sound'", "'ship_moribund_sound'", "'ship_enter_moribund_state'"]
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['tactic_battle_mgr', 'on_ship_moribund_command_execute', 'ship_uid']
+      consts: ['None']
+  class ShipRepairArmorCountChangedCommand(BattleCommand):
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'repair_armor_count']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['ShipDataMgr', 'get', 'ship_uid', 'set_current_repair_armor_count', 'repair_armor_count']
+      consts: ['None']
+  class ShipRowCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'row_index', 'super', 'ShipRowCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipRowCommand.create at 0x000001A435BF8E00>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'row_index']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['data_manager.ship_data_mgr', 'ShipDataMgr', 'get', 'ship_uid', 'is_aircraft', 'row_index', 'real_row_index', 'get_ship_or_aircraft', 'change_row']
+      consts: ['None', '0', "('ShipDataMgr',)"]
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['tactic_battle_mgr', 'on_ship_row_command_execute', 'ship_uid', 'row_index']
+      consts: ['None']
+  class ShipRepairCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'target_ship_uid', 'repair_hp', 'current_hp', 'super', 'ShipRepairCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipRepairCommand.create at 0x000001A435BF8720>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'target_ship_uid', 'repair_hp', 'current_hp']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['_do_repair']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      names: ['_do_repair']
+      consts: ['None']
+    def _do_repair(...):
+      args: ['self', 'scene']
+      names: ['ship_manager', 'get_ship', 'target_ship_uid', 'repair_hp', 'health', 'GameEventManager', 'notify', 'ship_uid']
+      consts: ['None', "'play_repair_popup_effect'"]
+  class ShipSkillCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'skill_id', 'skill_flag', 'system_id', 'super', 'ShipSkillCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipSkillCommand.create at 0x000001A435BF9440>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'skill_id', 'skill_flag', 'system_id']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['get_battle', 'skill_flag', 'add_skill_effect', 'ship_uid', 'skill_id', 'system_id', 'remove_skill_effect', 'GameEventManager', 'notify']
+      consts: ['None', "'zoom0_system_skill_action'"]
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['tactic_battle_mgr', 'on_ship_skill_command_execute', 'ship_uid', 'skill_id', 'skill_flag']
+      consts: ['None']
+  class EvaBossSkillCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'skill_id', 'is_virtual_attack', 'target_ship_id_us', 'weapon_cfg_id', 'super', 'EvaBossSkillCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function EvaBossSkillCommand.create at 0x000001A435BDFEC0>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'skill_id', 'bool', 'is_virtual_attack', 'isinstance', 'list', 'target_ship_id_us', 'weapon_cfg_id']
+      consts: ['None', 'True', '0', '1', '2', '3', '4']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'ship_uid', 'skill_id', 'is_virtual_attack', 'target_ship_id_us', 'weapon_cfg_id']
+      consts: ['None', '0', "('GameEventManager',)", "'zoom0_eva_boss_skill_action'"]
+  class EarlyWarningCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'skill_id', 'super', 'EarlyWarningCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function EarlyWarningCommand.create at 0x000001A435BDF9C0>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'skill_id']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'ship_uid', 'skill_id']
+      consts: ['None', '0', "('GameEventManager',)", "'zoom0_early_warning_action'"]
+  class EvaBossDamageCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['boss_total_damage', 'super', 'EvaBossDamageCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function EvaBossDamageCommand.create at 0x000001A435BDFC40>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['boss_total_damage']
+      consts: ['None', '0']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'boss_total_damage']
+      consts: ['None', '0', "('GameEventManager',)", "'zoom0_eva_boss_total_damage_action'"]
+  class ShipReviveCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'ship_hp', 'super', 'ShipReviveCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipReviveCommand.create at 0x000001A435BF8B80>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'ship_hp']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'ship_uid', 'ship_hp']
+      consts: ['None', '0', "('GameEventManager',)", "'zoom0_ship_revive_action'"]
+  class ShipSystemDestroyCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'system_index', 'flag', 'super', 'ShipSystemDestroyCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipSystemDestroyCommand.create at 0x000001A435CACB80>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'system_index', 'flag']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'ShipDataMgr', 'get', 'ship_uid', 'on_system_destroy', 'system_index', 'flag', 'notify']
+      consts: ['None', '0', "('GameEventManager',)", '1', "'zoom0_system_destroyed'"]
+  class ShipTakeCoverCommand(BattleCommand):
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'take_cover_ship_uid']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['aircraft_manager', 'get_aircraft_group', 'ship_uid', 'set_cover_from_ship_uid', 'take_cover_ship_uid']
+      consts: ['None']
+  class StrategicAirstrikeGroupStateChangeCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'group_id', 'state_id', 'target_id', 'super', 'StrategicAirstrikeGroupStateChangeCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function StrategicAirstrikeGroupStateChangeCommand.create at 0x000001A435BF98A0>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['group_id', 'state_id', 'target_id']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['aircraft_manager', 'set_strategic_airstrike_group_state', 'team_id', 'group_id', 'state_id', 'target_id']
+      consts: ['None']
+  class WeaponAimCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'old_ship_uid', 'new_ship_uid', 'super', 'WeaponAimCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function WeaponAimCommand.create at 0x000001A435CAEE80>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'old_ship_uid', 'new_ship_uid']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['ShipDataMgr', 'get', 'ship_uid', 'preprocess_data', 'SHIP_MAIN_WEAPON_INDEX', 'ship_id', 'weapon_index', 'get_battle', 'set_ship_main_weapon_target', 'new_ship_uid', 'get_ship_or_aircraft', 'aircraft_manager', 'get_aircraft_group', 'set_target_ship_uid', 'is_out_cabin', 'back', 'ship_manager', 'get_ship', 'entity_type', 'BattleEntityType', 'HOME_BASE', 'ASTEROID_BLAST_MINE_SHIP', 'EVA_BOSS_SHIP', 'set_weapon_target', 'attack_target_ship_uid', 'set_attack_target']
+      consts: ['None', 'False']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['execute', 'tactic_battle_mgr', 'on_weapon_aim_command_execute', 'ship_uid', 'weapon_index', 'old_ship_uid', 'new_ship_uid']
+      consts: ['None']
+  class WeaponAttackCommand(BattleCommand):
+    ODD_COMMAND_ID_COUNTER = 1
+    EVEN_COMMAND_ID_COUNTER = 2
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['command_id', 'ship_uid', 'slot_index', 'group_index', 'target_ship_uid', 'target_slot_index', 'duration', 'hit_damage_count', 'miss_damage_count', 'damage_list', 'anti_missile_list', 'after_hp', 'multi_target_index', 'weapon_hp', 'critical_hit_extra_damage', 'base_hit_damage', 'super', 'WeaponAttackCommand', '__init__']
+      consts: ['None', '0']
+    create = <classmethod(<function WeaponAttackCommand.create at 0x000001A44FF2AC00>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'slot_index', 'group_index', 'target_ship_uid', 'target_slot_index', 'duration', 'hit_damage_count', 'miss_damage_count', 'anti_missile_list', 'after_hp', 'multi_target_index', 'len', 'weapon_hp', 'critical_hit_extra_damage', 'base_hit_damage']
+      consts: ['None', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
+    def on_create(...):
+      args: ['self']
+      names: ['range', 'hit_damage_count', 'append', 'BattleDamageType', 'HIT', 'miss_damage_count', 'MISS', 'len', 'anti_missile_list', 'ANTI', 'damage_list', 'data_manager.game_data_mgr', 'GameDataMgr', 'get_record', 'TableID', 'SHIP', 'target_ship_uid', 'GameEventManager', 'notify', 'target_slot_index', 'weapon_hp']
+      consts: ['None', '0', '1', '2', '3', "('GameDataMgr',)", "'battle_action_weapon_attack'"]
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['ShipDataMgr', 'get', 'ship_uid', 'BattleLogger', 'ATTACK_LOG_ENABLE', 'target_ship_uid', 'user_id', 'GameDataMgr', 'WeaponAttackCommand', 'ODD_COMMAND_ID_COUNTER', 'command_id', 'EVEN_COMMAND_ID_COUNTER', 'health', 'ship_id', 'format', 'after_hp', 'hit_damage_count', 'miss_damage_count', 'attack', 'synchronize_target_health', 'base_hit_damage', 'critical_hit_extra_damage', 'get_battle', 'preprocess_data', 'SHIP_MAIN_WEAPON_INDEX', 'slot_index', 'set_ship_main_weapon_target', 'aircraft_manager', 'get_aircraft_group', 'set_target_ship_uid', 'get_weapon_id', '_attack_with_weapon', 'anti_missile_list', 'ship_manager', 'get_ship', 'entity_type', 'BattleEntityType', 'HOME_BASE', 'ASTEROID_BLAST_MINE_SHIP', 'EVA_BOSS_SHIP', 'is_init_finished', 'get_weapon_system_by_slot', 'weapon_cfg_id', 'target_slot_index', 'do_damage_weapon_system', 'weapon_hp', 'BattleShipGroupDataMgr', 'check_and_consume_focus_fire_line', 'scene_zoom0.buff_effect.buff_effect_tactical_operation', 'BuffEffectFocusFireLine', 'set_attach_battle_entity', 'play_effect']
+      consts: ['None', '2', "'[Command], [{}]{} -> [{}]{}, hp: {} -> {}, damage_list: {}'", "('base_hit_damage', 'critical_hit_extra_damage')", 'False', "('log_error',)", '0', "'[Command] can not target'", "('BuffEffectFocusFireLine',)"]
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['synchronize_target_health', 'target_ship_uid', 'after_hp', 'tactic_battle_mgr', 'on_weapon_attack_command_execute', 'ship_uid', 'slot_index', 'group_index', 'target_slot_index', 'duration', 'damage_list', 'anti_missile_list', 'multi_target_index']
+      consts: ['None']
+    def _attack_with_weapon(...):
+      args: ['self', 'attacker', 'weapon_id', 'anti_missile_list']
+      names: ['NEED_BAN_ATTACK_COMMAND_WEAPON_CFG_IDS', 'ShipResPropertyMgr', 'get_bullet_param_by_weapon_id', 'ship_id', 'slot_index', 'GameEventManager', 'notify', 'ship_uid', 'attack_with_weapon', 'command_id', 'group_index', 'target_ship_uid', 'duration', 'damage_list', 'multi_target_index']
+      consts: ["'\\n\\t\\t使用武器进行攻击\\n\\t\\t@param attacker: 攻击单位，包括舰船(Ship)或舰载机(AircraftGroup)\\n\\t\\t@param weapon_id: 武器ID", 'None', "'play_attack_audio'", "('anti_missile_list', 'multi_target_index')"]
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      names: ['get_ship_or_aircraft', 'target_ship_uid', 'is_dead', 'damage_list', 'do_damage']
+      consts: ['None', '0']
+    synchronize_target_health = <staticmethod(<function WeaponAttackCommand.synchronize_target_health at 0x000001A44FF2B060>)>
+  class ShipWeaponAttackRoundCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'round', 'super', 'ShipWeaponAttackRoundCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipWeaponAttackRoundCommand.create at 0x000001A435BF9E40>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'round']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['get_battle', 'set_fired_special_round_count', 'ship_uid', 'weapon_index', 'round', 'GameEventManager', 'notify']
+      consts: ['None', "'zoom0_fire_special'"]
+  class WeaponBuffActionCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'target_ship_id_u', 'duration', 'super', 'WeaponBuffActionCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function WeaponBuffActionCommand.create at 0x000001A435BFA020>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'target_ship_id_u', 'duration']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['_battle', 'add_ship_buff_reveal', 'ship_uid', 'weapon_index']
+      consts: ['None']
+  class WeaponInterfereCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['target_ship_uid', 'weapon_index', 'begin_time', 'duration', 'super', 'WeaponInterfereCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function WeaponInterfereCommand.create at 0x000001A435BFA2A0>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['target_ship_uid', 'weapon_index', 'begin_time', 'duration']
+      consts: ['None', '3', '4', '5', '6']
+    def on_create(...):
+      args: ['self']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'target_ship_uid', 'weapon_index', 'begin_time', 'duration']
+      consts: ['None', '0', "('GameEventManager',)", "'battle_action_weapon_interfere'"]
+    def execute(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class ShipSkillAddBuffCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'skill_id', 'end_time', 'id_u', 'super', 'ShipSkillAddBuffCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipSkillAddBuffCommand.create at 0x000001A435BF9080>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'skill_id', 'id_u', 'end_time']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['_battle', 'add_skill_buff_effect', 'ship_uid', 'skill_id', 'id_u', 'end_time', 'core_framework.game_event_manager', 'GameEventManager', 'notify']
+      consts: ['None', '0', "('GameEventManager',)", "'zoom0_skill_buff_action'"]
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['tactic_battle_mgr', 'on_ship_add_buff_command_execute', 'ship_uid', 'skill_id', 'end_time']
+      consts: ['None']
+  class ShipOperationStateCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['operations', 'super', 'ShipOperationStateCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipOperationStateCommand.create at 0x000001A435CAC7C0>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['operations']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['get_battle', 'operations', 'update_ship_occupy_operation_mode', 'get_ship_or_aircraft', 'ShipDataMgr', 'get', 'set_occupy_operation_mode', 'team', 'landing_ship_mgr', 'update_landing_ship_sequence', 'move_comp_mgr', 'start_boarding_procedure']
+      consts: ['None', '0', '1']
+  class ShipHPUpdateCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['target_ship_uid', 'after_hp', 'super', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipHPUpdateCommand.create at 0x000001A435CAC360>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['target_ship_uid', 'after_hp']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['synchronize_target_health', 'target_ship_uid', 'after_hp']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['synchronize_target_health', 'target_ship_uid', 'after_hp']
+      consts: ['None']
+    synchronize_target_health = <staticmethod(<function ShipHPUpdateCommand.synchronize_target_health at 0x000001A435CAC5E0>)>
+  class WeaponAttackBurstCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_id_u', 'weapon_index', 'group_index', 'target_ship_id_u', 'target_weapon_index', 'damage', 'weapon_hp', 'super', 'WeaponAttackBurstCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function WeaponAttackBurstCommand.create at 0x000001A435BF9A80>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_id_u', 'weapon_index', 'group_index', 'target_ship_id_u', 'target_weapon_index', 'damage', 'weapon_hp']
+      consts: ['None', '0', '1', '2', '3', '4', '5', '6']
+    def on_create(...):
+      args: ['self']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['ship_manager', 'get_ship', 'target_ship_id_u', 'do_damage_weapon_system', 'target_weapon_index', 'weapon_hp']
+      consts: ['None']
+  class WeaponStateChangeCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'weapon_state', 'super', 'WeaponStateChangeCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function WeaponStateChangeCommand.create at 0x000001A435BFA5C0>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'weapon_state']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['_battle', 'update_weapon_state', 'ship_uid', 'weapon_index', 'weapon_state']
+      consts: ['None']
+  BATTLE_ACTION_ID_BATTLE_COMMAND_PACK = 10001
+  BATTLE_COMMAND_DICT = {1: (<class 'scene_zoom0.battle_command.weapon_aim_command.WeaponAimCommand'>, True), 2: (<class 'scene_zoom0.battle_command.weapon_attack_command.Wea
+  class BattleCommandFactory(object):
+    create = <staticmethod(<function BattleCommandFactory.create at 0x000001A44FF11F80>)>
+
+# ====== scene_zoom0.battle_command.weapon_attack_round_command ======
+# file: script:/scene_zoom0/battle_command/weapon_attack_round_command.nxz
+  battle_action = <module common.config.battle_action>
+  class GameEventManager(object):
+    def __init__(...):
+      args: ['self']
+      names: ['defaultdict', 'dict', '_event_handlers', 'set', '_registrants', 'unregister_look_up_dict', '_cached_actions', 'int', '_notifying_events', 'common_config', 'is_dev_mode', 'platform', 'is_win32', '_is_dev', 'late_event', 'GameEventManager', 'need_destroy_cache']
+      consts: ['None', '<code:<lambda>>']
+        [nested] <lambda>:
+          args: []
+          names: ['defaultdict', 'int']
+          consts: ['None']
+    def get_sort_order(...):
+      args: ['self']
+      names: ['SingletonSortOrder', 'GAME_EVENT_MGR']
+      consts: ['None']
+    def register_event(...):
+      args: ['self', 'event_type', 'handle_func', 'registrant']
+      names: ['_is_dev', '_event_handlers', 'get', '_cached_actions', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'event_type', 'registrant', 'handle_func', '_notifying_events', 'append', '_registrants', 'add']
+      consts: ['None', 'False', "'[禁止] 重复注册相同的事件，旧的回调函数被覆盖'"]
+    def unregister_event(...):
+      args: ['self', 'event_type', 'registrant']
+      names: ['ValueError', '_registrants', '_notifying_events', 'list', '_event_handlers', 'get', 'unregister_look_up_dict', '_cached_actions', 'append', '_CachedAction', 'ACTION_UNREGISTER', '_remove_registrant_event']
+      consts: ["'\\n\\t\\t注销事件的监听\\n\\t\\t当event_type=None时，注销registrant相关的所有事件监听\\n\\t\\t否则注销registrant特定event的事件监听\\n\\t\\t'", 'None', "'registrant cant be None'", '1']
+    def notify(...):
+      args: ['self', 'event_type']
+      names: ['_event_handlers', 'get', '_notifying_events', 'items', 'unregister_look_up_dict', 'Exception', '_cached_actions', '_process_cached_actions']
+      consts: ['None', '1', '0', "'notify depth should never less than zero!'", "'all cached actions should have been processed!'"]
+    def late_notify(...):
+      args: ['self', 'event_type']
+      names: ['late_event', 'append']
+      consts: ['None']
+    def do_late_notify(...):
+      args: ['self']
+      names: ['late_event', 'notify']
+      consts: ['None']
+    def _process_cached_actions(...):
+      args: ['self', 'event_type']
+      names: ['enumerate', '_cached_actions', 'event_type', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'register_event', 'handle_func', 'registrant', 'ACTION_UNREGISTER', 'unregister_look_up_dict', 'Exception', 'unregister_event', 'append']
+      consts: ['None', '1', '0', "'cached unregister event count should never less than zero!'"]
+    def _remove_registrant_event(...):
+      args: ['self', 'registrant', 'event_type']
+      names: ['_registrants', 'remove']
+      consts: ['None']
+    def get_registrant_listener_cnt(...):
+      args: ['self', 'registrant']
+      names: ['len', '_registrants', 'get', 'set', '_cached_actions', 'registrant', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'ACTION_UNREGISTER']
+      consts: ["'\\n\\t\\t获取registrant注册的监听的数量\\n\\t\\t包括已注册的事件以及缓存中待处理的注册/注销操作\\n\\t\\t'", '1']
+    def destroy_singleton_instance(...):
+      args: ['self']
+      names: ['_event_handlers', 'clear', 'unregister_look_up_dict', '_registrants', '_cached_actions', '_notifying_events', 'late_event', 'GameEventManager', 'remove_instance']
+      consts: ['None']
+  class BattleCommand(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'action_id', 'parse_data', 'on_create']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class ShipWeaponAttackRoundCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'round', 'super', 'ShipWeaponAttackRoundCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipWeaponAttackRoundCommand.create at 0x000001A435BF9E40>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'round']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['get_battle', 'set_fired_special_round_count', 'ship_uid', 'weapon_index', 'round', 'GameEventManager', 'notify']
+      consts: ['None', "'zoom0_fire_special'"]
+
+# ====== scene_zoom0.battle_command.ship_skill_command ======
+# file: script:/scene_zoom0/battle_command/ship_skill_command.nxz
+  battle_action = <module common.config.battle_action>
+  class GameEventManager(object):
+    def __init__(...):
+      args: ['self']
+      names: ['defaultdict', 'dict', '_event_handlers', 'set', '_registrants', 'unregister_look_up_dict', '_cached_actions', 'int', '_notifying_events', 'common_config', 'is_dev_mode', 'platform', 'is_win32', '_is_dev', 'late_event', 'GameEventManager', 'need_destroy_cache']
+      consts: ['None', '<code:<lambda>>']
+        [nested] <lambda>:
+          args: []
+          names: ['defaultdict', 'int']
+          consts: ['None']
+    def get_sort_order(...):
+      args: ['self']
+      names: ['SingletonSortOrder', 'GAME_EVENT_MGR']
+      consts: ['None']
+    def register_event(...):
+      args: ['self', 'event_type', 'handle_func', 'registrant']
+      names: ['_is_dev', '_event_handlers', 'get', '_cached_actions', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'event_type', 'registrant', 'handle_func', '_notifying_events', 'append', '_registrants', 'add']
+      consts: ['None', 'False', "'[禁止] 重复注册相同的事件，旧的回调函数被覆盖'"]
+    def unregister_event(...):
+      args: ['self', 'event_type', 'registrant']
+      names: ['ValueError', '_registrants', '_notifying_events', 'list', '_event_handlers', 'get', 'unregister_look_up_dict', '_cached_actions', 'append', '_CachedAction', 'ACTION_UNREGISTER', '_remove_registrant_event']
+      consts: ["'\\n\\t\\t注销事件的监听\\n\\t\\t当event_type=None时，注销registrant相关的所有事件监听\\n\\t\\t否则注销registrant特定event的事件监听\\n\\t\\t'", 'None', "'registrant cant be None'", '1']
+    def notify(...):
+      args: ['self', 'event_type']
+      names: ['_event_handlers', 'get', '_notifying_events', 'items', 'unregister_look_up_dict', 'Exception', '_cached_actions', '_process_cached_actions']
+      consts: ['None', '1', '0', "'notify depth should never less than zero!'", "'all cached actions should have been processed!'"]
+    def late_notify(...):
+      args: ['self', 'event_type']
+      names: ['late_event', 'append']
+      consts: ['None']
+    def do_late_notify(...):
+      args: ['self']
+      names: ['late_event', 'notify']
+      consts: ['None']
+    def _process_cached_actions(...):
+      args: ['self', 'event_type']
+      names: ['enumerate', '_cached_actions', 'event_type', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'register_event', 'handle_func', 'registrant', 'ACTION_UNREGISTER', 'unregister_look_up_dict', 'Exception', 'unregister_event', 'append']
+      consts: ['None', '1', '0', "'cached unregister event count should never less than zero!'"]
+    def _remove_registrant_event(...):
+      args: ['self', 'registrant', 'event_type']
+      names: ['_registrants', 'remove']
+      consts: ['None']
+    def get_registrant_listener_cnt(...):
+      args: ['self', 'registrant']
+      names: ['len', '_registrants', 'get', 'set', '_cached_actions', 'registrant', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'ACTION_UNREGISTER']
+      consts: ["'\\n\\t\\t获取registrant注册的监听的数量\\n\\t\\t包括已注册的事件以及缓存中待处理的注册/注销操作\\n\\t\\t'", '1']
+    def destroy_singleton_instance(...):
+      args: ['self']
+      names: ['_event_handlers', 'clear', 'unregister_look_up_dict', '_registrants', '_cached_actions', '_notifying_events', 'late_event', 'GameEventManager', 'remove_instance']
+      consts: ['None']
+  class BattleCommand(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'action_id', 'parse_data', 'on_create']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class ShipSkillCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'skill_id', 'skill_flag', 'system_id', 'super', 'ShipSkillCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipSkillCommand.create at 0x000001A435BF9440>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'skill_id', 'skill_flag', 'system_id']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['get_battle', 'skill_flag', 'add_skill_effect', 'ship_uid', 'skill_id', 'system_id', 'remove_skill_effect', 'GameEventManager', 'notify']
+      consts: ['None', "'zoom0_system_skill_action'"]
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      names: ['tactic_battle_mgr', 'on_ship_skill_command_execute', 'ship_uid', 'skill_id', 'skill_flag']
+      consts: ['None']
+
+# ====== scene_zoom0.battle_command.ship_repair_command ======
+# file: script:/scene_zoom0/battle_command/ship_repair_command.nxz
+  battle_action = <module common.config.battle_action>
+  class GameEventManager(object):
+    def __init__(...):
+      args: ['self']
+      names: ['defaultdict', 'dict', '_event_handlers', 'set', '_registrants', 'unregister_look_up_dict', '_cached_actions', 'int', '_notifying_events', 'common_config', 'is_dev_mode', 'platform', 'is_win32', '_is_dev', 'late_event', 'GameEventManager', 'need_destroy_cache']
+      consts: ['None', '<code:<lambda>>']
+        [nested] <lambda>:
+          args: []
+          names: ['defaultdict', 'int']
+          consts: ['None']
+    def get_sort_order(...):
+      args: ['self']
+      names: ['SingletonSortOrder', 'GAME_EVENT_MGR']
+      consts: ['None']
+    def register_event(...):
+      args: ['self', 'event_type', 'handle_func', 'registrant']
+      names: ['_is_dev', '_event_handlers', 'get', '_cached_actions', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'event_type', 'registrant', 'handle_func', '_notifying_events', 'append', '_registrants', 'add']
+      consts: ['None', 'False', "'[禁止] 重复注册相同的事件，旧的回调函数被覆盖'"]
+    def unregister_event(...):
+      args: ['self', 'event_type', 'registrant']
+      names: ['ValueError', '_registrants', '_notifying_events', 'list', '_event_handlers', 'get', 'unregister_look_up_dict', '_cached_actions', 'append', '_CachedAction', 'ACTION_UNREGISTER', '_remove_registrant_event']
+      consts: ["'\\n\\t\\t注销事件的监听\\n\\t\\t当event_type=None时，注销registrant相关的所有事件监听\\n\\t\\t否则注销registrant特定event的事件监听\\n\\t\\t'", 'None', "'registrant cant be None'", '1']
+    def notify(...):
+      args: ['self', 'event_type']
+      names: ['_event_handlers', 'get', '_notifying_events', 'items', 'unregister_look_up_dict', 'Exception', '_cached_actions', '_process_cached_actions']
+      consts: ['None', '1', '0', "'notify depth should never less than zero!'", "'all cached actions should have been processed!'"]
+    def late_notify(...):
+      args: ['self', 'event_type']
+      names: ['late_event', 'append']
+      consts: ['None']
+    def do_late_notify(...):
+      args: ['self']
+      names: ['late_event', 'notify']
+      consts: ['None']
+    def _process_cached_actions(...):
+      args: ['self', 'event_type']
+      names: ['enumerate', '_cached_actions', 'event_type', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'register_event', 'handle_func', 'registrant', 'ACTION_UNREGISTER', 'unregister_look_up_dict', 'Exception', 'unregister_event', 'append']
+      consts: ['None', '1', '0', "'cached unregister event count should never less than zero!'"]
+    def _remove_registrant_event(...):
+      args: ['self', 'registrant', 'event_type']
+      names: ['_registrants', 'remove']
+      consts: ['None']
+    def get_registrant_listener_cnt(...):
+      args: ['self', 'registrant']
+      names: ['len', '_registrants', 'get', 'set', '_cached_actions', 'registrant', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'ACTION_UNREGISTER']
+      consts: ["'\\n\\t\\t获取registrant注册的监听的数量\\n\\t\\t包括已注册的事件以及缓存中待处理的注册/注销操作\\n\\t\\t'", '1']
+    def destroy_singleton_instance(...):
+      args: ['self']
+      names: ['_event_handlers', 'clear', 'unregister_look_up_dict', '_registrants', '_cached_actions', '_notifying_events', 'late_event', 'GameEventManager', 'remove_instance']
+      consts: ['None']
+  class BattleCommand(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'action_id', 'parse_data', 'on_create']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class ShipRepairCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'target_ship_uid', 'repair_hp', 'current_hp', 'super', 'ShipRepairCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function ShipRepairCommand.create at 0x000001A435BF8720>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['ship_uid', 'weapon_index', 'group_index', 'target_ship_uid', 'repair_hp', 'current_hp']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['_do_repair']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      names: ['_do_repair']
+      consts: ['None']
+    def _do_repair(...):
+      args: ['self', 'scene']
+      names: ['ship_manager', 'get_ship', 'target_ship_uid', 'repair_hp', 'health', 'GameEventManager', 'notify', 'ship_uid']
+      consts: ['None', "'play_repair_popup_effect'"]
+
+# ====== scene_zoom0.battle_command.eva_boss_damage_command ======
+# file: script:/scene_zoom0/battle_command/eva_boss_damage_command.nxz
+  battle_action = <module common.config.battle_action>
+  class BattleCommand(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'action_id', 'parse_data', 'on_create']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class EvaBossDamageCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['boss_total_damage', 'super', 'EvaBossDamageCommand', '__init__']
+      consts: ['None']
+    create = <classmethod(<function EvaBossDamageCommand.create at 0x000001A435BDFC40>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['boss_total_damage']
+      consts: ['None', '0']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'boss_total_damage']
+      consts: ['None', '0', "('GameEventManager',)", "'zoom0_eva_boss_total_damage_action'"]
+
+# ====== scene_zoom0.battle_command.aircraft_formation_command ======
+# file: script:/scene_zoom0/battle_command/aircraft_formation_command.nxz
+  battle_action = <module common.config.battle_action>
+  class BattleCommand(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['team_id', 'action_id', 'parse_data', 'on_create']
+      consts: ['None']
+    def parse_data(...):
+      args: ['self', 'command_data']
+      consts: ['None']
+    def on_create(...):
+      args: ['self']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_end(...):
+      args: ['self', 'scene']
+      consts: ['None']
+    def execute_on_tactic_mgr(...):
+      args: ['self', 'scene']
+      consts: ['None']
+  class AircraftFormOp(object):
+    DISBAND = 0
+    FORMATION = 1
+  class AircraftFormationCommand(BattleCommand):
+    def __init__(...):
+      args: ['self', 'team_id', 'action_id', 'command_data']
+      names: ['form_op', 'ship_uid_list', 'super', '__init__']
+      consts: ['None']
+    create = <classmethod(<function AircraftFormationCommand.create at 0x000001A435BDF380>)>
+    def parse_data(...):
+      args: ['self', 'command_data']
+      names: ['form_op', 'ship_uid_list']
+      consts: ['None']
+    def execute(...):
+      args: ['self', 'scene']
+      names: ['core_framework.game_event_manager', 'GameEventManager', 'notify', 'form_op', 'ship_uid_list']
+      consts: ['None', '0', "('GameEventManager',)", "'aircraft_formation_group_update'"]

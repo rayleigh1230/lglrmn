@@ -1,0 +1,2575 @@
+# dumped from game runtime
+
+# ====== data.ship.ship_attribute ======
+# file: script:/data/ship/ship_attribute.nxz
+  ui_res = <module common.ui_res>
+  cfg_ship_attr = <module common.config.client_cfg.cfg_ship_attr>
+  Tb_cfg_ship = <module common.config.db.Tb_cfg_ship>
+  class CfgShipTypeField(object):
+    TABLE_NAME = 'Tb_cfg_ship_type'
+    PRIMARY_KEY = 'id'
+    USER_ID_KEY = None
+    DEFAULT_MORIBUND_SEQUENCE_ID = 'default_moribund_sequence_id'
+    DESC = 'desc'
+    ID = 'id'
+    LEVEL = 'level'
+    MORIBUND_SEQUENCE_ID_LIST = 'moribund_sequence_id_list'
+    PRODUCE_RES_ADD_COEF = 'produce_res_add_coef'
+    PRODUCE_TIME_ADD_COEF = 'produce_time_add_coef'
+    REPAIR_ADJUST_COEF = 'repair_adjust_coef'
+    SHIP_HP_ADD = 'ship_hp_add'
+    SHIP_SYSTEM_HP_ADD = 'ship_system_hp_add'
+    SHIP_TYPE = 'ship_type'
+    FIELDS = ['default_moribund_sequence_id', 'desc', 'id', 'level', 'moribund_sequence_id_list', 'produce_res_add_coef', 'produce_ti
+    ShipType = <class 'common.config.table_definition.CfgShipTypeField.ShipType'>
+    ShipLevel = <class 'common.config.table_definition.CfgShipTypeField.ShipLevel'>
+  SHIP_TYPE_LEVEL = {21: 4, 1: 1, 2: 1, 3: 2, 4: 2, 5: 2, 6: 3, 7: 3, 8: 3, 9: 3, 10: 1, 43: 6, 22: 5, 23: 5, 41: 2, 31: 6}
+  class ShipAirAttribute(ShipAttributeComponent):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipAirAttribute', '__init__']
+      consts: ['None']
+    drone_type = property
+    drone_act_type = property
+    drone_observable = property
+    member_count = property
+    addon = property
+    drone_info_dict = property
+  class ShipBattleAttribute(ShipAttributeComponent):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipBattleAttribute', '__init__', 'get_owner', 'get_ship_res_property', 'get_res_attr_battle_dir', 'direction', 'BATTLE_TOWARDS_TEAM_DIRECTIONS', 'towards_team', 'BattleDirection', 'FORWARD', 'TEAM_FORWARD', 'towards_forward', 'BACKWARD', 'TEAM_BACKWARD', 'towards_back', 'LEFT', 'TEAM_LEFT', 'towards_left', 'RIGHT', 'TEAM_RIGHT', 'towards_right']
+      consts: ['None']
+  class ShipCameraAttribute(ShipAttributeComponent):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipCameraAttribute', '__init__', 'get_owner', 'get_ship_res_property', 'camera_param', '_camera_param']
+      consts: ['None']
+    min_distance = property
+    max_distance = property
+    delta_ratio = property
+    zoom_ratio = property
+    feature_view1 = property
+    feature_view2 = property
+    first_person_view = property
+    capture_view = property
+    capture_ad_view = property
+    capture_top_view = property
+    capture_ad_top_view = property
+    capture_side_view = property
+    capture_ad_side_view = property
+    capture_fov = property
+    capture_fov_top = property
+    capture_fov_side = property
+    capture_light_rotation_matrix = property
+    capture_light_rotation_matrix_top = property
+    capture_light_rotation_matrix_side = property
+    capture_light_intensity = property
+    capture_light_intensity_top = property
+    capture_light_intensity_side = property
+    capture_pos = property
+    capture_pos_top = property
+    capture_pos_side = property
+    capture_scale = property
+    capture_scale_top = property
+    capture_scale_side = property
+    peak_auth_sfx_scale = property
+    peak_auth_scanlight_uv_axial = property
+    _get_default_pitch_yaw_zoom = <staticmethod(<function ShipCameraAttribute._get_default_pitch_yaw_zoom at 0x000001A43B31A520>)>
+    default_view = property
+    def get_weapon_view(...):
+      args: ['self', 'socket_name']
+      names: ['_camera_param', 'weapon_view_dict', 'math_utils', 'list_to_matrix', 'default_view', 'math3d', 'vector', 'x', 'y', 'MODULE_DEFAULT_VIEW_OFFSET_Y', 'z', 'normalize', 'matrix', 'make_orient', 'do_translate']
+      consts: ["'\\n        获取武器/模块视角(math3d.matrix)\\n        @param socket_name: 武器/模块的槽位socket名\\n        '", '0', '1']
+    def get_weapon_view_dict(...):
+      args: ['self']
+      names: ['_camera_param', 'weapon_view_dict']
+      consts: ['None']
+    def get_custom_paint_decal_view(...):
+      args: ['self', 'type_key']
+      names: ['_camera_param', 'get_custom_paint_decal_view', '_notify_missing_custom_paint_decal_view']
+      consts: ["'\\n        获取自定义涂装贴花区域镜头(math3d.matrix，舰船局部矩阵)\\n        @param type_key: 见 CustomPaintDecalCameraTyp", 'None']
+    def _notify_missing_custom_paint_decal_view(...):
+      args: ['self', 'type_key']
+      names: ['common.config', 'common_config', 'is_dev_mode', 'common.config.client_cfg', 'cfg_ship_attr', 'core_framework.game_event_manager', 'GameEventManager', 'get_owner', 'ship_attr_cfg', 'MODEL_NAME', 'SUB_INDEX', 'format', 'ship_id', 'notify', 'str']
+      consts: ["'is_dev_mode 下提示美术：未配置自定义涂装区域镜头。'", '0', "('common_config',)", 'None', "('cfg_ship_attr',)", "('GameEventManager',)", "''", "'ship_cfg/{}_{}.json'", "'toast_text'", "'{}缺少自定义涂装区域镜头({}), 请联系美术调整'"]
+    def get_cur_view_camera_parameter(...):
+      args: ['self']
+      names: ['_camera_param', 'view_camera_parameter', 'data_manager.ship_res_property_mgr', 'ShipResPropertyMgr', 'get_view_camera_property', 'get_view_camera_parameter', '_ship_type']
+      consts: ['None', '0', "('ShipResPropertyMgr',)"]
+    def get_view_default_camera_mat(...):
+      args: ['self', 'view_type']
+      names: ['get_cur_view_camera_parameter', 'get_view_camera_matrix']
+      consts: ['None']
+    def get_view_default_dir_light_direction(...):
+      args: ['self', 'view_type']
+      names: ['get_cur_view_camera_parameter', 'get_view_dir_light']
+      consts: ['None']
+  class AdShipCameraAttribute(ShipCameraAttribute):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipCameraAttribute', '__init__', 'get_owner', 'get_ad_ship_res_property', 'camera_param', '_camera_param']
+      consts: ['None']
+    def get_weapon_view(...):
+      args: ['self', 'socket_name']
+      names: ['_camera_param', 'weapon_view_dict', 'math_utils', 'list_to_matrix', 'default_view', 'math3d', 'vector', 'x', 'y', 'MODULE_DEFAULT_VIEW_OFFSET_Y', 'z', 'normalize', 'matrix', 'make_orient', 'do_translate']
+      consts: ["'\\n        获取武器/模块视角(math3d.matrix)\\n        @param socket_name: 武器/模块的槽位socket名\\n        '", '0', '1']
+  class ShipLayoutAttribute(ShipAttributeComponent):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipLayoutAttribute', '__init__', 'get_owner', 'ship_type', 'data_manager', 'game_data_utils', 'CfgShipTypeField', 'ShipType', 'SHIP_TYPE_BASE_SHIP', 'math3d', 'vector', '_ship_size', '_ship_attr_cfg', 'cfg_ship_attr', 'LAYOUT_SIZE', 'parse_cfg_str_to_list', 'len', 'float', 'common_config', 'is_dev_mode', '_ship_id', 'core_framework.game_event_manager', 'GameEventManager', 'notify', 'format', '_ship_cfg', 'Tb_cfg_ship', 'SHORT_NAME', '_ship_fill_size', 'LAYOUT_FILL_SIZE']
+      consts: ['None', '0', "('game_data_utils',)", '100', '80', '120', '3', '1', '2', '10', '30000', '90301', "('GameEventManager',)", "'toast_text'", "'舰船([{}] {})的包围盒体积未配置，需要配置cfg_ship_attr.LAYOUT_SIZE字段，联系策划同学'", '5', '200', '160', '240']
+    row_index = property
+    rank = property
+    ship_size = property
+    ship_fill_size = property
+  class ShipFacadeAttribute(ShipAttributeComponent):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipFacadeAttribute', '__init__']
+      consts: ['None']
+    model_filename = property
+    model_name = property
+    sub_index = property
+    def get_lod_model_filename(...):
+      args: ['self', 'lod_level']
+      names: ['model_filename', 'replace', 'C_file', 'find_res_file']
+      consts: ["'\\n\\t\\t获取对应lod等级的模型文件路径\\n\\t\\t@param lod_level: LOD等级，如：LOD_2\\n\\t\\t'", "'.gim'", "''"]
+    def check_drone_board_ship(...):
+      args: ['self']
+      names: ['get_owner', 'ship_id', 'common.preprocess_data', 'SHIP_MAIN_DOCK_SYSTEM_MODULE_ID', 'get']
+      consts: ['None', '0', "('SHIP_MAIN_DOCK_SYSTEM_MODULE_ID',)", 'True', 'False']
+    weapon_socket_dict = property
+    def get_weapon_socket(...):
+      args: ['self', 'slot_index']
+      names: ['weapon_socket_dict']
+      consts: ["'\\n\\t\\t获取武器/模块挂点名\\n\\t\\t@param slot_index: socket索引值，如：101\\n\\t\\t'", 'None']
+    def query_slot_index(...):
+      args: ['self', 'module_id']
+      names: ['weapon_socket_dict', 'six', 'iteritems', '_ship_id', 'Tb_cfg_ship_slot', 'get', 'PRESET_MODULE_ID']
+      consts: ["'\\n\\t\\t根据模块ID查找其在舰船上的socket索引值\\n\\t\\t@param module_id: 模块ID\\n\\t\\t'", '10000', 'None']
+    def get_real_ship_cfg(...):
+      args: ['self', 'need_main_ship_id']
+      names: ['_ship_id', 'cfg_ship_temp_blueprint_map', 'get_all_data', 'get', 'VALUE', 'int', 'cfg_ship_attr', '_ship_attr_cfg']
+      consts: ["'现在有临时ship_id，所以需要重新查一遍映射'", '10', '1']
+    blueprint_icon = property
+    blueprint_peak_icon = property
+    blueprint_icon_new = property
+    blueprint_icon_new_bp = property
+    ship_icon = property
+    ship_ad_icon = property
+    ship_side_icon = property
+    ship_size = property
+    weapon_info_csb = property
+    weapon_info_peak_csb = property
+    priority_display = property
+    boarding_attitude_dimension = property
+  class ShipMoveAttribute(ShipAttributeComponent):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipMoveAttribute', '__init__', 'get_owner', 'ship_type', 'FLOAT_CONFIG', 'get', 'float_range', 'float_duration', 'SHIP_FLOAT_SCALE', 'float_range_twice', 'float_valid']
+      consts: ['None', '(0, 0)', '2.0']
+    speed = property
+  MINING_DRONE_FAKE_SHIP_ID = 90000001
+  TEAR_DOWN_DRONE_FAKE_SHIP_ID = 90000002
+  MINING_DRONE_FAKE_CFG = ['采矿无人机', '采矿无人机', '', 2, 1, 250, 1, 1, 2000, '', 0, 10, 0, 130000, 0, 1, 0, 0, 0, 0, 1, 40, 0, '采矿无人机', 0]
+  MINING_DRONE_FAKE_ATTR_CFG = [52, 'model/ships/e_r_engineer_l_002/e_r_engineer_l_002.gim', 'e_r_engineer_l_002', 1, {}, 3, 0, 0, '', '', 0, 0, '', '', '']
+  TEAR_DOWN_DRONE_FAKE_CFG = ['正在拆除空间种子的无人机', '正在拆除空间种子的无人机', '', 2, 1, 250, 1, 1, 2000, '', 0, 10, 0, 130000, 0, 1, 0, 0, 0, 0, 1, 40, 0, '正在拆除空间种子的无人机', 0]
+  six = <module six>
+  class ShipAttribute(object):
+    ATTRIBUTE_DICT = {99901: <data.ship.ship_attribute.ShipAttribute object at 0x000001A45C520950>, 30401: <data.ship.ship_attribute.ShipAttr
+    def __init__(...):
+      args: ['self', 'ship_id', 'ship_cfg']
+      names: ['ship_id', 'MINING_DRONE_FAKE_SHIP_ID', 'TEAR_DOWN_DRONE_FAKE_SHIP_ID', 'MINING_DRONE_FAKE_ATTR_CFG', '_ship_attr_cfg', 'cfg_ship_attr', 'get', '_ship_cfg', 'ShipFacadeAttribute', 'facade', 'ShipLayoutAttribute', 'layout', 'ShipMoveAttribute', 'move', 'ShipBattleAttribute', 'battle', 'ShipAirAttribute', 'air', 'ShipCameraAttribute', 'camera', 'ad_model_camera']
+      consts: ['None']
+    def get_ship_res_property(...):
+      args: ['self']
+      names: ['data_manager.ship_res_property_mgr', 'ShipResPropertyMgr', '_ship_attr_cfg', 'cfg_ship_attr', 'MODEL_NAME', 'SUB_INDEX', 'get_ship_property']
+      consts: ['None', '0', "('ShipResPropertyMgr',)"]
+    def get_ad_ship_res_property(...):
+      args: ['self']
+      names: ['data_manager.ship_res_property_mgr', 'ShipResPropertyMgr', '_ship_attr_cfg', 'cfg_ship_attr', 'MODEL_NAME', 'SUB_INDEX', 'get_ship_property']
+      consts: ['None', '0', "('ShipResPropertyMgr',)", "'_ad'"]
+    ship_cfg = property
+    ship_attr_cfg = property
+    ship_type = property
+    is_aircraft = property
+    aircraft_type = property
+    ship_level = property
+    name = property
+    short_name = property
+    def get_first_last_name(...):
+      args: ['self']
+      names: ['name', 'rfind']
+      consts: ['None', "'-'", '0', '1', "''", "('', '')"]
+    def get_ad_ad_model_camera(...):
+      args: ['self']
+      names: ['ad_model_camera', 'AdShipCameraAttribute']
+      consts: ['None']
+    company_id = property
+    company_icon = property
+    cost = property
+    weight = property
+    tag = property
+    health_max_base = property
+    get = <staticmethod(<function ShipAttribute.get at 0x000001A43B320EA0>)>
+    get_all = <staticmethod(<function ShipAttribute.get_all at 0x000001A43B320F40>)>
+    get_weapon_group_socket_to_weapon_cfg_id = <staticmethod(<function ShipAttribute.get_weapon_group_socket_to_weapon_cfg_id at 0x000001A43B320FE0>)>
+    clear_all = <staticmethod(<function ShipAttribute.clear_all at 0x000001A43B321080>)>
+
+# ====== data.ship.ship_battle_attribute ======
+# file: script:/data/ship/ship_battle_attribute.nxz
+  class BattleDirection(object):
+    FORWARD = 1
+    BACKWARD = 2
+    LEFT = 3
+    RIGHT = 4
+    TEAM_FORWARD = 11
+    TEAM_BACKWARD = 12
+    TEAM_LEFT = 13
+    TEAM_RIGHT = 14
+  cfg_ship_attr = <module common.config.client_cfg.cfg_ship_attr>
+  class ShipAttributeComponent(object):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['owner']
+      consts: ['None']
+    def get_owner(...):
+      args: ['self']
+      names: ['owner']
+      consts: ['None']
+    _ship_attr_cfg = property
+    _ship_id = property
+    _ship_cfg = property
+    _ship_type = property
+  BATTLE_TOWARDS_TEAM_DIRECTIONS = (11, 12, 13, 14)
+  class ShipBattleAttribute(ShipAttributeComponent):
+    def __init__(...):
+      args: ['self', 'owner']
+      names: ['super', 'ShipBattleAttribute', '__init__', 'get_owner', 'get_ship_res_property', 'get_res_attr_battle_dir', 'direction', 'BATTLE_TOWARDS_TEAM_DIRECTIONS', 'towards_team', 'BattleDirection', 'FORWARD', 'TEAM_FORWARD', 'towards_forward', 'BACKWARD', 'TEAM_BACKWARD', 'towards_back', 'LEFT', 'TEAM_LEFT', 'towards_left', 'RIGHT', 'TEAM_RIGHT', 'towards_right']
+      consts: ['None']
+
+# ====== data.ship.ship_data ======
+# file: script:/data/ship/ship_data.nxz
+  py2_division = _Feature((2, 2, 0, 'alpha', 2), (3, 0, 0, 'alpha', 0), 33554432)
+  common_definition = <module common.common_definition>
+  time_utils = <module common.time_utils>
+  utils = <module common.utils>
+  effect_def = <module common.config.effect_def>
+  class ShipField(object):
+    TABLE_NAME = 'Tb_ship'
+    PRIMARY_KEY = 'ship_id_u'
+    USER_ID_KEY = 'userid'
+    AIRCRAFT_COUNT = 'aircraft_count'
+    AIRCRAFT_EFFECT_LIMIT = 'aircraft_effect_limit'
+    AIRCRAFT_TYPE_AND_LIMIT = 'aircraft_type_and_limit'
+    AIRCRAFTS = 'aircrafts'
+    BATTLE_STATE = 'battle_state'
+    BELONG_ID = 'belong_id'
+    BELONG_SHIP_ID_U = 'belong_ship_id_u'
+    BP_ID = 'bp_id'
+    BUILD_SPEED = 'build_speed'
+    COST = 'cost'
+    CUSTOM_PAINTING_HASH_CODE = 'custom_painting_hash_code'
+    CUSTOM_PAINTING_NAME = 'custom_painting_name'
+    CUSTOM_PAINTING_V2_HASH_CODE = 'custom_painting_v2_hash_code'
+    CUSTOM_PAINTING_V2_NAME = 'custom_painting_v2_name'
+    DRONES = 'drones'
+    DRONES_CFG = 'drones_cfg'
+    EFFECTS_ADDITION = 'effects_addition'
+    EFFECTS_ENHANCED = 'effects_enhanced'
+    EFFECTS_PEAK_LEVEL = 'effects_peak_level'
+    EFFECTS_PRODUCE = 'effects_produce'
+    EMERGENCY_EVACUATION_TIME = 'emergency_evacuation_time'
+    EXCUTOR_USERID = 'excutor_userid'
+    EXPLOIT_ATTR = 'exploit_attr'
+    EXPLOIT_LEVEL = 'exploit_level'
+    FIX_FLAG = 'fix_flag'
+    FROM_STORE = 'from_store'
+    FUNDING_USER_ID = 'funding_user_id'
+    FUNDING_USER_MARK = 'funding_user_mark'
+    GUILD_DOCK_ID = 'guild_dock_id'
+    GUILD_DOCK_RECALL_MARK = 'guild_dock_recall_mark'
+    GUILD_DOCK_TRANSFER_TIME = 'guild_dock_transfer_time'
+    HP = 'hp'
+    HP_MAX = 'hp_max'
+    INCR_REPAIR_BEGIN_TIME = 'incr_repair_begin_time'
+    INCR_REPAIR_FLAG = 'incr_repair_flag'
+    INCR_REPAIR_REFRESH_TIME = 'incr_repair_refresh_time'
+    INCR_REPAIR_RES = 'incr_repair_res'
+    INDEX = 'index'
+    LAST_REFRESH_ENHANCE_TIME = 'last_refresh_enhance_time'
+    LEVEL = 'level'
+    MODULE_EFFECT = 'module_effect'
+    MODULE_EFFECT_CONDITION = 'module_effect_condition'
+    MODULE_EFFECT_EX = 'module_effect_ex'
+    MODULES = 'modules'
+    PAINTING = 'painting'
+    PAINTING_VERSION = 'painting_version'
+    PEAK_LEVEL = 'peak_level'
+    R_TEAM_ID = 'r_team_id'
+    RECORD_RESET_ENHANCE_BASE_INFO = 'record_reset_enhance_base_info'
+    REFORMING_END_TIME = 'reforming_end_time'
+    REFORMING_REMAIN_TIME = 'reforming_remain_time'
+    REPAIR_ARMORS = 'repair_armors'
+    RES_COST = 'res_cost'
+    RETREAT_TIME = 'retreat_time'
+    SHIP_BP_OVERVIEW = 'ship_bp_overview'
+    SHIP_ID = 'ship_id'
+    SHIP_ID_U = 'ship_id_u'
+    SPEED = 'speed'
+    STATE = 'state'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_IDU = 'super_main_ship_bp_system_scheme_idu'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_NAME = 'super_main_ship_bp_system_scheme_name'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_SYSTEMS = 'super_main_ship_bp_system_scheme_systems'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_UNIQUE_ID = 'super_main_ship_bp_system_scheme_unique_id'
+    SUPPLY_DOCK_PRODUCE_FROM_WORLD_ITEM_ID = 'supply_dock_produce_from_world_item_id'
+    SUPPLY_EXPLOIT_ATTR = 'supply_exploit_attr'
+    TEAM_ID = 'team_id'
+    TIME_LIMIT_INFO = 'time_limit_info'
+    TRANSFER_DOCK_USERID = 'transfer_dock_userid'
+    UNIQUE_ID = 'unique_id'
+    UNLOCK_NEW_MODEL = 'unlock_new_model'
+    USERID = 'userid'
+    WEIGHT = 'weight'
+    FIELDS = ['aircraft_count', 'aircraft_effect_limit', 'aircraft_type_and_limit', 'aircrafts', 'battle_state', 'belong_id', 'belong
+    WORLD_VIEW_FIELDS = ['ship_id_u', 'ship_bp_overview', 'ship_id', 'index', 'state', 'team_id', 'userid', 'belong_id', 'belong_ship_id_u', 'hp
+    State = <class 'common.config.table_definition.ShipField.State'>
+    ShipType = <class 'common.config.table_definition.ShipField.ShipType'>
+    RecallMark = <class 'common.config.table_definition.ShipField.RecallMark'>
+    BattleState = <class 'common.config.table_definition.ShipField.BattleState'>
+    RECORD_TEMPLATE = {'Tb_ship': 'Tb_ship', 'aircraft_count': 0, 'aircraft_effect_limit': '', 'aircraft_type_and_limit': '', 'aircrafts': '',
+  class TableID(object):
+    ACTIVITY = 'Tb_activity'
+    ACTIVITY_BEACON_COLLECT = 'Tb_activity_beacon_collect'
+    ACTIVITY_BEACON_COLLECT_REFRESH = 'Tb_activity_beacon_collect_refresh'
+    ACTIVITY_BUSINESS_PERSONAL_INFO = 'Tb_activity_business_personal_info'
+    ACTIVITY_BUSINESS_REGION = 'Tb_activity_business_region'
+    ACTIVITY_BUSINESS_REGION_INFO = 'Tb_activity_business_region_info'
+    ACTIVITY_BUSINESS_SYS = 'Tb_activity_business_sys'
+    ACTIVITY_BUSINESS_USER = 'Tb_activity_business_user'
+    ACTIVITY_CARNIVAL_QA = 'Tb_activity_carnival_qa'
+    ACTIVITY_DAWN_CEL_FOLLOW = 'Tb_activity_dawn_cel_follow'
+    ACTIVITY_IMAGE = 'Tb_activity_image'
+    ACTIVITY_IMAGE_GIFT = 'Tb_activity_image_gift'
+    ACTIVITY_IMAGE_SEND_RECORD = 'Tb_activity_image_send_record'
+    ACTIVITY_IMAGE_TRANSPORT = 'Tb_activity_image_transport'
+    ACTIVITY_INFO = 'Tb_activity_info'
+    ACTIVITY_LINKAGE_CARNIVAL_USER = 'Tb_activity_linkage_carnival_user'
+    ACTIVITY_PANGU = 'Tb_activity_pangu'
+    ACTIVITY_QA_USER = 'Tb_activity_qa_user'
+    ACTIVITY_QUESTION_ANSWER = 'Tb_activity_question_answer'
+    ACTIVITY_RACE_QUIZ = 'Tb_activity_race_quiz'
+    ACTIVITY_SCORE_STORE = 'Tb_activity_score_store'
+    ACTIVITY_STAR_LAMP_GAME_UNION = 'Tb_activity_star_lamp_game_union'
+    ACTIVITY_STAR_LAMP_GAME_USER = 'Tb_activity_star_lamp_game_user'
+    ACTIVITY_SYS = 'Tb_activity_sys'
+    ACTIVITY_SYS_USER = 'Tb_activity_sys_user'
+    ACTIVITY_USER_FIREWORKS = 'Tb_activity_user_fireworks'
+    ACTIVITY_USER_PROXIMA_CHAT = 'Tb_activity_user_proxima_chat'
+    ACTIVITY_USER_PROXIMA_INTERACTION = 'Tb_activity_user_proxima_interaction'
+    ANTONTAS_SIGHTSEEING_FLIGHT = 'Tb_antontas_sightseeing_flight'
+    AUCTION = 'Tb_auction'
+    AUCTION_BROADCAST = 'Tb_auction_broadcast'
+    AUCTION_BROADCAST_REMOTE = 'Tb_auction_broadcast_remote'
+    AUCTION_ITEMS = 'Tb_auction_items'
+    AUCTION_UNION_RECORD = 'Tb_auction_union_record'
+    AUCTION_USER_BID_INFO = 'Tb_auction_user_bid_info'
+    AUCTION_USER_BID_PRICE = 'Tb_auction_user_bid_price'
+    AUCTION_USER_OWNER = 'Tb_auction_user_owner'
+    BATTLE_REPORT = 'Tb_battle_report'
+    BATTLE_REPORT_DETAIL = 'Tb_battle_report_detail'
+    BATTLE_REPORT_DETAIL_BETA = 'Tb_battle_report_detail_beta'
+    BATTLE_REPORT_DETAIL_EX = 'Tb_battle_report_detail_ex'
+    BATTLE_REPORT_MANY = 'Tb_battle_report_many'
+    BELTLINE = 'Tb_beltline'
+    BELTLINE_DELEGATE_INFO = 'Tb_beltline_delegate_info'
+    BLUEPRINT_FRAGMENT = 'Tb_blueprint_fragment'
+    BLUEPRINT_FRAGMENT_DATA = 'Tb_blueprint_fragment_data'
+    BLUEPRINT_LOG = 'Tb_blueprint_log'
+    BLUEPRINT_SCHEME = 'Tb_blueprint_scheme'
+    BLUEPRINT_TECH_RESET = 'Tb_blueprint_tech_reset'
+    BLUEPRINT_TECHNICAL = 'Tb_blueprint_technical'
+    BOOST_COUPON = 'Tb_boost_coupon'
+    BOUNTY_TRANSFER_ITEM = 'Tb_bounty_transfer_item'
+    BP_PEAK_TASK_DATA = 'Tb_bp_peak_task_data'
+    BP_RESEARCH_LIMITED = 'Tb_bp_research_limited'
+    BP_RESEARCH_TREE_PACK = 'Tb_bp_research_tree_pack'
+    BP_RESEARCHING = 'Tb_bp_researching'
+    BUILD_AIRSPACE = 'Tb_build_airspace'
+    CC_SUB_CENTER = 'Tb_cc_sub_center'
+    CCB_PLAN = 'Tb_ccb_plan'
+    CCB_TEAM = 'Tb_ccb_team'
+    CCB_TORPEDO = 'Tb_ccb_torpedo'
+    CCB_USER_TECH_ITEM = 'Tb_ccb_user_tech_item'
+    CCB_WORLD_ITEM = 'Tb_ccb_world_item'
+    CFG_ACTIVITY = 'Tb_cfg_activity'
+    CFG_ACTIVITY_ACTIVITION = 'Tb_cfg_activity_activition'
+    CFG_ACTIVITY_BEACON_COLLECT = 'Tb_cfg_activity_beacon_collect'
+    CFG_ACTIVITY_BUSINESS_EVENT = 'Tb_cfg_activity_business_event'
+    CFG_ACTIVITY_BUSINESS_GOODS = 'Tb_cfg_activity_business_goods'
+    CFG_ACTIVITY_BUSINESS_REGION = 'Tb_cfg_activity_business_region'
+    CFG_ACTIVITY_COIN = 'Tb_cfg_activity_coin'
+    CFG_ACTIVITY_COMMUNITY = 'Tb_cfg_activity_community'
+    CFG_ACTIVITY_DRILL_LEVEL = 'Tb_cfg_activity_drill_level'
+    CFG_ACTIVITY_GOODS_SHOP = 'Tb_cfg_activity_goods_shop'
+    CFG_ACTIVITY_HOBBY_MALL = 'Tb_cfg_activity_hobby_mall'
+    CFG_ACTIVITY_LOTTERY = 'Tb_cfg_activity_lottery'
+    CFG_ACTIVITY_LOTTERY_ITEM = 'Tb_cfg_activity_lottery_item'
+    CFG_ACTIVITY_PANGU = 'Tb_cfg_activity_pangu'
+    CFG_ACTIVITY_PLAY = 'Tb_cfg_activity_play'
+    CFG_ACTIVITY_QUESTION = 'Tb_cfg_activity_question'
+    CFG_ACTIVITY_RECALL_TASK = 'Tb_cfg_activity_recall_task'
+    CFG_ACTIVITY_REWARDS = 'Tb_cfg_activity_rewards'
+    CFG_ACTIVITY_SCORE_STORE = 'Tb_cfg_activity_score_store'
+    CFG_ACTIVITY_SCORE_STORE_EVENT = 'Tb_cfg_activity_score_store_event'
+    CFG_ACTIVITY_TASK_REFRESHER = 'Tb_cfg_activity_task_refresher'
+    CFG_ACTIVITY_VERSION = 'Tb_cfg_activity_version'
+    CFG_ANTONTAS_FLOOR_DECORATION = 'Tb_cfg_antontas_floor_decoration'
+    CFG_ARCHIVES = 'Tb_cfg_archives'
+    CFG_ARCHIVES_DELIVERY = 'Tb_cfg_archives_delivery'
+    CFG_ARCHIVES_DISTRIBUTION = 'Tb_cfg_archives_distribution'
+    CFG_ARCHIVES_GROUP = 'Tb_cfg_archives_group'
+    CFG_ASSET_PACK = 'Tb_cfg_asset_pack'
+    CFG_ASSET_PACK_FEATURE = 'Tb_cfg_asset_pack_feature'
+    CFG_ASSET_PACK_PROB = 'Tb_cfg_asset_pack_prob'
+    CFG_ASSET_PACK_SP = 'Tb_cfg_asset_pack_sp'
+    CFG_ASSET_POINT_STORE = 'Tb_cfg_asset_point_store'
+    CFG_AUCTION_EVENT = 'Tb_cfg_auction_event'
+    CFG_AUCTION_GOODS = 'Tb_cfg_auction_goods'
+    CFG_AUCTION_GOODS_TYPE = 'Tb_cfg_auction_goods_type'
+    CFG_AUDIO_BOOK_ACTIVITY = 'Tb_cfg_audio_book_activity'
+    CFG_BACKFLOW_ACTIVITY = 'Tb_cfg_backflow_activity'
+    CFG_BACKFLOW_MISS_ACTIVITY = 'Tb_cfg_backflow_miss_activity'
+    CFG_BACKFLOW_STORE = 'Tb_cfg_backflow_store'
+    CFG_BACKFLOW_TASK = 'Tb_cfg_backflow_task'
+    CFG_BACKFLOW_UNION_ADD = 'Tb_cfg_backflow_union_add'
+    CFG_BASE_STORE_GOODS_UNLOCK = 'Tb_cfg_base_store_goods_unlock'
+    CFG_BATTLE_ACHIEVEMENT_GOODS = 'Tb_cfg_battle_achievement_goods'
+    CFG_BATTLE_ACTION = 'Tb_cfg_battle_action'
+    CFG_BATTLE_EFFECT = 'Tb_cfg_battle_effect'
+    CFG_BERTH_CONFLICT = 'Tb_cfg_berth_conflict'
+    CFG_BERTH_TYPE = 'Tb_cfg_berth_type'
+    CFG_BLUEPRINT_FRAGMENT = 'Tb_cfg_blueprint_fragment'
+    CFG_BLUEPRINT_FRAGMENT_COMPOSE = 'Tb_cfg_blueprint_fragment_compose'
+    CFG_BLUEPRINT_PEAK_LEVEL = 'Tb_cfg_blueprint_peak_level'
+    CFG_BLUEPRINT_TECH_RESET = 'Tb_cfg_blueprint_tech_reset'
+    CFG_BLUEPRINT_TECHNICAL = 'Tb_cfg_blueprint_technical'
+    CFG_BLUEPRINT_WORKSHOP_POOL = 'Tb_cfg_blueprint_workshop_pool'
+    CFG_BOOST_COUPON = 'Tb_cfg_boost_coupon'
+    CFG_BOSS = 'Tb_cfg_boss'
+    CFG_BOSS_FIGHTED_TEAM = 'Tb_cfg_boss_fighted_team'
+    CFG_BOUNTY_POST = 'Tb_cfg_bounty_post'
+    CFG_BP_CUSTOM_RESEARCH = 'Tb_cfg_bp_custom_research'
+    CFG_BP_PACK_FEATURE = 'Tb_cfg_bp_pack_feature'
+    CFG_BP_RESEARCH_TREE_NODE = 'Tb_cfg_bp_research_tree_node'
+    CFG_BP_RESEARCH_TREE_PACK = 'Tb_cfg_bp_research_tree_pack'
+    CFG_BP_RESEARCH_TREE_PACK_SP = 'Tb_cfg_bp_research_tree_pack_sp'
+    CFG_BUFF_EFFECT = 'Tb_cfg_buff_effect'
+    CFG_BUILD_AIRSPACE = 'Tb_cfg_build_airspace'
+    CFG_BUILDING_RUIN = 'Tb_cfg_building_ruin'
+    CFG_CDKEY_REWARD = 'Tb_cfg_cdkey_reward'
+    CFG_CELEBRATION_STORE = 'Tb_cfg_celebration_store'
+    CFG_CNT_ACTIVITY_DRILL_LEVEL = 'Tb_cfg_cnt_activity_drill_level'
+    CFG_CNT_ACTIVITY_DRILL_MONSTER = 'Tb_cfg_cnt_activity_drill_monster'
+    CFG_CNT_ACTIVITY_DRILL_REFRESH = 'Tb_cfg_cnt_activity_drill_refresh'
+    CFG_CNT_ACTIVITY_DRILL_WEAPON = 'Tb_cfg_cnt_activity_drill_weapon'
+    CFG_CNT_ACTIVITY_LOTTERY = 'Tb_cfg_cnt_activity_lottery'
+    CFG_CNT_ACTIVITY_LOTTERY_ITEM = 'Tb_cfg_cnt_activity_lottery_item'
+    CFG_CNT_ACTIVITY_QA_RANK = 'Tb_cfg_cnt_activity_qa_rank'
+    CFG_CNT_ACTIVITY_RACE_QUIZ = 'Tb_cfg_cnt_activity_race_quiz'
+    CFG_CNT_ACTIVITY_RECALL_TASK = 'Tb_cfg_cnt_activity_recall_task'
+    CFG_CNT_ANTONTAS_AREA = 'Tb_cfg_cnt_antontas_area'
+    CFG_CNT_ANTONTAS_BLOCK = 'Tb_cfg_cnt_antontas_block'
+    CFG_CNT_ANTONTAS_BUILDING = 'Tb_cfg_cnt_antontas_building'
+    CFG_CNT_ANTONTAS_FLOOR = 'Tb_cfg_cnt_antontas_floor'
+    CFG_CNT_BOSS_REFRESH_TRIGGER = 'Tb_cfg_cnt_boss_refresh_trigger'
+    CFG_CNT_ECOLOGY_ENV_FACTOR = 'Tb_cfg_cnt_ecology_env_factor'
+    CFG_CNT_ECOLOGY_SEASON = 'Tb_cfg_cnt_ecology_season'
+    CFG_CNT_ECOLOGY_WEATHER = 'Tb_cfg_cnt_ecology_weather'
+    CFG_CNT_HERO_SHIP_RESEARCH = 'Tb_cfg_cnt_hero_ship_research'
+    CFG_CNT_LINKAGE_CARNIVAL = 'Tb_cfg_cnt_linkage_carnival'
+    CFG_CNT_LINKAGE_RANK = 'Tb_cfg_cnt_linkage_rank'
+    CFG_CNT_ORG_LANGUAGE = 'Tb_cfg_cnt_org_language'
+    CFG_CNT_ORG_LEVEL = 'Tb_cfg_cnt_org_level'
+    CFG_CNT_OVERSEER_FEATURE = 'Tb_cfg_cnt_overseer_feature'
+    CFG_CNT_PLANT = 'Tb_cfg_cnt_plant'
+    CFG_CNT_PLANT_OUTPUT = 'Tb_cfg_cnt_plant_output'
+    CFG_CNT_RACING_TRACK = 'Tb_cfg_cnt_racing_track'
+    CFG_CNT_RANK_BOARD = 'Tb_cfg_cnt_rank_board'
+    CFG_CNT_SIGHTSEEING_ROUTE = 'Tb_cfg_cnt_sightseeing_route'
+    CFG_CNT_TERRAFORM_MODULE = 'Tb_cfg_cnt_terraform_module'
+    CFG_CNT_TERRAFORM_STAGE = 'Tb_cfg_cnt_terraform_stage'
+    CFG_CNT_TRADE_GOODS = 'Tb_cfg_cnt_trade_goods'
+    CFG_CNT_TRADE_GOODS_MSRP = 'Tb_cfg_cnt_trade_goods_msrp'
+    CFG_CNT_UGC_EPISODE = 'Tb_cfg_cnt_ugc_episode'
+    CFG_CNT_WY_PAY_LOTTERY = 'Tb_cfg_cnt_wy_pay_lottery'
+    CFG_COLLECTION_ITEM = 'Tb_cfg_collection_item'
+    CFG_CONNECT_GALAXY_REWARD = 'Tb_cfg_connect_galaxy_reward'
+    CFG_CONSUME_ITEM = 'Tb_cfg_consume_item'
+    CFG_CONTRACT = 'Tb_cfg_contract'
+    CFG_CONTROL_FACILITY_EFFECT = 'Tb_cfg_control_facility_effect'
+    CFG_CONTROL_ITEM = 'Tb_cfg_control_item'
+    CFG_CONTROL_TEAM_DROP_TASK = 'Tb_cfg_control_team_drop_task'
+    CFG_CROSS_INFLUENCE_EFFECT = 'Tb_cfg_cross_influence_effect'
+    CFG_CROSS_INFLUENCE_ITEM = 'Tb_cfg_cross_influence_item'
+    CFG_CUST_PAINT_DECAL_AREA = 'Tb_cfg_cust_paint_decal_area'
+    CFG_DANGER_MAP_UI_AREA = 'Tb_cfg_danger_map_ui_area'
+    CFG_DAWN_POINT_STORE = 'Tb_cfg_dawn_point_store'
+    CFG_DECAL = 'Tb_cfg_decal'
+    CFG_DECAL_STORE = 'Tb_cfg_decal_store'
+    CFG_DECORATE_ITEM = 'Tb_cfg_decorate_item'
+    CFG_DEFAULT_PLAN_NAME = 'Tb_cfg_default_plan_name'
+    CFG_DUNGEON = 'Tb_cfg_dungeon'
+    CFG_DUNGEON_CAMP = 'Tb_cfg_dungeon_camp'
+    CFG_ECOLOGY_STORE = 'Tb_cfg_ecology_store'
+    CFG_ECOLOGY_SYNTHESIS = 'Tb_cfg_ecology_synthesis'
+    CFG_ECOLOGY_TERRAIN = 'Tb_cfg_ecology_terrain'
+    CFG_ECOLOGY_VOTE = 'Tb_cfg_ecology_vote'
+    CFG_EFFECT_DEF = 'Tb_cfg_effect_def'
+    CFG_EFFECT_PARAM = 'Tb_cfg_effect_param'
+    CFG_EFFICIENCY_ROBOT_EFFECT = 'Tb_cfg_efficiency_robot_effect'
+    CFG_EFFICIENCY_ROBOT_NPC = 'Tb_cfg_efficiency_robot_npc'
+    CFG_EQUIP_BP_SKILL = 'Tb_cfg_equip_bp_skill'
+    CFG_EQUIP_BP_SKILL_LEVEL = 'Tb_cfg_equip_bp_skill_level'
+    CFG_EQUIPMENT = 'Tb_cfg_equipment'
+    CFG_EXP_COLLECTOR = 'Tb_cfg_exp_collector'
+    CFG_EXTRACT_NODE = 'Tb_cfg_extract_node'
+    CFG_EXTRACT_PACK = 'Tb_cfg_extract_pack'
+    CFG_EXTRACT_PACK_PROB = 'Tb_cfg_extract_pack_prob'
+    CFG_FACILITY = 'Tb_cfg_facility'
+    CFG_FACILITY_CHIP = 'Tb_cfg_facility_chip'
+    CFG_FACILITY_CHIP_COPY = 'Tb_cfg_facility_chip_copy'
+    CFG_FACILITY_CHIP_LEVEL = 'Tb_cfg_facility_chip_level'
+    CFG_FACILITY_EFFECT = 'Tb_cfg_facility_effect'
+    CFG_FACILITY_ENHANCE_TREE = 'Tb_cfg_facility_enhance_tree'
+    CFG_FACILITY_ID_MAPPING = 'Tb_cfg_facility_id_mapping'
+    CFG_FACILITY_LEVEL_EX = 'Tb_cfg_facility_level_ex'
+    CFG_FACILITY_LEVEL_INCREMENT = 'Tb_cfg_facility_level_increment'
+    CFG_FAMILY_WAREHOUSE = 'Tb_cfg_family_warehouse'
+    CFG_FIGHT_EXP_PRODUCE = 'Tb_cfg_fight_exp_produce'
+    CFG_FINANCIAL = 'Tb_cfg_financial'
+    CFG_FINANCIAL_30_RMB = 'Tb_cfg_financial_30_rmb'
+    CFG_FINANCIAL_30_RMB_REWARDS = 'Tb_cfg_financial_30_rmb_rewards'
+    CFG_FINANCIAL_BP_TECHNICAL = 'Tb_cfg_financial_bp_technical'
+    CFG_FINANCIAL_REWARDS = 'Tb_cfg_financial_rewards'
+    CFG_FIRST_OCCUPY_CITY_REWARD = 'Tb_cfg_first_occupy_city_reward'
+    CFG_FLOATER = 'Tb_cfg_floater'
+    CFG_FLOATER_REWARD = 'Tb_cfg_floater_reward'
+    CFG_FLY_POINT = 'Tb_cfg_fly_point'
+    CFG_FORCE = 'Tb_cfg_force'
+    CFG_FUNC_AREA = 'Tb_cfg_func_area'
+    CFG_FUNC_AREA_NAME = 'Tb_cfg_func_area_name'
+    CFG_GALAXY_EVENT = 'Tb_cfg_galaxy_event'
+    CFG_GALAXY_FIELD_TASK = 'Tb_cfg_galaxy_field_task'
+    CFG_GALAXY_MACRO_POINT = 'Tb_cfg_galaxy_macro_point'
+    CFG_GALAXY_MARKET = 'Tb_cfg_galaxy_market'
+    CFG_GALAXY_MARKET_ITEM = 'Tb_cfg_galaxy_market_item'
+    CFG_GALAXY_PROGRESS = 'Tb_cfg_galaxy_progress'
+    CFG_GAMEPLAY_MODE = 'Tb_cfg_gameplay_mode'
+    CFG_GAMEPLAY_PORT = 'Tb_cfg_gameplay_port'
+    CFG_GAMEPLAY_PORT_TOKEN = 'Tb_cfg_gameplay_port_token'
+    CFG_GAMEPLAY_SCENE = 'Tb_cfg_gameplay_scene'
+    CFG_GAMEPLAY_SWITCH = 'Tb_cfg_gameplay_switch'
+    CFG_GARDEN_PLANET_RANK = 'Tb_cfg_garden_planet_rank'
+    CFG_GIFT_PACK = 'Tb_cfg_gift_pack'
+    CFG_GIFT_SHOP = 'Tb_cfg_gift_shop'
+    CFG_GOODS = 'Tb_cfg_goods'
+    CFG_GOODS_MICRO = 'Tb_cfg_goods_micro'
+    CFG_GOODS_RES = 'Tb_cfg_goods_res'
+    CFG_GUILD_DOCK = 'Tb_cfg_guild_dock'
+    CFG_HERITAGE_ITEM = 'Tb_cfg_heritage_item'
+    CFG_HERO_AUTH = 'Tb_cfg_hero_auth'
+    CFG_HERO_AUTH_ITEM = 'Tb_cfg_hero_auth_item'
+    CFG_HERO_TASK_PACK_INFO = 'Tb_cfg_hero_task_pack_info'
+    CFG_HUNTER_DUNGEON = 'Tb_cfg_hunter_dungeon'
+    CFG_HUNTER_NPC = 'Tb_cfg_hunter_npc'
+    CFG_HUNTER_TREASURE = 'Tb_cfg_hunter_treasure'
+    CFG_HUNTER_TREASURE_BOX = 'Tb_cfg_hunter_treasure_box'
+    CFG_HUNTER_TREASURE_BOX_EVENT = 'Tb_cfg_hunter_treasure_box_event'
+    CFG_HUNTER_TREASURE_DIRECT_DROP = 'Tb_cfg_hunter_treasure_direct_drop'
+    CFG_HUNTING_ARCHIVE = 'Tb_cfg_hunting_archive'
+    CFG_INIT_NAME = 'Tb_cfg_init_name'
+    CFG_INIT_SMALL_RUIN = 'Tb_cfg_init_small_ruin'
+    CFG_INTELL_GATHER_REWARD = 'Tb_cfg_intell_gather_reward'
+    CFG_IO_CAMP_STORE_GOODS = 'Tb_cfg_io_camp_store_goods'
+    CFG_IO_NPC_TEAM_REWARD = 'Tb_cfg_io_npc_team_reward'
+    CFG_IO_RES_DONATE_REWARD_EXP = 'Tb_cfg_io_res_donate_reward_exp'
+    CFG_IO_RESOURCE_RECYCLE = 'Tb_cfg_io_resource_recycle'
+    CFG_IO_TASK = 'Tb_cfg_io_task'
+    CFG_IO_TEAM_REWARD = 'Tb_cfg_io_team_reward'
+    CFG_ITEM_CARAVAN_VISIT = 'Tb_cfg_item_caravan_visit'
+    CFG_ITEM_COLLECT_DROP_TASK = 'Tb_cfg_item_collect_drop_task'
+    CFG_ITEM_CONTROLLED_EFFECT = 'Tb_cfg_item_controlled_effect'
+    CFG_ITEM_FACADE = 'Tb_cfg_item_facade'
+    CFG_ITEM_USE = 'Tb_cfg_item_use'
+    CFG_ITEM_WORKBENCH = 'Tb_cfg_item_workbench'
+    CFG_JOINT_BELTLINE_SHIP = 'Tb_cfg_joint_beltline_ship'
+    CFG_L5_SEASON_POINT = 'Tb_cfg_l5_season_point'
+    CFG_LEAGUE_SHARE_VALUE = 'Tb_cfg_league_share_value'
+    CFG_LEGACY = 'Tb_cfg_legacy'
+    CFG_LEGACY_ITEM = 'Tb_cfg_legacy_item'
+    CFG_LEVEL_EXERCISE = 'Tb_cfg_level_exercise'
+    CFG_LEVEL_EXERCISE_MONSTER = 'Tb_cfg_level_exercise_monster'
+    CFG_LEVEL_EXERCISE_REWARD = 'Tb_cfg_level_exercise_reward'
+    CFG_LEVEL_EXERCISE_ROUND = 'Tb_cfg_level_exercise_round'
+    CFG_LOOT_PROCESS = 'Tb_cfg_loot_process'
+    CFG_MAP_ASTEROID_BELT = 'Tb_cfg_map_asteroid_belt'
+    CFG_MAP_OBS_AREA = 'Tb_cfg_map_obs_area'
+    CFG_MAP_OBS_AREA_SHAPE = 'Tb_cfg_map_obs_area_shape'
+    CFG_MAP_OBS_AUTH = 'Tb_cfg_map_obs_auth'
+    CFG_MAP_ORBIT = 'Tb_cfg_map_orbit'
+    CFG_MAP_PARAM = 'Tb_cfg_map_param'
+    CFG_MAP_REGION = 'Tb_cfg_map_region'
+    CFG_MAP_REGION_INFO = 'Tb_cfg_map_region_info'
+    CFG_MAP_REGION_SHAPE = 'Tb_cfg_map_region_shape'
+    CFG_MATCH_OPTION = 'Tb_cfg_match_option'
+    CFG_MATCH_QUESTION = 'Tb_cfg_match_question'
+    CFG_MATERIAL_INTEL = 'Tb_cfg_material_intel'
+    CFG_META_WORLD_ITEM = 'Tb_cfg_meta_world_item'
+    CFG_META_WORLD_ITEM_DYNAMIC = 'Tb_cfg_meta_world_item_dynamic'
+    CFG_MIXED_GF_MOUNT = 'Tb_cfg_mixed_gf_mount'
+    CFG_MODULE = 'Tb_cfg_module'
+    CFG_MODULE_BLUEPRINT = 'Tb_cfg_module_blueprint'
+    CFG_MODULE_EFFECT = 'Tb_cfg_module_effect'
+    CFG_NEW_SEASON_MAIL = 'Tb_cfg_new_season_mail'
+    CFG_NEW_TASK = 'Tb_cfg_new_task'
+    CFG_NEW_TASK_PACK = 'Tb_cfg_new_task_pack'
+    CFG_NEWBIE_GUIDE = 'Tb_cfg_newbie_guide'
+    CFG_NEWBIE_STEP_LIST = 'Tb_cfg_newbie_step_list'
+    CFG_NIGHT_MODE = 'Tb_cfg_night_mode'
+    CFG_NORMA_POINT_STORE = 'Tb_cfg_norma_point_store'
+    CFG_NPC_CITY_ROTATE = 'Tb_cfg_npc_city_rotate'
+    CFG_NPC_DAILY_JOB = 'Tb_cfg_npc_daily_job'
+    CFG_NPC_FORCE_CONFIG_ATTR = 'Tb_cfg_npc_force_config_attr'
+    CFG_NPC_LEAGUE = 'Tb_cfg_npc_league'
+    CFG_NPC_MISSION = 'Tb_cfg_npc_mission'
+    CFG_NPC_MISSION_COMPANY = 'Tb_cfg_npc_mission_company'
+    CFG_NPC_MISSION_DETAIL = 'Tb_cfg_npc_mission_detail'
+    CFG_NPC_MISSION_PRINCIPAL = 'Tb_cfg_npc_mission_principal'
+    CFG_NPC_NAME = 'Tb_cfg_npc_name'
+    CFG_NPC_ORB = 'Tb_cfg_npc_orb'
+    CFG_NPC_STATION = 'Tb_cfg_npc_station'
+    CFG_NPC_STORE_GOODS = 'Tb_cfg_npc_store_goods'
+    CFG_NPC_STRATEGY_RATIO = 'Tb_cfg_npc_strategy_ratio'
+    CFG_NPC_TEAM = 'Tb_cfg_npc_team'
+    CFG_NPC_TEAM_APPEARANCE = 'Tb_cfg_npc_team_appearance'
+    CFG_NPC_TEAM_EFFECT = 'Tb_cfg_npc_team_effect'
+    CFG_NPC_UNION = 'Tb_cfg_npc_union'
+    CFG_NPC_UNION_GUARD_TEAM = 'Tb_cfg_npc_union_guard_team'
+    CFG_NPC_UNION_SPECIFIC_RELATION = 'Tb_cfg_npc_union_specific_relation'
+    CFG_NPC_WORLD_ITEM = 'Tb_cfg_npc_world_item'
+    CFG_OBS_NPC_JOB = 'Tb_cfg_obs_npc_job'
+    CFG_OFFICIAL_EMOJI = 'Tb_cfg_official_emoji'
+    CFG_OFFICIAL_EMOJI_PACK = 'Tb_cfg_official_emoji_pack'
+    CFG_ORB = 'Tb_cfg_orb'
+    CFG_ORGANIZATION_TALENT = 'Tb_cfg_organization_talent'
+    CFG_OUTPOST_LEVEL = 'Tb_cfg_outpost_level'
+    CFG_OUTPOST_LEVEL_INFO = 'Tb_cfg_outpost_level_info'
+    CFG_OUTPOST_STORE_GOODS = 'Tb_cfg_outpost_store_goods'
+    CFG_PACK_RECOMMEND = 'Tb_cfg_pack_recommend'
+    CFG_PAINTING = 'Tb_cfg_painting'
+    CFG_PAINTING_STORE = 'Tb_cfg_painting_store'
+    CFG_PANGU_TASK_DROP_POOL = 'Tb_cfg_pangu_task_drop_pool'
+    CFG_PEAK_AUTH_ITEM = 'Tb_cfg_peak_auth_item'
+    CFG_PEAK_LEVEL_AUTH = 'Tb_cfg_peak_level_auth'
+    CFG_PEAK_NEW_TASK = 'Tb_cfg_peak_new_task'
+    CFG_PERPETUAL_WARZONE_LEVEL = 'Tb_cfg_perpetual_warzone_level'
+    CFG_PERPETUAL_WARZONE_NPC_TEAM = 'Tb_cfg_perpetual_warzone_npc_team'
+    CFG_PERPETUAL_WARZONE_PVP_TEAM = 'Tb_cfg_perpetual_warzone_pvp_team'
+    CFG_PERPETUAL_WARZONE_TEAM = 'Tb_cfg_perpetual_warzone_team'
+    CFG_PERPETUAL_WARZONE_TIER = 'Tb_cfg_perpetual_warzone_tier'
+    CFG_PERPETUAL_WZ_BATTLE_MODE = 'Tb_cfg_perpetual_wz_battle_mode'
+    CFG_PERPETUAL_WZ_SHIP_GROUP = 'Tb_cfg_perpetual_wz_ship_group'
+    CFG_PERSONAL_AGREEMENT_SETTLE = 'Tb_cfg_personal_agreement_settle'
+    CFG_PERSONAL_ESTIMATE_TASK = 'Tb_cfg_personal_estimate_task'
+    CFG_PIGMENT = 'Tb_cfg_pigment'
+    CFG_PIGMENT_BASE = 'Tb_cfg_pigment_base'
+    CFG_PIGMENT_COLOR_SYSTEM = 'Tb_cfg_pigment_color_system'
+    CFG_PIGMENT_COVER_COST = 'Tb_cfg_pigment_cover_cost'
+    CFG_PIGMENT_FLOWLIGHT = 'Tb_cfg_pigment_flowlight'
+    CFG_PIGMENT_MATERIAL = 'Tb_cfg_pigment_material'
+    CFG_PLAN_BUSINESS_LEVEL = 'Tb_cfg_plan_business_level'
+    CFG_PLANET_CELL = 'Tb_cfg_planet_cell'
+    CFG_PLANET_CONTROL_EFFECT = 'Tb_cfg_planet_control_effect'
+    CFG_PLANET_SAFE_AREA = 'Tb_cfg_planet_safe_area'
+    CFG_PLANET_TRADE_GOODS = 'Tb_cfg_planet_trade_goods'
+    CFG_PLANET_WORLD_ITEM = 'Tb_cfg_planet_world_item'
+    CFG_PLANT_OUTPUT = 'Tb_cfg_plant_output'
+    CFG_PLAYER_BUILDING_EFFECT = 'Tb_cfg_player_building_effect'
+    CFG_PRIOR_SERVER = 'Tb_cfg_prior_server'
+    CFG_PRIOR_SERVER_TIMED_MAIL = 'Tb_cfg_prior_server_timed_mail'
+    CFG_PRIVATEER_MEETING = 'Tb_cfg_privateer_meeting'
+    CFG_PRIVATEER_MEETING_REWARD = 'Tb_cfg_privateer_meeting_reward'
+    CFG_PRIVATEER_MEETING_SYS = 'Tb_cfg_privateer_meeting_sys'
+    CFG_PRIVILEGE = 'Tb_cfg_privilege'
+    CFG_PRIVILEGE_EVENT = 'Tb_cfg_privilege_event'
+    CFG_PROGRESS_ACTION = 'Tb_cfg_progress_action'
+    CFG_PROSPECT_MISSION = 'Tb_cfg_prospect_mission'
+    CFG_PROSPECT_PLANET = 'Tb_cfg_prospect_planet'
+    CFG_QUESTION_EVENT = 'Tb_cfg_question_event'
+    CFG_RACE_QUIZ = 'Tb_cfg_race_quiz'
+    CFG_RACE_QUIZ_AIRCRAFT = 'Tb_cfg_race_quiz_aircraft'
+    CFG_RAIDER_BOSS_REWARD = 'Tb_cfg_raider_boss_reward'
+    CFG_RANK = 'Tb_cfg_rank'
+    CFG_RANK_CONTROL_TYPE = 'Tb_cfg_rank_control_type'
+    CFG_RANK_SYS = 'Tb_cfg_rank_sys'
+    CFG_RANK_SYS_SETTLE = 'Tb_cfg_rank_sys_settle'
+    CFG_RE_TECH = 'Tb_cfg_re_tech'
+    CFG_RE_TECH_STORE = 'Tb_cfg_re_tech_store'
+    CFG_REDPACKET = 'Tb_cfg_redpacket'
+    CFG_RES_DEF = 'Tb_cfg_res_def'
+    CFG_RESEARCH_TIME = 'Tb_cfg_research_time'
+    CFG_RESEARCH_TREE_PACK_PROB = 'Tb_cfg_research_tree_pack_prob'
+    CFG_RESEARCH_WORD = 'Tb_cfg_research_word'
+    CFG_RESPACK = 'Tb_cfg_respack'
+    CFG_RETURN_ACTION = 'Tb_cfg_return_action'
+    CFG_RETURN_REWARDS = 'Tb_cfg_return_rewards'
+    CFG_REWARD_DROP = 'Tb_cfg_reward_drop'
+    CFG_REWARD_ROULETTE = 'Tb_cfg_reward_roulette'
+    CFG_REWARD_TO_TEAM = 'Tb_cfg_reward_to_team'
+    CFG_SCENE_SKILL = 'Tb_cfg_scene_skill'
+    CFG_SEARCH_TUTORIAL_EVENT = 'Tb_cfg_search_tutorial_event'
+    CFG_SEARCH_TUTORIAL_STEP = 'Tb_cfg_search_tutorial_step'
+    CFG_SEASON_CATCH_UP_LEVEL = 'Tb_cfg_season_catch_up_level'
+    CFG_SEASON_CATCH_UP_RES = 'Tb_cfg_season_catch_up_res'
+    CFG_SEASON_FUNC = 'Tb_cfg_season_func'
+    CFG_SEASON_FUNC_OPEN = 'Tb_cfg_season_func_open'
+    CFG_SEASON_OVER_REWARDS = 'Tb_cfg_season_over_rewards'
+    CFG_SEASON_PERSONAL_REWARDS = 'Tb_cfg_season_personal_rewards'
+    CFG_SERVER_DISPLAY_INFO = 'Tb_cfg_server_display_info'
+    CFG_SHIP = 'Tb_cfg_ship'
+    CFG_SHIP_BG = 'Tb_cfg_ship_bg'
+    CFG_SHIP_BLUEPRINT = 'Tb_cfg_ship_blueprint'
+    CFG_SHIP_BLUEPRINT_CHOICE = 'Tb_cfg_ship_blueprint_choice'
+    CFG_SHIP_BLUEPRINT_LV = 'Tb_cfg_ship_blueprint_lv'
+    CFG_SHIP_BLUEPRINT_ROUTE_REWARD = 'Tb_cfg_ship_blueprint_route_reward'
+    CFG_SHIP_BP_COLLECTION = 'Tb_cfg_ship_bp_collection'
+    CFG_SHIP_BP_OVERVIEW = 'Tb_cfg_ship_bp_overview'
+    CFG_SHIP_BP_TE_CHOICE_SET = 'Tb_cfg_ship_bp_te_choice_set'
+    CFG_SHIP_BP_TE_COMPANY_CHOICE = 'Tb_cfg_ship_bp_te_company_choice'
+    CFG_SHIP_EXHIBITION_TYPE = 'Tb_cfg_ship_exhibition_type'
+    CFG_SHIP_PEAK_LEVEL = 'Tb_cfg_ship_peak_level'
+    CFG_SHIP_RATE = 'Tb_cfg_ship_rate'
+    CFG_SHIP_SLOT = 'Tb_cfg_ship_slot'
+    CFG_SHIP_SYSTEM = 'Tb_cfg_ship_system'
+    CFG_SHIP_TYPE = 'Tb_cfg_ship_type'
+    CFG_SHIP_TYPE_MORIBUND_SEQUENCE = 'Tb_cfg_ship_type_moribund_sequence'
+    CFG_SIMULATE_BEACON = 'Tb_cfg_simulate_beacon'
+    CFG_SIMULATE_RANK = 'Tb_cfg_simulate_rank'
+    CFG_SITUATION = 'Tb_cfg_situation'
+    CFG_SITUATION_MATERIAL_SURVEY = 'Tb_cfg_situation_material_survey'
+    CFG_SITUATION_NPC_INVADE = 'Tb_cfg_situation_npc_invade'
+    CFG_SITUATION_TASK_PROGRESS = 'Tb_cfg_situation_task_progress'
+    CFG_SMALL_RUIN = 'Tb_cfg_small_ruin'
+    CFG_STAGE_TASK_PACK_REWARD = 'Tb_cfg_stage_task_pack_reward'
+    CFG_STAR = 'Tb_cfg_star'
+    CFG_STAR_FIELD = 'Tb_cfg_star_field'
+    CFG_STORY_CONTENT = 'Tb_cfg_story_content'
+    CFG_STORY_NPC_TEAM = 'Tb_cfg_story_npc_team'
+    CFG_STORY_NPC_WORLD_ITEM = 'Tb_cfg_story_npc_world_item'
+    CFG_STORY_REWARD = 'Tb_cfg_story_reward'
+    CFG_SYSTEM_EFFECT = 'Tb_cfg_system_effect'
+    CFG_SYSTEM_ENHANCE = 'Tb_cfg_system_enhance'
+    CFG_SYSTEM_MAIL = 'Tb_cfg_system_mail'
+    CFG_SYSTEM_SKILL = 'Tb_cfg_system_skill'
+    CFG_TACTICAL_OPERATION = 'Tb_cfg_tactical_operation'
+    CFG_TASK = 'Tb_cfg_task'
+    CFG_TASK_CHAPTER = 'Tb_cfg_task_chapter'
+    CFG_TASK_GROUP = 'Tb_cfg_task_group'
+    CFG_TASK_LINE = 'Tb_cfg_task_line'
+    CFG_TECH_BLUEPRINT = 'Tb_cfg_tech_blueprint'
+    CFG_TECH_BP_SKILL = 'Tb_cfg_tech_bp_skill'
+    CFG_TECH_BP_SKILL_LEVEL = 'Tb_cfg_tech_bp_skill_level'
+    CFG_TECH_STORE = 'Tb_cfg_tech_store'
+    CFG_TERRAFORM_REWARD = 'Tb_cfg_terraform_reward'
+    CFG_TERRAFORM_STORE = 'Tb_cfg_terraform_store'
+    CFG_TERRAFORM_TASK = 'Tb_cfg_terraform_task'
+    CFG_TERRAFORM_TASK_REWARD_REPLACE = 'Tb_cfg_terraform_task_reward_replace'
+    CFG_TEST_CMD_LIST = 'Tb_cfg_test_cmd_list'
+    CFG_TIMED_BROADCAST = 'Tb_cfg_timed_broadcast'
+    CFG_TITLE = 'Tb_cfg_title'
+    CFG_TORPEDO = 'Tb_cfg_torpedo'
+    CFG_TRACES_REWARD = 'Tb_cfg_traces_reward'
+    CFG_TRACKING_PIRATE = 'Tb_cfg_tracking_pirate'
+    CFG_TRADE_GOODS = 'Tb_cfg_trade_goods'
+    CFG_TRADE_PRICE_TYPE = 'Tb_cfg_trade_price_type'
+    CFG_TRAILBLAZE_SUPPORT = 'Tb_cfg_trailblaze_support'
+    CFG_TREASURE_COIN = 'Tb_cfg_treasure_coin'
+    CFG_UNION_ACTIVITY = 'Tb_cfg_union_activity'
+    CFG_UNION_LANGUAGE = 'Tb_cfg_union_language'
+    CFG_UNION_LEVEL = 'Tb_cfg_union_level'
+    CFG_UNION_PROSPERITY_EFFECT = 'Tb_cfg_union_prosperity_effect'
+    CFG_UNION_TALENT = 'Tb_cfg_union_talent'
+    CFG_USER_ACTIVATION = 'Tb_cfg_user_activation'
+    CFG_USER_ACTIVATION_ACTION = 'Tb_cfg_user_activation_action'
+    CFG_USER_BORN_COUNT = 'Tb_cfg_user_born_count'
+    CFG_USER_IDENTITY = 'Tb_cfg_user_identity'
+    CFG_USER_STORE_ITEM = 'Tb_cfg_user_store_item'
+    CFG_USER_UNION_COLOR = 'Tb_cfg_user_union_color'
+    CFG_VISION_BACKGROUND = 'Tb_cfg_vision_background'
+    CFG_VISION_COMPONENT = 'Tb_cfg_vision_component'
+    CFG_VOICE_STYLE_INDEX = 'Tb_cfg_voice_style_index'
+    CFG_WEAPON = 'Tb_cfg_weapon'
+    CFG_WEAPON_ACTION = 'Tb_cfg_weapon_action'
+    CFG_WEAPON_PRIORITY = 'Tb_cfg_weapon_priority'
+    CFG_WEAPON_TECH = 'Tb_cfg_weapon_tech'
+    CFG_WEAPON_TECH_CLASS = 'Tb_cfg_weapon_tech_class'
+    CFG_WEAPON_TECH_PACK = 'Tb_cfg_weapon_tech_pack'
+    CFG_WEAPON_TECH_RECYCLE = 'Tb_cfg_weapon_tech_recycle'
+    CFG_WEEKLY_MISSION_DETAIL = 'Tb_cfg_weekly_mission_detail'
+    CFG_WEEKLY_MISSION_REFRESH = 'Tb_cfg_weekly_mission_refresh'
+    CFG_WISHLIST = 'Tb_cfg_wishlist'
+    CFG_WORLD_ITEM = 'Tb_cfg_world_item'
+    CFG_WORLD_ITEM_CONDITION = 'Tb_cfg_world_item_condition'
+    CFG_WORLD_ITEM_PANGU_LOOT = 'Tb_cfg_world_item_pangu_loot'
+    CFG_WORLD_ITEM_SHIP = 'Tb_cfg_world_item_ship'
+    CHAT = 'Tb_chat'
+    CHAT_INTERACTION = 'Tb_chat_interaction'
+    CIRCULATED_ITEMS = 'Tb_circulated_items'
+    COMMANDER_ASSEMBLE = 'Tb_commander_assemble'
+    CONTROL_EFFECT_RESOURCE_TAX = 'Tb_control_effect_resource_tax'
+    CONTROL_FIRST_REWARD_DROP_GROUP = 'Tb_control_first_reward_drop_group'
+    CONTROL_GALAXY_DROP_TASK = 'Tb_control_galaxy_drop_task'
+    CONTROL_MISSION_REWARD_DROP = 'Tb_control_mission_reward_drop'
+    CROSS_CONQUER_USER = 'Tb_cross_conquer_user'
+    CROSS_CONQUER_USER_STAT = 'Tb_cross_conquer_user_stat'
+    CROSS_SERVER_GAME_SESSION = 'Tb_cross_server_game_session'
+    CROSS_SERVER_GAME_USER = 'Tb_cross_server_game_user'
+    DECAL = 'Tb_decal'
+    DECORATE_ITEM = 'Tb_decorate_item'
+    DUNGEON = 'Tb_dungeon'
+    DUNGEON_TEAM = 'Tb_dungeon_team'
+    DUNGEON_TREASURE = 'Tb_dungeon_treasure'
+    DUNGEON_WORLD_ITEM = 'Tb_dungeon_world_item'
+    ECOLOGY_PARK_PLANT_LOG = 'Tb_ecology_park_plant_log'
+    ECOLOGY_PLANT = 'Tb_ecology_plant'
+    ECOLOGY_PLANT_SUMMARY = 'Tb_ecology_plant_summary'
+    EFFECT_BEACON = 'Tb_effect_beacon'
+    EMBEDDED_SURVEY = 'Tb_embedded_survey'
+    EXP_COLLECTOR = 'Tb_exp_collector'
+    EXPLOIT_CHANNEL_MESSAGE = 'Tb_exploit_channel_message'
+    FACILITY = 'Tb_facility'
+    FINANCIAL = 'Tb_financial'
+    FINANCIAL_30_RMB = 'Tb_financial_30_rmb'
+    FINANCIAL_ACTIVITY = 'Tb_financial_activity'
+    FINANCIAL_BP_TECHNICAL = 'Tb_financial_bp_technical'
+    FLOATER_INFO = 'Tb_floater_info'
+    FORCE_GROUP = 'Tb_force_group'
+    FREE_TRAILBLAZER_RANK = 'Tb_free_trailblazer_rank'
+    FREE_TRAILBLAZER_USER_STATS = 'Tb_free_trailblazer_user_stats'
+    FRIEND_SPARRING_APPLY = 'Tb_friend_sparring_apply'
+    GALAXY_EVENT = 'Tb_galaxy_event'
+    GALAXY_FIELD_TASK = 'Tb_galaxy_field_task'
+    GAMEPLAY_BP_ADDITIONAL_SYS = 'Tb_gameplay_bp_additional_sys'
+    GAMEPLAY_BP_TECHNICAL = 'Tb_gameplay_bp_technical'
+    GAMEPLAY_SHIP_TE = 'Tb_gameplay_ship_te'
+    GARRISON_INDIRECT = 'Tb_garrison_indirect'
+    GM_CHAT_DETAIL = 'Tb_gm_chat_detail'
+    GUILD_DOCK_CC_SHIP = 'Tb_guild_dock_cc_ship'
+    GUILD_DOCK_CC_SHIP_CROSS = 'Tb_guild_dock_cc_ship_cross'
+    GUILD_DOCK_CC_SHIP_SRC = 'Tb_guild_dock_cc_ship_src'
+    GUILD_DOCK_LOG = 'Tb_guild_dock_log'
+    HERO_AUTH_ITEM = 'Tb_hero_auth_item'
+    HISTORY_EXPLORE_DATA = 'Tb_history_explore_data'
+    IO_APPLY = 'Tb_io_apply'
+    IO_CONNECTION = 'Tb_io_connection'
+    IO_ENTRY_POINT = 'Tb_io_entry_point'
+    IO_RECYCLE_ITEM = 'Tb_io_recycle_item'
+    IO_RES_CHANNEL = 'Tb_io_res_channel'
+    IO_RESOURCE_RECYCLE_RECORD = 'Tb_io_resource_recycle_record'
+    IO_TASK = 'Tb_io_task'
+    IO_TEAMWORK_MEMBER = 'Tb_io_teamwork_member'
+    JOIN_SERVER = 'Tb_join_server'
+    LEAGUE_INFO = 'Tb_league_info'
+    LEAGUE_INVITE = 'Tb_league_invite'
+    LEAGUE_LOG = 'Tb_league_log'
+    LEAGUE_MARK = 'Tb_league_mark'
+    LEAGUE_MEMBER_USER = 'Tb_league_member_user'
+    LEAGUE_MERGE_INFO = 'Tb_league_merge_info'
+    LEAGUE_PLAN = 'Tb_league_plan'
+    LEAGUE_PLAN_USE = 'Tb_league_plan_use'
+    LEGACY_ITEM = 'Tb_legacy_item'
+    LEVEL_EXERCISE = 'Tb_level_exercise'
+    MAIL_DETAIL = 'Tb_mail_detail'
+    MAIL_RECEIVE = 'Tb_mail_receive'
+    MAIL_SEND = 'Tb_mail_send'
+    MAIL_TEMPLATE = 'Tb_mail_template'
+    MANUAL_REWARD_FROM_NPC = 'Tb_manual_reward_from_npc'
+    MAP_RES = 'Tb_map_res'
+    MATCH_PAIR = 'Tb_match_pair'
+    MATCH_PROFILE_UNION = 'Tb_match_profile_union'
+    MATCH_PROFILE_USER = 'Tb_match_profile_user'
+    MATERIAL_SURVEY_COMMUNICATE_INFO = 'Tb_material_survey_communicate_info'
+    MATERIAL_SURVEY_INTEL = 'Tb_material_survey_intel'
+    MEM_CARNIVAL_QA_RANK_INFO = 'Tb_mem_carnival_qa_rank_info'
+    MEM_SEASON_REWARD_PREVIEW = 'Tb_mem_season_reward_preview'
+    MEM_VIEW_BOUNTY_TASK = 'Tb_mem_view_bounty_task'
+    MEM_VIEW_TEAM_NPC = 'Tb_mem_view_team_npc'
+    MENTOR = 'Tb_mentor'
+    MONTH_SIGN_IN = 'Tb_month_sign_in'
+    NETEASE_VIP = 'Tb_netease_vip'
+    NEW_SERVER = 'Tb_new_server'
+    NIGHT_LAMP_RECEIVE = 'Tb_night_lamp_receive'
+    NOTICE = 'Tb_notice'
+    NPC_EVENT = 'Tb_npc_event'
+    NPC_RECOMMEND_LINEUP = 'Tb_npc_recommend_lineup'
+    NPC_REVENGE_EVENT_INFO = 'Tb_npc_revenge_event_info'
+    NPC_TASK_PUSH = 'Tb_npc_task_push'
+    ORG_ECOLOGY_PLANT = 'Tb_org_ecology_plant'
+    ORG_UNION_APPL = 'Tb_org_union_appl'
+    ORG_VIVARIUM_ECOLOGY_PLANT_CULTIVATE_LOG = 'Tb_org_vivarium_ecology_plant_cultivate_log'
+    ORGANIZATION_APPL = 'Tb_organization_appl'
+    ORGANIZATION_BBS_POST = 'Tb_organization_bbs_post'
+    ORGANIZATION_BBS_REPLY = 'Tb_organization_bbs_reply'
+    ORGANIZATION_ECOLOGICAL_VIVARIUM = 'Tb_organization_ecological_vivarium'
+    ORGANIZATION_GROUP = 'Tb_organization_group'
+    ORGANIZATION_INFO = 'Tb_organization_info'
+    ORGANIZATION_LOG = 'Tb_organization_log'
+    ORGANIZATION_NOTICE = 'Tb_organization_notice'
+    ORGANIZATION_OBSERVER = 'Tb_organization_observer'
+    ORGANIZATION_OBSERVER_APPL = 'Tb_organization_observer_appl'
+    ORGANIZATION_PLAN = 'Tb_organization_plan'
+    ORGANIZATION_RECOMMEND = 'Tb_organization_recommend'
+    ORGANIZATION_VIVARIUM_LOG = 'Tb_organization_vivarium_log'
+    OUTPOST_INFO = 'Tb_outpost_info'
+    OVERSEER = 'Tb_overseer'
+    PEAK_AUTH_ITEM = 'Tb_peak_auth_item'
+    PERPETUAL_WARZONE_BATTLE = 'Tb_perpetual_warzone_battle'
+    PERPETUAL_WARZONE_GAME_SESSION = 'Tb_perpetual_warzone_game_session'
+    PERPETUAL_WARZONE_LEVEL = 'Tb_perpetual_warzone_level'
+    PERPETUAL_WARZONE_SEASON = 'Tb_perpetual_warzone_season'
+    PERPETUAL_WARZONE_TEAM_ATTR = 'Tb_perpetual_warzone_team_attr'
+    PERSONAL_TASK = 'Tb_personal_task'
+    PIGMENT = 'Tb_pigment'
+    PLAN = 'Tb_plan'
+    PLAN_BUSINESS = 'Tb_plan_business'
+    PLAN_HISTORY = 'Tb_plan_history'
+    PLAN_PATH = 'Tb_plan_path'
+    PLAN_SNAPSHOT = 'Tb_plan_snapshot'
+    PLANET_AREA = 'Tb_planet_area'
+    PLANET_BERTH_BEACON = 'Tb_planet_berth_beacon'
+    PLANET_CONTROL_EFFECT = 'Tb_planet_control_effect'
+    PLANET_DYNAMIC = 'Tb_planet_dynamic'
+    PLANET_GRID = 'Tb_planet_grid'
+    PORT_GAME_PLAY = 'Tb_port_game_play'
+    PRE_SQUAD_APPLY = 'Tb_pre_squad_apply'
+    PRE_SQUAD_MEMBER = 'Tb_pre_squad_member'
+    PRE_USER_CONTRACT = 'Tb_pre_user_contract'
+    QUICK_ASSEMBLE_INFO = 'Tb_quick_assemble_info'
+    QUICK_ASSEMBLE_TEAM = 'Tb_quick_assemble_team'
+    RAIDER_FORT_BOSS_INFO = 'Tb_raider_fort_boss_info'
+    RANK_BOARD_STATE = 'Tb_rank_board_state'
+    RANK_BOARD_USER_RECORD = 'Tb_rank_board_user_record'
+    RE_TECH = 'Tb_re_tech'
+    REDPACKET = 'Tb_redpacket'
+    REGRESSION_TASK = 'Tb_regression_task'
+    REMOTE_STRIKE_FORMATION = 'Tb_remote_strike_formation'
+    REMOTE_STRIKE_RANGE = 'Tb_remote_strike_range'
+    REPORT = 'Tb_report'
+    REPORT_DETAIL = 'Tb_report_detail'
+    REPORT_DETAIL_BETA = 'Tb_report_detail_beta'
+    REPORT_DETAIL_EX = 'Tb_report_detail_ex'
+    SCENE_PROP = 'Tb_scene_prop'
+    SEARCH_TUTORIAL_EVENT = 'Tb_search_tutorial_event'
+    SEASON_REWARD_PREVIEW = 'Tb_season_reward_preview'
+    SERVER_CHAT_CONNECTED_HISTORY = 'Tb_server_chat_connected_history'
+    SERVER_CONNECT_GALAXY = 'Tb_server_connect_galaxy'
+    SHIP = 'Tb_ship'
+    SHIP_BLUEPRINT = 'Tb_ship_blueprint'
+    SHIP_BLUEPRINT_CHOICE = 'Tb_ship_blueprint_choice'
+    SHIP_BLUEPRINT_GAME_PLAY = 'Tb_ship_blueprint_game_play'
+    SHIP_BLUEPRINT_ROUTE_REWARD = 'Tb_ship_blueprint_route_reward'
+    SHIP_BORROW = 'Tb_ship_borrow'
+    SHIP_BP_OVERVIEW = 'Tb_ship_bp_overview'
+    SHIP_BP_OVERVIEW_GAME_PLAY = 'Tb_ship_bp_overview_game_play'
+    SHIP_BP_PROGRESS = 'Tb_ship_bp_progress'
+    SHIP_BP_SCHEME_HELP = 'Tb_ship_bp_scheme_help'
+    SHIP_CRUISE = 'Tb_ship_cruise'
+    SHIP_CRUISE_USER = 'Tb_ship_cruise_user'
+    SHIP_CRUISE_VISIT = 'Tb_ship_cruise_visit'
+    SHIP_GUILD_DOCK_ALLOT = 'Tb_ship_guild_dock_allot'
+    SHIP_NEWBIE = 'Tb_ship_newbie'
+    SHIP_PLAY = 'Tb_ship_play'
+    SHIP_REIN_BUILD_RECORD = 'Tb_ship_rein_build_record'
+    SHIP_REINFORE_ASSIST = 'Tb_ship_reinfore_assist'
+    SHOP_RECORD = 'Tb_shop_record'
+    SITUATION = 'Tb_situation'
+    SITUATION_ACTIVITY_RECORD = 'Tb_situation_activity_record'
+    SITUATION_AREA = 'Tb_situation_area'
+    SITUATION_HISTORY = 'Tb_situation_history'
+    SITUATION_RECORD = 'Tb_situation_record'
+    SITUATION_USER_INFO = 'Tb_situation_user_info'
+    SQUAD_APPLY = 'Tb_squad_apply'
+    STARGATE_STATION = 'Tb_stargate_station'
+    STORY_NPC_TEAM = 'Tb_story_npc_team'
+    STORY_NPC_WORLD_ITEM = 'Tb_story_npc_world_item'
+    SUB_TEAM = 'Tb_sub_team'
+    SUBSCRIBE = 'Tb_subscribe'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME = 'Tb_super_main_ship_bp_system_scheme'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_GAME_PLAY = 'Tb_super_main_ship_bp_system_scheme_game_play'
+    SYS_BROADCAST = 'Tb_sys_broadcast'
+    SYS_CITY = 'Tb_sys_city'
+    SYS_ECOLOGY = 'Tb_sys_ecology'
+    SYS_NPC_UNION_CITY = 'Tb_sys_npc_union_city'
+    SYS_PARAM = 'Tb_sys_param'
+    SYS_REGION = 'Tb_sys_region'
+    SYS_STELLAR_STORM = 'Tb_sys_stellar_storm'
+    SYS_STUFF_NOTIFY = 'Tb_sys_stuff_notify'
+    SYS_USER_CONFIG = 'Tb_sys_user_config'
+    SYSTEM_INFO = 'Tb_system_info'
+    TACTICAL_OPERATION_USE_RECORD = 'Tb_tactical_operation_use_record'
+    TASK = 'Tb_task'
+    TASK_COMPLETED = 'Tb_task_completed'
+    TASK_LINE_COMPLETE = 'Tb_task_line_complete'
+    TASK_RECORD = 'Tb_task_record'
+    TEAM = 'Tb_team'
+    TEAM_ACTION_APPOINTMENT = 'Tb_team_action_appointment'
+    TEAM_ANCHORAGE = 'Tb_team_anchorage'
+    TEAM_ATTR = 'Tb_team_attr'
+    TEAM_BATTLE_INFO = 'Tb_team_battle_info'
+    TEAM_BORROW_USE = 'Tb_team_borrow_use'
+    TEAM_CC_TIME_INFO = 'Tb_team_cc_time_info'
+    TEAM_COLLECT_DROP_TASK = 'Tb_team_collect_drop_task'
+    TEAM_CONNECT_GALAXY = 'Tb_team_connect_galaxy'
+    TEAM_CROSS_SERVER_BRIEF = 'Tb_team_cross_server_brief'
+    TEAM_DEPLOY = 'Tb_team_deploy'
+    TEAM_DUNGEON_ACTION = 'Tb_team_dungeon_action'
+    TEAM_EXERCISE = 'Tb_team_exercise'
+    TEAM_EXPEDTION_ASSEMBLE = 'Tb_team_expedtion_assemble'
+    TEAM_FLOATER_STAR = 'Tb_team_floater_star'
+    TEAM_HIT_BY_REMOTE_STRIKE = 'Tb_team_hit_by_remote_strike'
+    TEAM_HUNTER_TREASURE = 'Tb_team_hunter_treasure'
+    TEAM_LOST = 'Tb_team_lost'
+    TEAM_MARSHAL_SCHEME = 'Tb_team_marshal_scheme'
+    TEAM_MOVE_BASE_INFO = 'Tb_team_move_base_info'
+    TEAM_MOVE_PROPERTY = 'Tb_team_move_property'
+    TEAM_NEWBIE = 'Tb_team_newbie'
+    TEAM_PLANET_LANDING = 'Tb_team_planet_landing'
+    TEAM_PLAY = 'Tb_team_play'
+    TEAM_RANK_TEAM_RECORD = 'Tb_team_rank_team_record'
+    TEAM_REIN_BUILD_RECORD = 'Tb_team_rein_build_record'
+    TEAM_RENDZVOUS_RECORD = 'Tb_team_rendzvous_record'
+    TEAM_STORY_REWARD = 'Tb_team_story_reward'
+    TEAM_SUB_TRANSFER = 'Tb_team_sub_transfer'
+    TEAM_SUP_UNFOLD = 'Tb_team_sup_unfold'
+    TEAM_TRANSFER_BACK = 'Tb_team_transfer_back'
+    TEAM_UP_INFO = 'Tb_team_up_info'
+    TEAM_VISIT = 'Tb_team_visit'
+    TECH_ITEM_DISTRIBUTE = 'Tb_tech_item_distribute'
+    TECH_ITEM_DISTRIBUTE_RECORD = 'Tb_tech_item_distribute_record'
+    TECH_ITEM_RECEIVE_RECORD = 'Tb_tech_item_receive_record'
+    TORPEDO = 'Tb_torpedo'
+    TRACKING_PIRATE = 'Tb_tracking_pirate'
+    TRADE_ITEMS = 'Tb_trade_items'
+    TRADE_ORDERS = 'Tb_trade_orders'
+    TRADE_USERS = 'Tb_trade_users'
+    UNION_APPL = 'Tb_union_appl'
+    UNION_INFO = 'Tb_union_info'
+    UNION_LOG = 'Tb_union_log'
+    UNION_MARK = 'Tb_union_mark'
+    UNION_MEMBER = 'Tb_union_member'
+    UNION_MERGE_INFO = 'Tb_union_merge_info'
+    UNION_RELATION = 'Tb_union_relation'
+    UNION_RELATION_SIGN = 'Tb_union_relation_sign'
+    UNION_SHARE = 'Tb_union_share'
+    UNION_STRATEGY = 'Tb_union_strategy'
+    UNION_TEAM_MARSHAL_SCHEME = 'Tb_union_team_marshal_scheme'
+    USER = 'Tb_user'
+    USER_ACCEPTABLE_TASK = 'Tb_user_acceptable_task'
+    USER_ACTIVATION = 'Tb_user_activation'
+    USER_ACTIVATION_RECOVER = 'Tb_user_activation_recover'
+    USER_ALERT = 'Tb_user_alert'
+    USER_ARCHIVES = 'Tb_user_archives'
+    USER_ASSEMBLE = 'Tb_user_assemble'
+    USER_ASSET_PACK = 'Tb_user_asset_pack'
+    USER_ASSET_PICTURE = 'Tb_user_asset_picture'
+    USER_AUCTION_GOODS_FOLLOW = 'Tb_user_auction_goods_follow'
+    USER_AUCTION_PERSONAL_LOOT_BONUS = 'Tb_user_auction_personal_loot_bonus'
+    USER_BACKFLOW = 'Tb_user_backflow'
+    USER_BACKFLOW_INVITE = 'Tb_user_backflow_invite'
+    USER_BACKFLOW_SERVER = 'Tb_user_backflow_server'
+    USER_BACKFLOW_SUPPORT = 'Tb_user_backflow_support'
+    USER_BAN = 'Tb_user_ban'
+    USER_BASE_MODIFY_GUIDE = 'Tb_user_base_modify_guide'
+    USER_BASE_NPC_STORE = 'Tb_user_base_npc_store'
+    USER_BASE_NPC_STORE_GOODS_LIST = 'Tb_user_base_npc_store_goods_list'
+    USER_BASE_SHIP_AUTO_REPLENISH = 'Tb_user_base_ship_auto_replenish'
+    USER_BATTLE_ACHIEVEMENT_STORE = 'Tb_user_battle_achievement_store'
+    USER_BLACKLIST = 'Tb_user_blacklist'
+    USER_BLUEPRINT_WORKSHOP = 'Tb_user_blueprint_workshop'
+    USER_BOOST_COUPON = 'Tb_user_boost_coupon'
+    USER_BOUNTY_ACTIVITY = 'Tb_user_bounty_activity'
+    USER_BOUNTY_FREE_INFO = 'Tb_user_bounty_free_info'
+    USER_BOUNTY_PEAK = 'Tb_user_bounty_peak'
+    USER_BOUNTY_POST_INFO = 'Tb_user_bounty_post_info'
+    USER_BOUNTY_RECORD = 'Tb_user_bounty_record'
+    USER_BOUNTY_RES = 'Tb_user_bounty_res'
+    USER_BOUNTY_TASK = 'Tb_user_bounty_task'
+    USER_BOUNTY_TASK_JOIN = 'Tb_user_bounty_task_join'
+    USER_BP_PACK_SHARE_OPEN = 'Tb_user_bp_pack_share_open'
+    USER_BUILD_EFFECT_STUFF = 'Tb_user_build_effect_stuff'
+    USER_CARD = 'Tb_user_card'
+    USER_CBG = 'Tb_user_cbg'
+    USER_CBT2_PAY_RECORD = 'Tb_user_cbt2_pay_record'
+    USER_CHAT_INTERACTION = 'Tb_user_chat_interaction'
+    USER_CITY = 'Tb_user_city'
+    USER_COLLECTION_ITEM = 'Tb_user_collection_item'
+    USER_COMMUNITY = 'Tb_user_community'
+    USER_COMPLAIN_STUFF = 'Tb_user_complain_stuff'
+    USER_CONFIGURATION = 'Tb_user_configuration'
+    USER_CONFIGURATION_TMP = 'Tb_user_configuration_tmp'
+    USER_CONNECT_GALAXY = 'Tb_user_connect_galaxy'
+    USER_CONSUME_ITEM = 'Tb_user_consume_item'
+    USER_CONTACT = 'Tb_user_contact'
+    USER_CONTRACT = 'Tb_user_contract'
+    USER_CONTRACT_PERSONAL = 'Tb_user_contract_personal'
+    USER_CROSS_CONQUER_STORE = 'Tb_user_cross_conquer_store'
+    USER_CROSS_HUNTER = 'Tb_user_cross_hunter'
+    USER_CURRENCY = 'Tb_user_currency'
+    USER_CURVATURE_EFFECT = 'Tb_user_curvature_effect'
+    USER_DAWN_POINT_STORE = 'Tb_user_dawn_point_store'
+    USER_DECAL_STORE = 'Tb_user_decal_store'
+    USER_DELAY_NEW_TASK = 'Tb_user_delay_new_task'
+    USER_ECOLOGICAL_VIVARIUM = 'Tb_user_ecological_vivarium'
+    USER_ECOLOGY_OUTPUT = 'Tb_user_ecology_output'
+    USER_ECOLOGY_PARK = 'Tb_user_ecology_park'
+    USER_ECOLOGY_PARK_VOTE = 'Tb_user_ecology_park_vote'
+    USER_ECOLOGY_STORE = 'Tb_user_ecology_store'
+    USER_EFFICIENCY_ROBOT = 'Tb_user_efficiency_robot'
+    USER_EFFICIENCY_ROBOT_BUFF = 'Tb_user_efficiency_robot_buff'
+    USER_EMBLEM = 'Tb_user_emblem'
+    USER_ENGINEER_OVERVIEW = 'Tb_user_engineer_overview'
+    USER_ENTERPRISE_WECHAT = 'Tb_user_enterprise_wechat'
+    USER_EQUIPMENT = 'Tb_user_equipment'
+    USER_ETS_STORY_RECORD = 'Tb_user_ets_story_record'
+    USER_EVA_ACTIVITY_RECORD = 'Tb_user_eva_activity_record'
+    USER_EVA_FIGHT_INFO = 'Tb_user_eva_fight_info'
+    USER_EVENT_REFRESHER = 'Tb_user_event_refresher'
+    USER_EXERCISE_GUIDE_RECORD = 'Tb_user_exercise_guide_record'
+    USER_EXERCISE_REWARD = 'Tb_user_exercise_reward'
+    USER_EXERCISE_TEAM_SCHEME = 'Tb_user_exercise_team_scheme'
+    USER_EXPLORE_CONTRACT_DATA = 'Tb_user_explore_contract_data'
+    USER_FACADE_INFO = 'Tb_user_facade_info'
+    USER_FACILITY_CHIP = 'Tb_user_facility_chip'
+    USER_FIGHT_EXP_PRODUCE = 'Tb_user_fight_exp_produce'
+    USER_FLY_REBORN = 'Tb_user_fly_reborn'
+    USER_FRIEND = 'Tb_user_friend'
+    USER_FRIEND_APPLY = 'Tb_user_friend_apply'
+    USER_FUNDING_SHIP = 'Tb_user_funding_ship'
+    USER_GALAXY_FIELD_TASK_RECORD = 'Tb_user_galaxy_field_task_record'
+    USER_GALAXY_MARKET = 'Tb_user_galaxy_market'
+    USER_GAME_PLAY_STUFF = 'Tb_user_game_play_stuff'
+    USER_GIFT_RECOMMEND = 'Tb_user_gift_recommend'
+    USER_GM_CHAT_XINYI = 'Tb_user_gm_chat_xinyi'
+    USER_GROUP_AIR_RACE_INFO = 'Tb_user_group_air_race_info'
+    USER_GUARD_SAPLINGS = 'Tb_user_guard_saplings'
+    USER_GUARD_SAPLINGS_RECORD = 'Tb_user_guard_saplings_record'
+    USER_HERO_SHIP_RESEARCH_STUFF = 'Tb_user_hero_ship_research_stuff'
+    USER_HISTORY_RECORD = 'Tb_user_history_record'
+    USER_HUNTER_DUNGEON_RECORD = 'Tb_user_hunter_dungeon_record'
+    USER_HUNTING_ARCHIVE_INFO = 'Tb_user_hunting_archive_info'
+    USER_INTELLIGENCE = 'Tb_user_intelligence'
+    USER_INTELLIGENCE_REWARD = 'Tb_user_intelligence_reward'
+    USER_INTRA_SEASON_RECORD = 'Tb_user_intra_season_record'
+    USER_IO_CAMP_STORE_RECORD = 'Tb_user_io_camp_store_record'
+    USER_IO_CONTRACT = 'Tb_user_io_contract'
+    USER_IO_DATA = 'Tb_user_io_data'
+    USER_IO_RES_ORDER = 'Tb_user_io_res_order'
+    USER_IO_RES_ORDER_ORG = 'Tb_user_io_res_order_org'
+    USER_ITEM_CARAVAN_VISIT = 'Tb_user_item_caravan_visit'
+    USER_ITEM_FACADE = 'Tb_user_item_facade'
+    USER_ITEM_TEMP = 'Tb_user_item_temp'
+    USER_JOINT_BELTLINE = 'Tb_user_joint_beltline'
+    USER_JOINT_BELTLINE_PRODUCE = 'Tb_user_joint_beltline_produce'
+    USER_JUVENILE = 'Tb_user_juvenile'
+    USER_LEGACY = 'Tb_user_legacy'
+    USER_LEVEL_EXERCISE_RECORD = 'Tb_user_level_exercise_record'
+    USER_LOGIN = 'Tb_user_login'
+    USER_MAP_OBS_AREA_OPEN = 'Tb_user_map_obs_area_open'
+    USER_MAP_RES = 'Tb_user_map_res'
+    USER_MEME = 'Tb_user_meme'
+    USER_MIDWAY_QUIT = 'Tb_user_midway_quit'
+    USER_NEGO_GARRISON = 'Tb_user_nego_garrison'
+    USER_NEUTRALITY_BATTLE_INFO = 'Tb_user_neutrality_battle_info'
+    USER_NEUTRALITY_CONTRACT_DATA = 'Tb_user_neutrality_contract_data'
+    USER_NEUTRALITY_COOPERATION = 'Tb_user_neutrality_cooperation'
+    USER_NEW_TASK = 'Tb_user_new_task'
+    USER_NEW_TASK_PACK = 'Tb_user_new_task_pack'
+    USER_NEWBIE = 'Tb_user_newbie'
+    USER_NEWBIE_INFO = 'Tb_user_newbie_info'
+    USER_NPC_DISPATCH = 'Tb_user_npc_dispatch'
+    USER_NPC_MISSION = 'Tb_user_npc_mission'
+    USER_NPC_MISSION_CD = 'Tb_user_npc_mission_cd'
+    USER_NPC_MISSION_STORAGE = 'Tb_user_npc_mission_storage'
+    USER_NPC_STORE_RECORD = 'Tb_user_npc_store_record'
+    USER_NPC_TASK = 'Tb_user_npc_task'
+    USER_OBSERVER_STUFF = 'Tb_user_observer_stuff'
+    USER_ORGANIZATION_MEMBER = 'Tb_user_organization_member'
+    USER_OUTPOST_LOG = 'Tb_user_outpost_log'
+    USER_OUTPOST_NOTIFY = 'Tb_user_outpost_notify'
+    USER_OVERSEER_INFO = 'Tb_user_overseer_info'
+    USER_PACK_RECOMMEND_ITEM = 'Tb_user_pack_recommend_item'
+    USER_PACK_RECOMMEND_ORDER = 'Tb_user_pack_recommend_order'
+    USER_PAINT_CUSTOM_GEN_TEMPLATE = 'Tb_user_paint_custom_gen_template'
+    USER_PAINTING = 'Tb_user_painting'
+    USER_PERPETUAL_WARZONE_TEAM = 'Tb_user_perpetual_warzone_team'
+    USER_PERPETUAL_WARZONE_TEAM_SCHEME = 'Tb_user_perpetual_warzone_team_scheme'
+    USER_PLAN_POINT_EFFECT = 'Tb_user_plan_point_effect'
+    USER_PRIVATEER_MEETING_INTEL = 'Tb_user_privateer_meeting_intel'
+    USER_PRIVATEER_MEETING_REWARD = 'Tb_user_privateer_meeting_reward'
+    USER_PRIVILEGE = 'Tb_user_privilege'
+    USER_PROGRESS_REWARD = 'Tb_user_progress_reward'
+    USER_PROSPECT = 'Tb_user_prospect'
+    USER_PROSPECT_BLAST_MINE = 'Tb_user_prospect_blast_mine'
+    USER_PROSPECT_RECORD = 'Tb_user_prospect_record'
+    USER_PROSPECT_YEDENG_RECORD = 'Tb_user_prospect_yedeng_record'
+    USER_PROSPERITY = 'Tb_user_prosperity'
+    USER_QUICK_NEWS = 'Tb_user_quick_news'
+    USER_RED_DOT = 'Tb_user_red_dot'
+    USER_RED_POINT_DATA = 'Tb_user_red_point_data'
+    USER_REDPACKET_GROUP = 'Tb_user_redpacket_group'
+    USER_REDPACKET_INFO = 'Tb_user_redpacket_info'
+    USER_RES = 'Tb_user_res'
+    USER_RES_CAP = 'Tb_user_res_cap'
+    USER_RESEARCH_PACK_WISH = 'Tb_user_research_pack_wish'
+    USER_RESPACK = 'Tb_user_respack'
+    USER_REWARD_DROP = 'Tb_user_reward_drop'
+    USER_SCORE_COIN = 'Tb_user_score_coin'
+    USER_SCORE_STORE = 'Tb_user_score_store'
+    USER_SEASON_CATCH_UP = 'Tb_user_season_catch_up'
+    USER_SEASON_SETTLE_RECORD = 'Tb_user_season_settle_record'
+    USER_SERVER_CHAT = 'Tb_user_server_chat'
+    USER_SERVER_CHAT_UNIVERSAL = 'Tb_user_server_chat_universal'
+    USER_SIGHTSEEING_STUFF = 'Tb_user_sightseeing_stuff'
+    USER_SIGHTSEEING_TRAVELING_LOG = 'Tb_user_sightseeing_traveling_log'
+    USER_SIGN_CONTRACT_APPLY = 'Tb_user_sign_contract_apply'
+    USER_SITUATION_FORT = 'Tb_user_situation_fort'
+    USER_SITUATION_FORT_RANK_LIKE = 'Tb_user_situation_fort_rank_like'
+    USER_SITUATION_FORT_RANK_LIKE_RECORD = 'Tb_user_situation_fort_rank_like_record'
+    USER_SITUATION_KP_RANK_LIKE_RECORD = 'Tb_user_situation_kp_rank_like_record'
+    USER_SOUVENIR_DATA = 'Tb_user_souvenir_data'
+    USER_STAGE_TASK_PACK = 'Tb_user_stage_task_pack'
+    USER_STORE = 'Tb_user_store'
+    USER_STORY_REWARD = 'Tb_user_story_reward'
+    USER_STUDENT_AUTH = 'Tb_user_student_auth'
+    USER_STUFF = 'Tb_user_stuff'
+    USER_STUFF_EX = 'Tb_user_stuff_ex'
+    USER_STUFF_EXT = 'Tb_user_stuff_ext'
+    USER_SYS_BROADCAST_STUFF = 'Tb_user_sys_broadcast_stuff'
+    USER_TALENT = 'Tb_user_talent'
+    USER_TASK_GROUP = 'Tb_user_task_group'
+    USER_TASK_GUIDE = 'Tb_user_task_guide'
+    USER_TEAM = 'Tb_user_team'
+    USER_TEAM_LOG = 'Tb_user_team_log'
+    USER_TECH = 'Tb_user_tech'
+    USER_TECH_BLUEPRINT = 'Tb_user_tech_blueprint'
+    USER_TECH_ITEM = 'Tb_user_tech_item'
+    USER_TECH_STORE = 'Tb_user_tech_store'
+    USER_TERRAFORM_INFO = 'Tb_user_terraform_info'
+    USER_TERRAFORM_STORE = 'Tb_user_terraform_store'
+    USER_TERRAFORM_TASK = 'Tb_user_terraform_task'
+    USER_TITLE = 'Tb_user_title'
+    USER_TRADE_INTEREST = 'Tb_user_trade_interest'
+    USER_TRAILBLAZER_INFO = 'Tb_user_trailblazer_info'
+    USER_TREASURE_COIN = 'Tb_user_treasure_coin'
+    USER_TREASURE_ITEM = 'Tb_user_treasure_item'
+    USER_UNION_VICTORY = 'Tb_user_union_victory'
+    USER_VIEW_SHARE = 'Tb_user_view_share'
+    USER_VIRTUAL_TEAM = 'Tb_user_virtual_team'
+    USER_VISIT = 'Tb_user_visit'
+    USER_VISIT_CNT = 'Tb_user_visit_cnt'
+    USER_VISIT_INFO = 'Tb_user_visit_info'
+    USER_VIVARIUM_STUFF = 'Tb_user_vivarium_stuff'
+    USER_VOICE_STYLE = 'Tb_user_voice_style'
+    USER_WAREHOUSE_INFO = 'Tb_user_warehouse_info'
+    USER_WECHAT = 'Tb_user_wechat'
+    USER_WINDOW_POPUP = 'Tb_user_window_popup'
+    VIEW_ALERT = 'Tb_view_alert'
+    VIVARIUM_ECOLOGY_PLANT_CULTIVATE_LOG = 'Tb_vivarium_ecology_plant_cultivate_log'
+    VIVARIUM_ECOLOGY_PLANT_DEAD_RECORD = 'Tb_vivarium_ecology_plant_dead_record'
+    VIVARIUM_NOTIFY = 'Tb_vivarium_notify'
+    WARZONE_LADDER_USER = 'Tb_warzone_ladder_user'
+    WEAPON_TECH = 'Tb_weapon_tech'
+    WORLD_BOSS_INFO = 'Tb_world_boss_info'
+    WORLD_GLOBAL_VIEW = 'Tb_world_global_view'
+    WORLD_ITEM = 'Tb_world_item'
+    WORLD_ITEM_CONTROL = 'Tb_world_item_control'
+    WORLD_ITEM_DYNAMIC = 'Tb_world_item_dynamic'
+    WORLD_ITEM_INACTIVE = 'Tb_world_item_inactive'
+    WORLD_ITEM_NEGO_CONTROL = 'Tb_world_item_nego_control'
+    WORLD_MARK = 'Tb_world_mark'
+  class TeamField(object):
+    TABLE_NAME = 'Tb_team'
+    PRIMARY_KEY = 'team_id'
+    USER_ID_KEY = 'userid'
+    ACCELERATION = 'acceleration'
+    ACTION = 'action'
+    ACTION_ATTR = 'action_attr'
+    AIRCRAFT_COUNT = 'aircraft_count'
+    ALERT_RADIUS = 'alert_radius'
+    ARRIVAL_TYPE = 'arrival_type'
+    ARRIVE_TARGET_TIME = 'arrive_target_time'
+    ATTACK_TARGET = 'attack_target'
+    ATTR = 'attr'
+    ATTR2 = 'attr2'
+    ATTR_STR = 'attr_str'
+    BASE_PLAN_ID = 'base_plan_id'
+    BASE_PLAN_POS = 'base_plan_pos'
+    BATTLE_BACK_TIME = 'battle_back_time'
+    BATTLE_START_TIME = 'battle_start_time'
+    BATTLE_TIME = 'battle_time'
+    BEACON_COLLECT_INFO = 'beacon_collect_info'
+    BEGIN_TIME = 'begin_time'
+    BELONG_CONTROL_ID = 'belong_control_id'
+    BELONG_ID = 'belong_id'
+    BSTEAM_INDEX = 'bsteam_index'
+    CANCEL_ACTION_INFO = 'cancel_action_info'
+    CFG_NPC_UNION_GUARD_TEAM_ID = 'cfg_npc_union_guard_team_id'
+    COST = 'cost'
+    COUNTER_ATTACK_TARGET = 'counter_attack_target'
+    CREATE_TIME = 'create_time'
+    CUR_GROUP = 'cur_group'
+    CURVATURE_ID = 'curvature_id'
+    DATA_WORLDITEM_ID = 'data_worlditem_id'
+    DELEGATE_BELONG_ORG_PLAN_ID = 'delegate_belong_org_plan_id'
+    DOCK_TARGET_TEAM_ID = 'dock_target_team_id'
+    DOCK_WORLD_ITEM_ID = 'dock_world_item_id'
+    END_TIME = 'end_time'
+    ESCORT_TEAM_ID = 'escort_team_id'
+    EVENT_DISTANCE = 'event_distance'
+    EXCUTOR_TYPE = 'excutor_type'
+    EXCUTOR_USERID = 'excutor_userid'
+    EXERCISE_TARGET_TEAM_ID = 'exercise_target_team_id'
+    EXERCISE_TARGET_USERID = 'exercise_target_userid'
+    EXERCISE_TEAM_ID = 'exercise_team_id'
+    EXERCISE_TYPE = 'exercise_type'
+    EXPLORE = 'explore'
+    EXTRA_INFO = 'extra_info'
+    FAKE_TEAM_INFO_COUNT = 'fake_team_info_count'
+    FLAGSHIP_EFFECTS = 'flagship_effects'
+    FLAGSHIP_ID_U = 'flagship_id_u'
+    FLOATER_STAR_FACADE = 'floater_star_facade'
+    FROM_COORDINATE = 'from_coordinate'
+    FROM_POS = 'from_pos'
+    FROM_TYPE = 'from_type'
+    GARRISON_RES_LIST = 'garrison_res_list'
+    GUILD_DOCK_ALLOT_TARGET_TEAM = 'guild_dock_allot_target_team'
+    HEIGHT = 'height'
+    HERO_SHIP_ID_LIST = 'hero_ship_id_list'
+    IMMUTABLE_ATTR = 'immutable_attr'
+    IMMUTABLE_TEAM_TYPE = 'immutable_team_type'
+    INDEX = 'index'
+    INITIAL_VELOCITY = 'initial_velocity'
+    INTELL_GATHER_PROGRESS = 'intell_gather_progress'
+    INTELL_GATHER_TIME = 'intell_gather_time'
+    INTELL_ID = 'intell_id'
+    LEAGUE_ID = 'league_id'
+    LEVEL_EXERCISE_MONSTER_ID = 'level_exercise_monster_id'
+    LEVEL_ID = 'level_id'
+    MAX_CRUISE_VELOCITY = 'max_cruise_velocity'
+    MOVE_BEGIN_TIME = 'move_begin_time'
+    MOVE_ID = 'move_id'
+    MOVE_ORIGIN = 'move_origin'
+    MOVE_ORIGIN_COORDINATE = 'move_origin_coordinate'
+    MOVE_PATH = 'move_path'
+    MOVE_SPEED = 'move_speed'
+    MOVE_TARGET = 'move_target'
+    MOVE_TARGET_COORDINATE = 'move_target_coordinate'
+    NAME = 'name'
+    NPC_ID = 'npc_id'
+    ORG_TEMPLATE_PLAN_ID = 'org_template_plan_id'
+    PAINTING = 'painting'
+    PARK_ON_TARGET_ID = 'park_on_target_id'
+    PARK_ON_TYPE = 'park_on_type'
+    PASSED_COUNT = 'passed_count'
+    PATH_ATTR = 'path_attr'
+    PATH_ID = 'path_id'
+    PIRATE_REFRESH_INFO = 'pirate_refresh_info'
+    PIRATE_REFRESH_TYPE = 'pirate_refresh_type'
+    PLAN_ID = 'plan_id'
+    PLAN_PATH_STATE = 'plan_path_state'
+    POS = 'pos'
+    POS_COORDINATE = 'pos_coordinate'
+    POWER = 'power'
+    PREV_PLAN_ID = 'prev_plan_id'
+    PURSUE_ID = 'pursue_id'
+    PURSUE_ORIGIN = 'pursue_origin'
+    PURSUE_ORIGIN_COORDINATE = 'pursue_origin_coordinate'
+    PURSUE_TIME = 'pursue_time'
+    PURSUE_TYPE = 'pursue_type'
+    RADIUS = 'radius'
+    RAVEN_TARGET_TIME = 'raven_target_time'
+    REACTION_STATE = 'reaction_state'
+    REINFORCE_TEAM_INFO_FOR_CROSS = 'reinforce_team_info_for_cross'
+    RELATED_USERID = 'related_userid'
+    RELAY_PATH = 'relay_path'
+    RELAY_ROUTE = 'relay_route'
+    RELAY_WAYPOINTS_INDEX = 'relay_waypoints_index'
+    RET_PLAN_POINT_ON_MOVE_FAILED = 'ret_plan_point_on_move_failed'
+    ROUTE_TYPE = 'route_type'
+    RVO_INFO = 'rvo_info'
+    SECONDARY_TARGET_ID = 'secondary_target_id'
+    SECONDARY_TARGET_TYPE = 'secondary_target_type'
+    SENDOUT_STATE = 'sendout_state'
+    SHIP_COUNT = 'ship_count'
+    SHIP_TYPE_BITS = 'ship_type_bits'
+    SPEED = 'speed'
+    SPEED_INC = 'speed_inc'
+    STATE = 'state'
+    SUPERIOR_USERID = 'superior_userid'
+    SUPPLY_STATE = 'supply_state'
+    TARGET_ID = 'target_id'
+    TARGET_TYPE = 'target_type'
+    TASK_TYPE = 'task_type'
+    TEAM_ID = 'team_id'
+    TEAM_TYPE = 'team_type'
+    TECH_ITEM_EFFECTS = 'tech_item_effects'
+    TO_COORDINATE = 'to_coordinate'
+    TO_POS = 'to_pos'
+    TRACE_PACK_LIMIT = 'trace_pack_limit'
+    UNION_ID = 'union_id'
+    USERID = 'userid'
+    VIEW_RADIUS = 'view_radius'
+    WAYPOINTS = 'waypoints'
+    WEIGHT = 'weight'
+    FIELDS = ['acceleration', 'action', 'action_attr', 'aircraft_count', 'alert_radius', 'arrival_type', 'arrive_target_time', 'attac
+    WORLD_VIEW_FIELDS = ['team_id', 'belong_id', 'union_id', 'userid', 'index', 'superior_userid', 'name', 'team_type', 'state', 'action', 'targ
+    BattleBeginNotifyType = <class 'common.config.table_definition.TeamField.BattleBeginNotifyType'>
+    State = <class 'common.config.table_definition.TeamField.State'>
+    Action = <class 'common.config.table_definition.TeamField.Action'>
+    TargetType = <class 'common.config.table_definition.TeamField.TargetType'>
+    Type = <class 'common.config.table_definition.TeamField.Type'>
+    ReactionState = <class 'common.config.table_definition.TeamField.ReactionState'>
+    ArrivalType = <class 'common.config.table_definition.TeamField.ArrivalType'>
+    Path = <class 'common.config.table_definition.TeamField.Path'>
+    Attr = <class 'common.config.table_definition.TeamField.Attr'>
+    ImmutableAttr = <class 'common.config.table_definition.TeamField.ImmutableAttr'>
+    ActionAttr = <class 'common.config.table_definition.TeamField.ActionAttr'>
+    Attr2 = <class 'common.config.table_definition.TeamField.Attr2'>
+    AttrStr = <class 'common.config.table_definition.TeamField.AttrStr'>
+    PathAttr = <class 'common.config.table_definition.TeamField.PathAttr'>
+    TaskType = <class 'common.config.table_definition.TeamField.TaskType'>
+    Entity = <class 'common.config.table_definition.TeamField.Entity'>
+    Cmd = <class 'common.config.table_definition.TeamField.Cmd'>
+    Explore = <class 'common.config.table_definition.TeamField.Explore'>
+    SupplyState = <class 'common.config.table_definition.TeamField.SupplyState'>
+    Group = <class 'common.config.table_definition.TeamField.Group'>
+    GroupType = <class 'common.config.table_definition.TeamField.GroupType'>
+    RouteFailType = <class 'common.config.table_definition.TeamField.RouteFailType'>
+    PirateType = <class 'common.config.table_definition.TeamField.PirateType'>
+    UserPirateInfoRefresh = <class 'common.config.table_definition.TeamField.UserPirateInfoRefresh'>
+    ExtraKey = <class 'common.config.table_definition.TeamField.ExtraKey'>
+    SendOutType = <class 'common.config.table_definition.TeamField.SendOutType'>
+    FromType = <class 'common.config.table_definition.TeamField.FromType'>
+    ParkOnType = <class 'common.config.table_definition.TeamField.ParkOnType'>
+    ExecutrorType = <class 'common.config.table_definition.TeamField.ExecutrorType'>
+    RECORD_TEMPLATE = {'Tb_team': 'Tb_team', 'acceleration': 0, 'action': 0, 'action_attr': 0, 'aircraft_count': 0, 'alert_radius': 0, 'arriva
+  class CfgShipTypeField(object):
+    TABLE_NAME = 'Tb_cfg_ship_type'
+    PRIMARY_KEY = 'id'
+    USER_ID_KEY = None
+    DEFAULT_MORIBUND_SEQUENCE_ID = 'default_moribund_sequence_id'
+    DESC = 'desc'
+    ID = 'id'
+    LEVEL = 'level'
+    MORIBUND_SEQUENCE_ID_LIST = 'moribund_sequence_id_list'
+    PRODUCE_RES_ADD_COEF = 'produce_res_add_coef'
+    PRODUCE_TIME_ADD_COEF = 'produce_time_add_coef'
+    REPAIR_ADJUST_COEF = 'repair_adjust_coef'
+    SHIP_HP_ADD = 'ship_hp_add'
+    SHIP_SYSTEM_HP_ADD = 'ship_system_hp_add'
+    SHIP_TYPE = 'ship_type'
+    FIELDS = ['default_moribund_sequence_id', 'desc', 'id', 'level', 'moribund_sequence_id_list', 'produce_res_add_coef', 'produce_ti
+    ShipType = <class 'common.config.table_definition.CfgShipTypeField.ShipType'>
+    ShipLevel = <class 'common.config.table_definition.CfgShipTypeField.ShipLevel'>
+  class CfgShipField(object):
+    TABLE_NAME = 'Tb_cfg_ship'
+    PRIMARY_KEY = 'ship_id'
+    USER_ID_KEY = None
+    AIRCRAFT_GROUP_NUM = 'aircraft_group_num'
+    AIRCRAFT_TYPE = 'aircraft_type'
+    BATTLE_MOVE_TYPE = 'battle_move_type'
+    CATEGORY = 'category'
+    COMPANY_ID = 'company_id'
+    COST = 'cost'
+    DESC = 'desc'
+    EXPLOIT_CAPACITY = 'exploit_capacity'
+    HP_MAX = 'hp_max'
+    MORIBUND_PROB = 'moribund_prob'
+    NAME = 'name'
+    OPERATION_AMOUNT_MAX = 'operation_amount_max'
+    OPERATION_LEVEL = 'operation_level'
+    RES_COST = 'res_cost'
+    ROW_INDEX = 'row_index'
+    SHIP_EXHIBITION_TYPE = 'ship_exhibition_type'
+    SHIP_ID = 'ship_id'
+    SHIP_TYPE = 'ship_type'
+    SHORT_NAME = 'short_name'
+    SPEED = 'speed'
+    TAG = 'tag'
+    TEST = 'test'
+    TEST_NAME = 'test_name'
+    TIME_COST = 'time_cost'
+    UNFOLD_WORLD_ITEM = 'unfold_world_item'
+    VIEW_RADIUS = 'view_radius'
+    WEIGHT = 'weight'
+    FIELDS = ['aircraft_group_num', 'aircraft_type', 'battle_move_type', 'category', 'company_id', 'cost', 'desc', 'exploit_capacity'
+    BattleMoveType = <class 'common.config.table_definition.CfgShipField.BattleMoveType'>
+    Category = <class 'common.config.table_definition.CfgShipField.Category'>
+    AircraftType = <class 'common.config.table_definition.CfgShipField.AircraftType'>
+    Prefix = <class 'common.config.table_definition.CfgShipField.Prefix'>
+    OperationType = <class 'common.config.table_definition.CfgShipField.OperationType'>
+    Tag = <class 'common.config.table_definition.CfgShipField.Tag'>
+  class GameEventManager(object):
+    def __init__(...):
+      args: ['self']
+      names: ['defaultdict', 'dict', '_event_handlers', 'set', '_registrants', 'unregister_look_up_dict', '_cached_actions', 'int', '_notifying_events', 'common_config', 'is_dev_mode', 'platform', 'is_win32', '_is_dev', 'late_event', 'GameEventManager', 'need_destroy_cache']
+      consts: ['None', '<code:<lambda>>']
+        [nested] <lambda>:
+          args: []
+          names: ['defaultdict', 'int']
+          consts: ['None']
+    def get_sort_order(...):
+      args: ['self']
+      names: ['SingletonSortOrder', 'GAME_EVENT_MGR']
+      consts: ['None']
+    def register_event(...):
+      args: ['self', 'event_type', 'handle_func', 'registrant']
+      names: ['_is_dev', '_event_handlers', 'get', '_cached_actions', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'event_type', 'registrant', 'handle_func', '_notifying_events', 'append', '_registrants', 'add']
+      consts: ['None', 'False', "'[禁止] 重复注册相同的事件，旧的回调函数被覆盖'"]
+    def unregister_event(...):
+      args: ['self', 'event_type', 'registrant']
+      names: ['ValueError', '_registrants', '_notifying_events', 'list', '_event_handlers', 'get', 'unregister_look_up_dict', '_cached_actions', 'append', '_CachedAction', 'ACTION_UNREGISTER', '_remove_registrant_event']
+      consts: ["'\\n\\t\\t注销事件的监听\\n\\t\\t当event_type=None时，注销registrant相关的所有事件监听\\n\\t\\t否则注销registrant特定event的事件监听\\n\\t\\t'", 'None', "'registrant cant be None'", '1']
+    def notify(...):
+      args: ['self', 'event_type']
+      names: ['_event_handlers', 'get', '_notifying_events', 'items', 'unregister_look_up_dict', 'Exception', '_cached_actions', '_process_cached_actions']
+      consts: ['None', '1', '0', "'notify depth should never less than zero!'", "'all cached actions should have been processed!'"]
+    def late_notify(...):
+      args: ['self', 'event_type']
+      names: ['late_event', 'append']
+      consts: ['None']
+    def do_late_notify(...):
+      args: ['self']
+      names: ['late_event', 'notify']
+      consts: ['None']
+    def _process_cached_actions(...):
+      args: ['self', 'event_type']
+      names: ['enumerate', '_cached_actions', 'event_type', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'register_event', 'handle_func', 'registrant', 'ACTION_UNREGISTER', 'unregister_look_up_dict', 'Exception', 'unregister_event', 'append']
+      consts: ['None', '1', '0', "'cached unregister event count should never less than zero!'"]
+    def _remove_registrant_event(...):
+      args: ['self', 'registrant', 'event_type']
+      names: ['_registrants', 'remove']
+      consts: ['None']
+    def get_registrant_listener_cnt(...):
+      args: ['self', 'registrant']
+      names: ['len', '_registrants', 'get', 'set', '_cached_actions', 'registrant', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'ACTION_UNREGISTER']
+      consts: ["'\\n\\t\\t获取registrant注册的监听的数量\\n\\t\\t包括已注册的事件以及缓存中待处理的注册/注销操作\\n\\t\\t'", '1']
+    def destroy_singleton_instance(...):
+      args: ['self']
+      names: ['_event_handlers', 'clear', 'unregister_look_up_dict', '_registrants', '_cached_actions', '_notifying_events', 'late_event', 'GameEventManager', 'remove_instance']
+      consts: ['None']
+  ship_data_utils = <module data.ship.ship_data_utils>
+  class ShipDataBase(object):
+    def __init__(...):
+      args: ['self', 'ship_data_mgr']
+      names: ['ship_uid', 'ship_id_u', 'ship_id', 'team_id', 'ship_data_mgr', '_ship_dps', '_ship_air_dps', '_ship_coef_dps', '_exploit_capacity', '_system_destroy_dict_in_battle', '_occupy_operation_mode', '_is_landing_ship', '_dynamic_weapon_info_list', '_total_fire_special_count', '_current_repair_armor_count', '_shield_hp', '_shield_hp_max', '_setup_ship_data', 'ShipAttribute', 'get', 'ship_attr', 'layout', 'row_index', '_real_row_index', 'region', '_table_strategy']
+      consts: ['None', 'False', '0']
+    def _setup_ship_data(...):
+      args: ['self']
+      consts: ["'继承这个来设置静态数据们'", 'None']
+    def update_by_record(...):
+      args: ['self', 'record']
+      consts: ['None']
+    def update_dps_calc(...):
+      args: ['self']
+      consts: ['None']
+    def update_exploit_capacity(...):
+      args: ['self']
+      consts: ['None']
+    def update_aircraft(...):
+      args: ['self']
+      consts: ['None']
+    def reset_system_destroy_dict(...):
+      args: ['self']
+      names: ['_system_destroy_dict_in_battle']
+      consts: ['None']
+    def on_system_destroy(...):
+      args: ['self', 'system_index', 'flag']
+      names: ['ship_id', 'CfgShipField', 'Prefix', 'PREFIX_SHIP_ID_TO_SYSTEM', '_system_destroy_dict_in_battle', 'GameEventManager', 'notify', 'ship_uid', 'has_system_destroyed']
+      consts: ['None', '-1', '1', 'True', "'zoom0_ship_system_destroyed_status_changed'"]
+    def set_occupy_operation_mode(...):
+      args: ['self', 'val']
+      names: ['_occupy_operation_mode']
+      consts: ['None']
+    def set_dynamic_weapon_info_list(...):
+      args: ['self', 'weapon_info_list']
+      names: ['_dynamic_weapon_info_list', 'append']
+      consts: ['None', "'weapon_index'", "'weapon_id'", "'weapon_hp'"]
+    strategy = property
+    occupy_operation_mode = property
+    ship_data_type = property
+    _debug_print = <classmethod(<function ShipDataBase._debug_print at 0x000001A43B3EA480>)>
+    has_system_destroyed = property
+    system_destroy_dict = property
+    belong_home_uid = property
+    belong_ship_uid = property
+    ship_state = property
+    ship_img = property
+    is_reforming = property
+    def is_reforming_by_time(...):
+      args: ['self', 'time']
+      consts: ["'某时刻是否在重整（为避免频繁调用获取服务器时间接口time_utils.get_server_time）'", 'False']
+    reforming_end_time = property
+    reforming_left_time = property
+    user_id = property
+    is_own_ship = property
+    real_row_index = property
+    cost = property
+    health = property
+    def _do_set_health(...):
+      args: ['self', 'value']
+      consts: ["'设置血量，返回new health, old health'", '(1, 1)']
+    def set_health_without_notify(...):
+      args: ['self', 'value']
+      names: ['ship_data_mgr', 'health', 'common.config', 'common_config', 'is_dev_mode', '_do_set_health', 'record_health_change_info', 'ship_uid']
+      consts: ["'更节能的更新血量值，notify不会马上做，要手动调用ShipDataMgr.notify_group_health_change，批量修改血量时尽量都使用这个逻辑'", '0', "('common_config',)", 'False', "'尝试对没有ship data mgr的ship data使用set_health_without_notify，联系程序'", 'None']
+    health_max = property
+    health_percent = property
+    calc_ship_health_percent = <staticmethod(<function ShipDataBase.calc_ship_health_percent at 0x000001A43B3EB2E0>)>
+    decal_id = property
+    decal_version = property
+    decal_custom_hashcode = property
+    build_speed = property
+    aircraft_limit = property
+    aircraft_dict = property
+    drone_dict = property
+    bp_id = property
+    is_home_base = property
+    is_mine_defend_ship = property
+    is_eva_boss_ship = property
+    is_boss_execrise_main_ship = property
+    is_eva_noself_virtual_ship = property
+    is_eva_self_virtual_ship = property
+    is_world_boss_reinforce_ship = property
+    is_world_boss_main_ship = property
+    is_world_boss_other_ship = property
+    is_scene_prop = property
+    is_world_boss_drone = property
+    is_world_boss_battle_virtual_ship = property
+    is_client_virtual_ship = property
+    module_str = property
+    module_info_list = property
+    module_info_dict = property
+    weapon_info_list = property
+    exhibition_ship_type = property
+    def set_current_repair_armor_count(...):
+      args: ['self', 'value']
+      names: ['_current_repair_armor_count', 'GameEventManager', 'notify', 'ship_id_u']
+      consts: ['None', "'[ship_data]current_repair_armor_count_changed'"]
+    shield_hp = property
+    shield_hp_max = property
+    def set_shield_hp(...):
+      args: ['self', 'value']
+      names: ['_shield_hp', 'GameEventManager', 'notify', 'ship_id_u']
+      consts: ['"设置护盾当前值。等值早返避免无意义事件抖动；变化时派发 \'[ship_data]shield_hp_changed\'"', 'None', "'[ship_data]shield_hp_changed'"]
+    def set_shield_hp_max(...):
+      args: ['self', 'value']
+      names: ['_shield_hp_max', 'GameEventManager', 'notify', 'ship_id_u']
+      consts: ['"设置护盾最大值。等值早返；变化时派发 \'[ship_data]shield_hp_max_changed\'"', 'None', "'[ship_data]shield_hp_max_changed'"]
+    is_dynamic_slot_assign = property
+    effects_enhanced_str = property
+    def get_weapon_info_list(...):
+      args: ['self', 'module_info_str']
+      names: ['data_manager', 'game_data_utils', 'parse_cfg_str_to_list_of_list', '_get_weapon_info_list']
+      consts: ['None', '0', "('game_data_utils',)", 'True']
+    def _get_weapon_info_list(...):
+      args: ['self', 'module_info_list']
+      names: ['common.preprocess_data', 'SHIP_MAIN_DOCK_SYSTEM_MODULE_ID', 'ship_id', 'get', 'ModuleType', 'MAIN', 'WEAPON', 'is_dynamic_slot_assign', 'Tb_cfg_module', 'MODULE_TYPE', 'append', 'data_manager', 'game_data_utils', 'get_module_slot_info', 'get_module_type_by_slot_cfg', 'print', 'format', 'max', 'Tb_cfg_ship_slot', 'TARGET_NUM']
+      consts: ['None', '0', "('SHIP_MAIN_DOCK_SYSTEM_MODULE_ID',)", '1', "('game_data_utils',)", "'[Error][ShipData] ship id: {0} has not slot: {1}'"]
+    get_cls_weapon_info_list = <staticmethod(<function ShipDataBase.get_cls_weapon_info_list at 0x000001A43B3FCB80>)>
+    sub_version_name = property
+    flagship_show_name = property
+    ship_dps = property
+    ship_air_dps = property
+    ship_coef_dps = property
+    exploit_capacity = property
+    r_team_id = property
+    tear_down_status = property
+    is_landing_ship = property
+    total_fire_special_count = property
+    total_repair_armor_count = property
+    current_repair_armor_count = property
+    def get_weapon_group_socket_to_weapon_cfg_id(...):
+      args: ['self']
+      names: ['ship_attr', 'facade', 'weapon_socket_dict', 'weapon_info_list', 'get']
+      consts: ['None']
+  class ShipDataType(object):
+    UNDEFINED = -1
+    SERVER_RECORD = 0
+    CLIENT_RECORD = 1
+  data_utils = <module data_manager.data_utils>
+  class GameDataMgr(object):
+    def __init__(...):
+      args: ['self']
+      names: ['shipyard_ship_uids', 'shipyard_fix_info', '_military_drill_npc_team_info_dict', 'StepDoublyLinkedList', 'all_team_record_list', 'all_team_record_node_dict', 'reset_data', 'logging', 'getLogger', '__name__', '_logger', 'DataEventMgr', 'data_event_mgr', 'TorpedoField', 'EffectBeaconField', 'UserBountyTaskField', 'new_2022_protocol_table', 'set', 'union_user_list', 'union_mark_list', 'league_mark_list', 'union_intelligence_list', 'organization_hub_info', 'self_intelligence_list', 'city_union_member_list', 'league_organization_list', 'npc_city_union_id', 'union_view_item_dict', 'l4_ruin_city_lst', 'league_plan_view_dict', 'league_plan_info_dict', 'union_building_plan_dict', 'union_building_item_list', 'union_building_alert_dict', 'is_in_union', 'TableID', 'PLAN', 'WORLD_ITEM', 'USER_ALERT', 'union_building_table', 'dock_item_wid_2_cfg_id', 'subscriber_timer', '_rendezvous_subscriber_timer', '_dock_item_subscriber_timer', '_cache_quick_research_pack_id_u', 'channel_data', 'register_data_event', 'GameDataMgr', 'need_destroy_cache', 'destroy']
+      consts: ['None', 'False']
+    def register_data_event(...):
+      args: ['self']
+      names: ['utils', 'get_reg_name', 'reg_name', 'data_event_mgr', 'register_data_event', 'TableID', 'WORLD_ITEM', 'protocol', 'INSERT_DATA_NOTIFY', '_handle_world_item_insert', 'DEL_DATA_NOTIFY', '_handle_world_item_delete', 'UPDATE_DATA_NOTIFY', '_handle_world_item_update', 'DUNGEON_WORLD_ITEM', 'GROUPED_INSERT_DATA_NOTIFY', '_handle_grouped_dungeon_world_item_insert', 'GROUPED_DEL_DATA_NOTIFY', '_handle_grouped_dungeon_world_item_delete', 'GROUPED_UPDATE_DATA_NOTIFY', '_handle_grouped_dungeon_world_item_update', 'USER_RES', '_handle_user_res_update', 'USER_STUFF', '_handle_user_stuff_update', 'USER_CITY', '_handle_user_city_update', 'USER', '_handle_user_update', 'USER_BASE_MODIFY_GUIDE', '_handle_user_red_dot_update', 'UNION_RELATION', '_handle_union_relation_insert', '_handle_union_relation_update', 'UNION_RELATION_SIGN', '_handle_union_sign_relation_insert', '_handle_union_sign_relation_update', 'FACILITY', '_handle_facility_update', 'USER_ORGANIZATION_MEMBER', '_handle_user_org_member_update', 'SHIP', '_handle_ship_insert', '_handle_ship_delete', '_handle_group_ship_update', 'SYS_NPC_UNION_CITY', '_handle_sys_npc_union_insert', '_handle_sys_npc_union_delete', '_handle_sys_npc_union_update', 'SYS_CITY', '_handle_sys_city_insert', '_handle_sys_city_update', 'TEAM_ATTR', '_handle_team_attr_insert', '_handle_team_attr_update', '_handle_team_attr_delete', 'TEAM', '_handle_team_group_insert', '_handle_team_group_delete', '_handle_team_update', 'SHIP_BP_OVERVIEW', '_handle_bp_overview_insert', '_handle_bp_overview_update', 'USER_IO_DATA', '_handle_user_io_data_update', 'IO_APPLY', '_handle_io_team_apply_insert', '_handle_io_team_apply_update', 'USER_IO_CONTRACT', '_handle_io_contract_insert', 'USER_RED_DOT', 'register_earthday_eco_park_event', 'LEVEL_EXERCISE', '_handle_level_exercise_grouped_insert', '_handle_level_exercise_grouped_update', '_handle_level_exercise_grouped_delete', 'RAIDER_FORT_BOSS_INFO', '_handle_fort_boss_info_grouped_insert', '_handle_fort_boss_info_grouped_update', '_handle_fort_boss_info_grouped_delete', 'GameEventManager', 'register_event', '_handle_on_receive_login_data', '_handle_union_dissolve', '_handle_league_dissolve']
+      consts: ['None', "'on_receive_login_data'", "'on_union_dissolve'", "'on_league_dissolve'"]
+    def register_earthday_eco_park_event(...):
+      args: ['self']
+      names: ['data_event_mgr', 'register_data_event', 'TableID', 'USER_ECOLOGY_PARK', 'protocol', 'INSERT_DATA_NOTIFY', '_handle_eco_relative_data_change', 'reg_name', 'UPDATE_DATA_NOTIFY', 'DEL_DATA_NOTIFY', 'SYS_ECOLOGY', 'USER_ECOLOGY_OUTPUT', 'GROUPED_INSERT_DATA_NOTIFY', 'GROUPED_UPDATE_DATA_NOTIFY', 'GROUPED_DEL_DATA_NOTIFY', 'ECOLOGY_PLANT']
+      consts: ['None']
+    def _handle_eco_relative_data_change(...):
+      args: ['self']
+      names: ['ui.activity_earthday.eco_park.eco_park_utils', 'is_show_activity_earthday_eco_park_tips', 'get_eco_park_redpoint_name', 'RedPointSystem', 'notify_point_num']
+      consts: ['None', '0', "('is_show_activity_earthday_eco_park_tips', 'get_eco_park_redpoint_name')", '1']
+    _convert_table_data_format = <staticmethod(<function GameDataMgr._convert_table_data_format at 0x000001A43B209D00>)>
+    def handle_login_data(...):
+      args: ['self', 'login_data']
+      names: ['data_manager.cross_conquer.cross_conquer_data_mgr', 'CrossConquerDataMgr', 'init_login_data', '_convert_table_data_format', 'TableID', 'PLAN', 'append', 'WORLD_ITEM', 'len', 'union_building_item_list', 'USER_ALERT', 'union_building_alert_dict', 'UserAlertField', 'PRIMARY_KEY', 'union_building_plan_dict', 'PlanField', 'ID', 'reset_some_data_when_relogin', 'set', 'union_user_list', 'union_mark_list', 'GameEventManager', 'notify', 'league_mark_list', 'league_plan_view_dict', 'clear', 'league_plan_info_dict', 'LeaguePlanField', 'PLAN_ID', 'on_union_plan_add', 'union_intelligence_list', 'organization_hub_info', 'self_intelligence_list', 'city_union_member_list', 'range', 'union_view_item_dict', 'data_manager.cross_conquer.cross_conquer_define', 'CrossConquerTableFilter', 'data_manager.cross_conquer.cross_conquer_utils', 'self_is_in_cross_galaxy', 'TABLE_FILTER', 'print', 'SPEICAL_FILTER', 'TableKey', 'get', '_game_table_dict', 'insert_record', 'delete_record', 'KeyError', 'format', 'UNION_RELATION', 'UnionRelationField', 'UNION_RELATION_SIGN', 'UnionRelationSignField']
+      consts: ['None', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', "('CrossConquerDataMgr',)", "'add_alliance_pin_notify'", "'add_league_pin_notify'", "'remove_org_plan_model'", "'refresh_org_plan_tv_tab'", "'object_selected'", "('CrossConquerTableFilter',)", "('self_is_in_cross_galaxy',)", "'[CrossConquer] Table update shield, plz check 4501/4502 protocol'", "'[{}] login data insert table failed: table name:{}, table_data:{}'", '\'login data error: table "{}" key not found\'']
+    def reset_data(...):
+      args: ['self']
+      names: ['TableID', 'USER_ASSET_PICTURE', 'USER', 'USER_STUFF', 'USER_STUFF_EX', 'WORLD_ITEM', 'SHIP', 'TEAM', 'DUNGEON_TEAM', 'TEAM_ATTR', 'TEAM_EXERCISE', 'TEAM_FLOATER_STAR', 'USER_RES', 'USER_CITY', 'FACILITY', 'BELTLINE', 'MAP_RES', 'USER_TEAM_LOG', 'SHIP_BLUEPRINT', 'SHIP_BP_OVERVIEW', 'SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME', 'BUILD_AIRSPACE', 'UNION_RELATION', 'TASK', 'TASK_COMPLETED', 'TASK_LINE_COMPLETE', 'TEAM_MOVE_PROPERTY', 'USER_BASE_SHIP_AUTO_REPLENISH', 'PLAN', 'PLAN_PATH', 'GUILD_DOCK_CC_SHIP_CROSS', 'MAIL_SEND', 'USER_ITEM_CARAVAN_VISIT', 'MAIL_RECEIVE', 'BATTLE_REPORT', 'BATTLE_REPORT_MANY', 'REPORT', 'USER_BOUNTY_RES', 'REPORT_DETAIL', 'REPORT_DETAIL_EX', 'CC_SUB_CENTER', 'USER_ASSEMBLE', 'BATTLE_REPORT_DETAIL', 'BATTLE_REPORT_DETAIL_EX', 'PLAN_HISTORY', 'UNION_MEMBER', 'USER_NPC_STORE_RECORD', 'USER_JUVENILE', 'WORLD_MARK', 'LEAGUE_MARK', 'TEAM_ACTION_APPOINTMENT', 'WEAPON_TECH', 'USER_STORE', 'USER_PROSPECT_RECORD', 'USER_PROGRESS_REWARD', 'BP_RESEARCH_LIMITED', 'BP_RESEARCH_TREE_PACK', 'USER_CARD', 'UNION_APPL', 'ORGANIZATION_APPL', 'SYS_PARAM', 'SYS_USER_CONFIG', 'DUNGEON_WORLD_ITEM', 'DUNGEON', 'WORLD_ITEM_CONTROL', 'WORLD_ITEM_NEGO_CONTROL', 'SYS_CITY', 'SYS_REGION', 'SHIP_ESTIMATE', 'USER_FRIEND', 'USER_FRIEND_APPLY', 'TEAM_DEPLOY', 'USER_CONTACT', 'USER_NEWBIE', 'SHIP_NEWBIE', 'PLANET_CONTROL_EFFECT', 'TEAM_NEWBIE', 'SHIP_REFORM', 'USER_NPC_MISSION', 'USER_NPC_MISSION_STORAGE', 'USER_PAINTING', 'USER_CONFIGURATION', 'NPC_TASK_PUSH', 'USER_NPC_TASK', 'USER_ALERT', 'USER_MAP_OBS_AREA_OPEN', 'USER_COMPLAIN_STUFF', 'USER_EMBLEM', 'USER_ACTIVATION', 'USER_RESPACK', 'USER_RES_CAP', 'NOTICE', 'SYS_BROADCAST', 'BP_RESEARCHING', 'SHIP_BP_PROGRESS', 'USER_CBT2_PAY_RECORD', 'BLUEPRINT_TECHNICAL', 'EXP_COLLECTOR', 'USER_ARCHIVES', 'FINANCIAL', 'ACTIVITY', 'FINANCIAL_30_RMB', 'SYS_NPC_UNION_CITY', 'FINANCIAL_BP_TECHNICAL', 'USER_DAWN_POINT_STORE', 'USER_BLACKLIST', 'USER_CONFIGURATION_TMP', 'USER_SERVER_CHAT', 'USER_CONTRACT', 'USER_TECH_STORE', 'BLUEPRINT_TECH_RESET', 'UNION_RELATION_SIGN', 'PERSONAL_TASK', 'IO_TASK', 'SYS_STELLAR_STORM', 'USER_PROSPECT', 'USER_SIGN_CONTRACT_APPLY', 'SYSTEM_INFO', 'SERVER_CHAT_CONNECTED_HISTORY', 'TEAM_MARSHAL_SCHEME', 'USER_MEME', 'USER_CONTRACT_PERSONAL', 'USER_NEUTRALITY_COOPERATION', 'USER_NPC_DISPATCH', 'USER_GM_CHAT_XINYI', 'IO_TEAMWORK_MEMBER', 'USER_CONSUME_ITEM', 'GM_CHAT_DETAIL', 'USER_EXPLORE_CONTRACT_DATA', 'USER_NEUTRALITY_BATTLE_INFO', 'USER_NEUTRALITY_CONTRACT_DATA', 'USER_FUNDING_SHIP', 'CONTROL_MISSION_REWARD_DROP', 'USER_OUTPOST_NOTIFY', 'USER_OUTPOST_LOG', 'USER_IO_DATA', 'USER_RED_POINT_DATA', 'LEAGUE_MEMBER_USER', 'USER_BACKFLOW', 'USER_BACKFLOW_INVITE', 'WORLD_ITEM_DYNAMIC', 'ORGANIZATION_OBSERVER_APPL', 'ORGANIZATION_OBSERVER', 'USER_OBSERVER_STUFF', 'USER_BUILD_EFFECT_STUFF', 'IO_ENTRY_POINT', 'TEAM_CROSS_SERVER_BRIEF', 'USER_RED_DOT', 'USER_IO_CAMP_STORE_RECORD', 'IO_RECYCLE_ITEM', 'REMOTE_STRIKE_FORMATION', 'REMOTE_STRIKE_RANGE', 'EXPLOIT_CHANNEL_MESSAGE', 'ACTIVITY_IMAGE', 'ACTIVITY_IMAGE_TRANSPORT', 'ACTIVITY_IMAGE_GIFT', 'ACTIVITY_USER_PROXIMA_INTERACTION', 'ACTIVITY_USER_PROXIMA_CHAT', 'USER_CBG', 'VIEW_ALERT', 'ACTIVITY_INFO', 'ACTIVITY_STAR_LAMP_GAME_UNION', 'ACTIVITY_STAR_LAMP_GAME_USER', 'CHAT_INTERACTION', 'USER_CHAT_INTERACTION', 'DECORATE_ITEM', 'DECAL', 'USER_DECAL_STORE', 'TEAM_RENDZVOUS_RECORD', 'TEAM_BATTLE_INFO', 'USER_JOINT_BELTLINE', 'USER_JOINT_BELTLINE_PRODUCE', 'USER_IO_CONTRACT', 'IO_APPLY', 'BLUEPRINT_SCHEME', 'NETEASE_VIP', 'USER_SEASON_SETTLE_RECORD', 'SITUATION', 'SITUATION_AREA', 'SITUATION_HISTORY', 'MATERIAL_SURVEY_INTEL', 'USER_PRIVATEER_MEETING_INTEL', 'USER_LEGACY', 'USER_TITLE', 'USER_COLLECTION_ITEM', 'USER_TECH_ITEM', 'USER_EQUIPMENT', 'USER_ASSET_PACK', 'USER_ECOLOGY_STORE', 'TRADE_ORDERS', 'TRADE_ITEMS', 'TRADE_USERS', 'TEAM_SUB_TRANSFER', 'CIRCULATED_ITEMS', 'USER_TECH_BLUEPRINT', 'BLUEPRINT_FRAGMENT', 'BLUEPRINT_FRAGMENT_DATA', 'USER_IO_RES_ORDER_ORG', 'SITUATION_RECORD', 'LEGACY_ITEM', 'SYS_ECOLOGY', 'ECOLOGY_PLANT', 'USER_ECOLOGY_PARK', 'USER_ECOLOGY_PARK_VOTE', 'ECOLOGY_PARK_PLANT_LOG', 'IO_RESOURCE_RECYCLE_RECORD', 'USER_GUARD_SAPLINGS', 'USER_GUARD_SAPLINGS_RECORD', 'USER_VIVARIUM_STUFF', 'USER_ECOLOGY_OUTPUT', 'ECOLOGY_PLANT_SUMMARY', 'IO_RES_CHANNEL', 'USER_SOUVENIR_DATA', 'USER_ECOLOGICAL_VIVARIUM', 'USER_BACKFLOW_SERVER', 'USER_FIGHT_EXP_PRODUCE', 'BELTLINE_DELEGATE_INFO', 'USER_HISTORY_RECORD', 'TORPEDO', 'SUB_TEAM', 'FORCE_GROUP', 'EFFECT_BEACON', 'USER_ENGINEER_OVERVIEW', 'USER_COMMUNITY', 'USER_WECHAT', 'USER_BACKFLOW_SUPPORT', 'USER_MIDWAY_QUIT', 'USER_NEGO_GARRISON', 'TEAM_LOST', 'ACTIVITY_DAWN_CEL_FOLLOW', 'TECH_ITEM_DISTRIBUTE', 'TECH_ITEM_DISTRIBUTE_RECORD', 'TECH_ITEM_RECEIVE_RECORD', 'ANTONTAS_SIGHTSEEING_FLIGHT', 'USER_SIGHTSEEING_STUFF', 'MEM_VIEW_TEAM_NPC', 'MATCH_PAIR', 'MATCH_PROFILE_UNION', 'MATCH_PROFILE_USER', 'USER_GROUP_AIR_RACE_INFO', 'AUCTION_USER_BID_PRICE', 'AUCTION_USER_BID_INFO', 'AUCTION_UNION_RECORD', 'RE_TECH', 'AUCTION_USER_OWNER', 'AUCTION_BROADCAST', 'AUCTION_BROADCAST_REMOTE', 'ACTIVITY_QA_USER', 'TEAM_ANCHORAGE', 'USER_INTRA_SEASON_RECORD', 'USER_ORGANIZATION_MEMBER', 'FREE_TRAILBLAZER_USER_STATS', 'USER_TALENT', 'USER_WAREHOUSE_INFO', 'USER_HUNTING_ARCHIVE_INFO', 'USER_VIEW_SHARE', 'UNION_SHARE', 'USER_VISIT', 'USER_VISIT_CNT', 'TEAM_VISIT', 'LEAGUE_PLAN', 'LEAGUE_PLAN_USE', 'USER_BATTLE_ACHIEVEMENT_STORE', 'USER_VISIT_INFO', 'CHAT', 'USER_ENTERPRISE_WECHAT', 'CONTROL_EFFECT_RESOURCE_TAX', 'USER_TERRAFORM_TASK', 'USER_TERRAFORM_INFO', 'SHIP_BLUEPRINT_CHOICE', 'PLANET_DYNAMIC', 'PLANET_BERTH_BEACON', 'TEAM_PLANET_LANDING', 'USER_TERRAFORM_STORE', 'USER_QUICK_NEWS', 'PLANET_GRID', 'SCENE_PROP', 'ACTIVITY_BEACON_COLLECT', 'TEAM_SUP_UNFOLD', 'PRE_SQUAD_MEMBER', 'PRE_SQUAD_APPLY', 'PRE_USER_CONTRACT', 'USER_NEW_TASK', 'USER_NEW_TASK_PACK', 'STARGATE_STATION', 'USER_STAGE_TASK_PACK', 'PEAK_AUTH_ITEM', 'MANUAL_REWARD_FROM_NPC', 'SHIP_BLUEPRINT_ROUTE_REWARD', 'ACTIVITY_SCORE_STORE', 'USER_SCORE_STORE', 'USER_SCORE_COIN', 'BP_PEAK_TASK_DATA', 'USER_DELAY_NEW_TASK', 'VIVARIUM_NOTIFY', 'EMBEDDED_SURVEY', 'USER_PACK_RECOMMEND_ORDER', 'USER_GIFT_RECOMMEND', 'CROSS_CONQUER_USER', 'USER_CROSS_CONQUER_STORE', 'CROSS_CONQUER_USER_STAT', 'USER_CONNECT_GALAXY', 'TEAM_CONNECT_GALAXY', 'TEAM_EXPEDTION_ASSEMBLE', 'CCB_PLAN', 'CCB_TEAM', 'CCB_WORLD_ITEM', 'CCB_USER_TECH_ITEM', 'CCB_TORPEDO', 'ACTIVITY_BUSINESS_SYS', 'ACTIVITY_BUSINESS_PERSONAL_INFO', 'ACTIVITY_BUSINESS_REGION_INFO', 'USER_ACCEPTABLE_TASK', 'USER_TRAILBLAZER_INFO', 'USER_TEAM', 'USER_PROSPECT_BLAST_MINE', 'TEAM_MOVE_BASE_INFO', 'ACTIVITY_SYS_USER', 'ACTIVITY_SYS', 'MAIL_TEMPLATE', 'SHIP_GUILD_DOCK_ALLOT', 'LEVEL_EXERCISE', 'USER_LEVEL_EXERCISE_RECORD', 'USER_PROSPECT_YEDENG_RECORD', 'USER_BAN', 'REGRESSION_TASK', 'USER_BOUNTY_TASK', 'HERO_AUTH_ITEM', 'USER_BOUNTY_ACTIVITY', 'USER_BOUNTY_RECORD', 'USER_BOUNTY_POST_INFO', 'TEAM_BORROW_USE', 'SHIP_BORROW', 'USER_AUCTION_GOODS_FOLLOW', 'ACTIVITY_QUESTION_ANSWER', 'USER_BOUNTY_FREE_INFO', 'USER_BOUNTY_TASK_JOIN', 'USER_STUFF_EXT', 'CONTROL_GALAXY_DROP_TASK', 'PIGMENT', 'USER_VIRTUAL_TEAM', 'USER_PAINT_CUSTOM_GEN_TEMPLATE', 'USER_EVA_FIGHT_INFO', 'USER_SYS_BROADCAST_STUFF', 'COMMANDER_ASSEMBLE', 'SHIP_REIN_BUILD_RECORD', 'TEAM_REIN_BUILD_RECORD', 'USER_EVA_ACTIVITY_RECORD', 'USER_ETS_STORY_RECORD', 'ACTIVITY_LINKAGE_CARNIVAL_USER', 'ACTIVITY_RACE_QUIZ', 'GALAXY_FIELD_TASK', 'FINANCIAL_ACTIVITY', 'USER_GALAXY_FIELD_TASK_RECORD', 'STORY_NPC_TEAM', 'STORY_NPC_WORLD_ITEM', 'USER_TASK_GUIDE', 'SHOP_RECORD', 'USER_BASE_NPC_STORE', 'USER_SITUATION_KP_RANK_LIKE_RECORD', 'USER_EFFICIENCY_ROBOT', 'USER_EFFICIENCY_ROBOT_BUFF', 'WORLD_BOSS_INFO', 'QUICK_ASSEMBLE_INFO', 'QUICK_ASSEMBLE_TEAM', 'SITUATION_USER_INFO', 'USER_FLY_REBORN', 'USER_SITUATION_FORT_RANK_LIKE_RECORD', 'USER_INTELLIGENCE_REWARD', 'USER_MAP_RES', 'USER_PACK_RECOMMEND_ITEM', 'USER_STORY_REWARD', 'TEAM_STORY_REWARD', 'RANK_BOARD_USER_RECORD', 'RANK_BOARD_STATE', 'TEAM_DUNGEON_ACTION', 'USER_BASE_MODIFY_GUIDE', 'TEAM_COLLECT_DROP_TASK', 'USER_TASK_GROUP', 'TEAM_TRANSFER_BACK', 'TEAM_HIT_BY_REMOTE_STRIKE', 'USER_BLUEPRINT_WORKSHOP', 'PERPETUAL_WARZONE_LEVEL', 'PERPETUAL_WARZONE_BATTLE', 'PERPETUAL_WARZONE_TEAM_ATTR', 'PERPETUAL_WARZONE_GAME_SESSION', 'WARZONE_LADDER_USER', 'USER_PERPETUAL_WARZONE_TEAM_SCHEME', 'USER_PERPETUAL_WARZONE_TEAM', 'FRIEND_SPARRING_APPLY', 'USER_EXERCISE_GUIDE_RECORD', 'USER_CURRENCY', 'USER_EXERCISE_REWARD', 'SHIP_REINFORE_ASSIST', 'USER_BASE_NPC_STORE_GOODS_LIST', 'USER_NEWBIE_INFO', 'LEAGUE_MERGE_INFO', 'UNION_MERGE_INFO', 'MONTH_SIGN_IN', 'USER_HUNTER_DUNGEON_RECORD', 'BOUNTY_TRANSFER_ITEM', 'RAIDER_FORT_BOSS_INFO', 'NIGHT_LAMP_RECEIVE', 'USER_EXERCISE_TEAM_SCHEME', 'USER_PROSPERITY', 'NPC_REVENGE_EVENT_INFO', 'SQUAD_APPLY', 'TEAM_UP_INFO', 'USER_ACTIVATION_RECOVER', 'PERPETUAL_WARZONE_SEASON', 'USER_ITEM_FACADE', 'USER_BOOST_COUPON', 'BOOST_COUPON', 'ACTIVITY_PANGU', 'USER_RESEARCH_PACK_WISH', 'USER_GALAXY_MARKET', 'USER_GAME_PLAY_STUFF', 'TRACKING_PIRATE', 'USER_SEASON_CATCH_UP', 'USER_VOICE_STYLE', 'USER_STUDENT_AUTH', 'USER_REDPACKET_INFO', 'USER_BP_PACK_SHARE_OPEN', 'SEARCH_TUTORIAL_EVENT', 'PLAN_BUSINESS', 'OVERSEER', 'USER_OVERSEER_INFO', 'PLANET_AREA', 'USER_AUCTION_PERSONAL_LOOT_BONUS', 'SHIP_CRUISE', 'SHIP_CRUISE_USER', 'SHIP_CRUISE_VISIT', 'TEAM_PLAY', 'SHIP_PLAY', 'CROSS_SERVER_GAME_SESSION', 'SHIP_BLUEPRINT_GAME_PLAY', 'SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_GAME_PLAY', 'SHIP_BP_OVERVIEW_GAME_PLAY', 'GAMEPLAY_BP_ADDITIONAL_SYS', 'CROSS_SERVER_GAME_USER', 'WORLD_GLOBAL_VIEW', 'USER_TREASURE_COIN', 'PORT_GAME_PLAY', 'SYS_STUFF_NOTIFY', 'USER_TREASURE_ITEM', 'DUNGEON_TREASURE', 'USER_CROSS_HUNTER', 'MENTOR', 'USER_PRIVILEGE', 'USER_HERO_SHIP_RESEARCH_STUFF', '_game_table_dict', 'update', 'ClientBattleTableID', 'CLIENT_BATTLE_SHIP', 'CLIENT_BATTLE_TEAM', 'ClientDungeonTableID', 'CLIENT_DUNGEON_SCENE_PROP', 'CLIENT_DUNGEON_EVACUATION_STATION', 'ClientSquadTableID', 'SQUAD_MEMBER_INFO', '_sub_key_table_dict', 'user_id', 'user_is_first_login', 'delta_time_to_server', 'server_time_zone', 'merge_server_map_ver', '_build_sub_key_table', 'set', 'union_user_list', 'union_mark_list', 'league_mark_list', 'union_intelligence_list', 'organization_hub_info', 'self_intelligence_list', 'city_union_member_list', 'npc_city_union_id', 'union_view_item_dict', 'shipyard_ship_uids', 'clear', 'all_team_record_list', 'all_team_record_node_dict', '_military_drill_npc_team_info_dict', 'MultilevelBlockIndex', 'MAP_BLOCK_WIDTH', 'MAP_LAYER_SWITCH_HEIGHT', 'world_item_block_index', 'curvature_back_block_index', 'WORLD_BOSS_BLOCK_WIDTH', 'WORLD_BOSS_LAYER_SWITCH_HEIGHT', 'world_boss_block_index', 'dungeon_world_item_block_index_dict', 'curvature_back_list', 'open_curvature_back_list', 'collections', 'defaultdict', 'dict', 'union_relation_dict', 'union_relation_sign_list', 'union_relation_custom_color', 'research_point_dict', 'research_point_season_dict', 'bp_overview_level_dict']
+      consts: ['None', 'False', '0']
+    def reset_some_data_when_relogin(...):
+      args: ['self']
+      names: ['get_table', 'TableID', 'IO_ENTRY_POINT', 'list', 'keys', 'delete_record']
+      consts: ["'\\n\\t\\t重连重置一些数据\\n\\t\\t:return:\\n\\t\\t'", 'None']
+    def get_dungeon_world_item_block_index(...):
+      args: ['self', 'dungeon_id']
+      names: ['dungeon_world_item_block_index_dict', 'MultilevelBlockIndex', 'MAP_BLOCK_WIDTH', 'MAP_LAYER_SWITCH_HEIGHT', 'get']
+      consts: ['None']
+    def get_record(...):
+      args: ['self', 'table_name', 'key', 'is_need_check']
+      names: ['TableID', 'PLAN', 'common', 'plan_utils', 'get_plan_record', '_game_table_dict', 'get']
+      consts: ['None', '0', "('plan_utils',)"]
+    def get_table_for_unique_key(...):
+      args: ['self', 'table_name', 'unique_key_name']
+      names: ['_game_table_dict', 'get', 'six', 'itervalues']
+      consts: ['None']
+    def has_record(...):
+      args: ['self', 'table_name', 'key']
+      names: ['_game_table_dict', 'get']
+      consts: ['None', 'True', 'False']
+    def insert_record(...):
+      args: ['self', 'table_name', 'key', 'record', 'notify', 'check_fields']
+      names: ['_game_table_dict', 'get', 'update_record', '_logger', 'error', 'format', 'TableSubKey', 'insert_sub_key_table', 'TableID', 'TEAM', 'WrapTeamRecord', 'WORLD_ITEM', 'WrapWorldItemRecord', 'TEAM_PLAY', 'WrapTeamPlayRecord', 'SHIP_PLAY', 'WrapShipPlayRecord', 'SHIP', 'WrapShipRecord', 'ClientBattleTableID', 'CLIENT_BATTLE_SHIP', 'WrapClientShipRecord', 'SHIP_BLUEPRINT', 'WrapBlueprintRecord', 'SHIP_BLUEPRINT_GAME_PLAY', 'WrapBlueprintGamePlayRecord', 'SHIP_BP_OVERVIEW', 'WrapBpOverviewRecord', 'SHIP_BP_OVERVIEW_GAME_PLAY', 'WrapBpOverviewGamePlayRecord', 'protocol', 'INSERT_DATA_NOTIFY', 'data_event_mgr', 'notify_data_events', 'warning']
+      consts: ['None', "'Missing field {} when insert record {}. Fields needed: {}'", '\'missing sub key "{}" when insert record to table "{}"\'', "'No such table:{}'"]
+    def update_record(...):
+      args: ['self', 'table_name', 'key', 'record', 'notify']
+      names: ['_game_table_dict', 'get', 'TableID', 'TEAM', 'WrapTeamRecord', 'WORLD_ITEM', 'WrapWorldItemRecord', 'TEAM_PLAY', 'WrapTeamPlayRecord', 'SHIP_PLAY', 'WrapShipPlayRecord', 'SHIP', 'WrapShipRecord', 'ClientBattleTableID', 'CLIENT_BATTLE_SHIP', 'WrapClientShipRecord', 'SHIP_BLUEPRINT', 'WrapBlueprintRecord', 'SHIP_BLUEPRINT_GAME_PLAY', 'WrapBlueprintGamePlayRecord', 'SHIP_BP_OVERVIEW', 'WrapBpOverviewRecord', 'SHIP_BP_OVERVIEW_GAME_PLAY', 'WrapBpOverviewGamePlayRecord', 'TableKey', 'CLIENT_TABLE_NAME', 'items', 'len', 'TableSubKey', 'update_sub_key_table', 'update', 'protocol', 'UPDATE_DATA_NOTIFY', 'data_event_mgr', 'notify_data_events', '_logger', 'warning', 'format']
+      consts: ['None', '1', "'No record:{} in table:{}'", "'No such table:{}'"]
+    def delete_record(...):
+      args: ['self', 'table_name', 'key', 'notify']
+      names: ['_game_table_dict', 'get', 'print', 'TableSubKey', 'delete_sub_key_table', 'protocol', 'DEL_DATA_NOTIFY', 'data_event_mgr', 'notify_data_events', '_logger', 'warning', 'format', 'traceback', 'print_stack']
+      consts: ['None', "'ship'", "'[ship] delete_record:'", "'No record:{} in table:{}'", "'No such table:{}'", '0']
+    def get_table(...):
+      args: ['self', 'table_name']
+      names: ['_game_table_dict', 'get']
+      consts: ['None']
+    def clear_table(...):
+      args: ['self', 'table_name']
+      names: ['_game_table_dict']
+      consts: ['None']
+    def delete_nonself_records(...):
+      args: ['self']
+      names: ['six', 'iteritems', '_game_table_dict', 'TableMap', 'get', 'hasattr', 'USER_ID_KEY', 'user_id', 'append', 'delete_record', '_logger', 'error', 'format', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', "'USER_ID_KEY'", "'table {} has no field map'"]
+    def find_nonself_records(...):
+      args: ['self', 'is_new_type']
+      names: ['user_id', 'six', 'iteritems', '_game_table_dict', 'TableMap', 'get', 'new_2022_protocol_table', 'getattr', 'TableID', 'TEAM_BORROW_USE', 'SHIP_BORROW', 'set', 'add']
+      consts: ['None', "'USER_ID_KEY'", "'BORROW_USERID'", "'EXCUTOR_USERID'"]
+    def _build_sub_key_table(...):
+      args: ['self']
+      names: ['six', 'iteritems', 'TableSubKey', 'format', '_sub_key_table_dict', 'ValueError']
+      consts: ['None', "'{}_TO_{}'", "'Reduplicate sub key table name:{}'"]
+    def get_sub_key_table(...):
+      args: ['self', 'table_id', 'sub_key_name']
+      names: ['format', '_sub_key_table_dict', 'get']
+      consts: ['None', "'{}_TO_{}'"]
+    def insert_sub_key_table(...):
+      args: ['self', 'table_id', 'sub_key_name', 'sub_key_value', 'table_id_value']
+      names: ['get_sub_key_table', 'set', 'add']
+      consts: ['None']
+    def update_sub_key_table(...):
+      args: ['self', 'table_id', 'sub_key_name', 'sub_key_new_value', 'sub_key_old_value', 'table_id_value']
+      names: ['insert_sub_key_table', 'delete_sub_key_table', '_logger', 'warning', 'format']
+      consts: ['None', "'sub_key_old_value is None, t_id:{}, s_k_name:{}'"]
+    def delete_sub_key_table(...):
+      args: ['self', 'table_id', 'sub_key_name', 'sub_key_value', 'table_id_value']
+      names: ['get_sub_key_table', 'discard', 'len']
+      consts: ['None', '0']
+    def get_sub_key_data(...):
+      args: ['self', 'table_id', 'sub_key_name', 'sub_key_value']
+      names: ['get_sub_key_table', 'get', 'set']
+      consts: ['None']
+    def get_single_sub_key_data(...):
+      args: ['self', 'table_id', 'sub_key_name', 'sub_key_value', 'use_sub_key_data']
+      names: ['get_sub_key_table', 'get', 'set', 'next', 'iter', 'get_record', 'six', 'itervalues', 'get_table']
+      consts: ['None']
+    def init_guild_dock_ship_data(...):
+      args: ['self', 'world_item_id', 'data', 'guild_info']
+      names: ['shipyard_fix_info', 'set', 'shipyard_ship_uids', 'ShipField', 'SHIP_ID_U', 'add', 'get_record', 'TableID', 'SHIP', 'append', 'update_record', 'insert_record', 'DataEventMgr', 'notify_data_events']
+      consts: ['None']
+    def handle_guild_dock_ship_add(...):
+      args: ['self', 'world_item_id', 'ship_records']
+      names: ['shipyard_ship_uids', 'ShipField', 'SHIP_ID_U', 'add']
+      consts: ['None']
+    def handle_guild_dock_ship_remove(...):
+      args: ['self', 'world_item_id', 'ship_records']
+      names: ['shipyard_ship_uids', 'ShipField', 'SHIP_ID_U', 'remove']
+      consts: ['None']
+    def get_all_shipyard_ship_uids(...):
+      args: ['self', 'world_item_id']
+      names: ['shipyard_ship_uids', 'get', 'set']
+      consts: ['None']
+    def is_ship_in_shipyard(...):
+      args: ['self', 'ship_id_u', 'strategy']
+      names: ['BaseStratege', 'common', 'ship_utils', 'is_ship_from_guild_parent_guild_exists', 'six', 'iteritems', 'shipyard_ship_uids']
+      consts: ['None', '0', "('ship_utils',)", "('strategy',)", 'False', 'True']
+    def get_self_role_id(...):
+      args: ['self']
+      names: ['GameDataMgr', 'get_record', 'TableID', 'USER', 'user_id', 'UserField', 'ROLE_ID']
+      consts: ["'\\n\\t\\t获取当前用户的角色ID\\n\\t\\t:return:\\n\\t\\t'", 'None']
+    def _handle_world_item_insert(...):
+      args: ['self', 'world_item_record']
+      names: ['TableKey', 'TableID', 'WORLD_ITEM', 'WorldItemField', 'POS', 'map_utils', 'wid_to_index_g2', 'ITEM_TYPE', 'Type', 'TYPE_DOCK_ITEM', 'CFG_ITEM_ID', 'dock_item_wid_2_cfg_id', 'world_item_block_index', 'insert_item', 'print', 'format']
+      consts: ['None', "'world item wid error:{} cant match star field range'"]
+    def _handle_world_item_delete(...):
+      args: ['self', 'world_item_id', '_deleted_record']
+      names: ['world_item_block_index', 'delete_item']
+      consts: ['None']
+    def _handle_world_item_update(...):
+      args: ['self', 'update_world_item_record', 'old_record']
+      names: ['common', 'ship_utils', 'WorldItemField', 'SHIP_REPAIR_REFRESH_TIME', 'get_record', 'TableID', 'WORLD_ITEM', 'ID', 'USERID', 'user_id', 'six', 'iteritems', 'get_table', 'SHIP_ESTIMATE', 'SHIP', 'SHIP_REPAIR_SERVER_REFRESH_TIME', 'get_bind_drone_hp_info', 'ShipField', 'HP', 'SHIP_SERVER_HP', 'STATE', 'State', 'STATE_BASE_EXPANDING', 'STATE_BASE_FOLD_HIDE', 'refresh_all_ship_repair_record_when_base_expaned', 'get', 'POS', 'TableKey', 'world_item_block_index', 'delete_item', 'GameDataMgr', '_handle_world_item_insert']
+      consts: ['None', '0', "('ship_utils',)"]
+    def _handle_grouped_dungeon_world_item_insert(...):
+      args: ['self', 'grouped_data']
+      names: ['DungeonWorldItemField', 'WORLD_ITEM_ID', 'GameDataMgr', 'get_record', 'TableID', 'WORLD_ITEM', 'DUNGEON_INSTANCE_ID', 'WorldItemField', 'POS', 'map_utils', 'wid_to_index_g2', 'get_dungeon_world_item_block_index', 'insert_item']
+      consts: ['None']
+    def _handle_grouped_dungeon_world_item_delete(...):
+      args: ['self', 'grouped_data']
+      names: ['DungeonWorldItemField', 'WORLD_ITEM_ID', 'DUNGEON_INSTANCE_ID', 'get_dungeon_world_item_block_index', 'delete_item']
+      consts: ['None']
+    def _handle_grouped_dungeon_world_item_update(...):
+      args: ['self', 'grouped_data']
+      names: ['GameDataMgr', 'get_record', 'TableID', 'DUNGEON_WORLD_ITEM', 'DungeonWorldItemField', 'ID', 'WORLD_ITEM_ID', 'WORLD_ITEM', 'DUNGEON_INSTANCE_ID', 'get_dungeon_world_item_block_index', 'delete_item', '_handle_world_item_insert']
+      consts: ['None']
+    def _is_ship_repair_valid_in_normal(...):
+      args: ['self', 'ship_record', 'strategy']
+      names: ['BaseStratege', 'common', 'ship_utils', 'data_manager', 'game_data_utils', 'ShipField', 'TEAM_ID', 'SHIP_ID_U', 'GameDataMgr', 'get_record', 'TableID', 'TEAM', 'TeamField', 'STATE', 'State', 'STATE_STATIC', 'ACTION', 'Action', 'ACTION_PARK', 'TEAM_TYPE', 'Type', 'TYPE_BASE', 'ACTION_NONE', 'TYPE_AIRCRAFT_GUARD_TEAM', 'TEAM_ATTR', 'TeamAttrField', 'REPAIR_QUEUE', 'parse_cfg_str_to_list', 'index', 'REPAIR_QUEUE_LIMT', 'get_ship_type_by_ship_id_u', 'CfgShipTypeField', 'ShipType', 'SHIP_TYPE_BASE_SHIP', 'BELONG_ID', 'get_player_base_building_id', 'USER_CITY', 'is_auto_repair_validate']
+      consts: ['None', '0', "('ship_utils',)", "('game_data_utils',)", 'False', 'True', "''", "('strategy',)"]
+    def refresh_ship_repair_when_unlock(...):
+      args: ['self']
+      names: ['common', 'ship_utils', 'GameDataMgr', 'get_table', 'TableID', 'SHIP', 'six', 'iteritems', '_game_table_dict', 'SHIP_ESTIMATE', 'ShipField', 'HP', 'HP_MAX', 'get_bind_drone_hp_info', 'append', 'insert_ship_repair', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', '0', "('ship_utils',)"]
+    def insert_ship_repair(...):
+      args: ['self', 'ship_record', 'strategy']
+      names: ['BaseStratege', 'data_manager', 'game_data_utils', 'common', 'ship_utils', 'team_utils', 'common.config.db', 'Tb_cfg_ship', 'data_manager.support_dock_data_mgr', 'SupportDockDataMgr', '_data_module', 'ShipField', 'SHIP_ID_U', 'HP', 'HP_MAX', 'get', 'STATE', 'State', 'STATE_NORMAL', 'get_ship_repair_info', 'get_bind_drone_hp_info', 'USERID', 'GameDataMgr', 'user_id', '_game_table_dict', 'SHIP_ESTIMATE', '_is_ship_repair_valid_in_normal', 'get_player_base_building_id', 'get_record', 'TableID', 'WORLD_ITEM', 'identity_agreement.identity_agreement_utils', 'check_function_ban_with_base_state', 'WorldItemField', 'SHIP_REPAIR_REFRESH_TIME', 'utils', 'check_condition_error', 'format', 'TEAM_ID', 'TEAM', 'TeamField', 'DOCK_TARGET_TEAM_ID', 'TEAM_ATTR', 'TeamAttrField', 'REPAIR_AND_PRODUCE_BEGIN_TIME', 'GUILD_DOCK_ID', 'shipyard_fix_info', 'insert_record', 'SHIP_HP_CUR', 'SHIP_ID', 'SHIP_REPAIR_SERVER_REFRESH_TIME', 'SHIP_SERVER_HP']
+      consts: ['None', '0', "('game_data_utils',)", "('ship_utils', 'team_utils')", "('Tb_cfg_ship',)", "('SupportDockDataMgr',)", '<code:in_shipyard_need_repair>', '<code:in_rendezvous_docking_repair>', 'False', "('is_use_cache_data', 'strategy')", "'is_waiting'", "'is_support_dock_reparing'", 'True', "'support_team_id'", '1', "('check_function_ban_with_base_state',)", "('utils',)", "'repair_fix: world_item_record {} not exist'", "''", "'shipyard_fix_info: {} not exist'"]
+        [nested] in_shipyard_need_repair:
+          args: []
+          names: ['is_ship_in_shipyard', '_is_need_reform']
+          consts: ['None']
+        [nested] in_rendezvous_docking_repair:
+          args: []
+          names: ['ShipField', 'TEAM_ID', 'GameDataMgr', 'get_record', 'TableID', 'TEAM', 'is_team_in_rendezvous_docking_state', 'TeamField', 'DOCK_TARGET_TEAM_ID', 'TEAM_ATTR', 'TeamAttrField', 'REPAIR_QUEUE', 'USERID', 'user_id', 'parse_cfg_str_to_list', 'index', 'REPAIR_QUEUE_LIMT']
+          consts: ['None', "''", 'False', 'True', "('is_num',)"]
+    def insert_all_ship_repair_record_after_module_load_finished(...):
+      args: ['self']
+      names: ['get_table', 'TableID', 'SHIP', 'six', 'iteritems', 'append', 'insert_ship_repair', 'data_event_mgr', 'notify_data_events']
+      consts: ['None']
+    def insert_all_ship_repair_record_base_state(...):
+      args: ['self']
+      names: ['get_table', 'TableID', 'SHIP', 'six', 'iteritems', '_is_need_reform', 'ShipField', 'SHIP_ID_U', 'insert_record', 'SHIP_REFORM', 'REFORMING_END_TIME', 'append', 'insert_ship_repair', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', 'True']
+    def refresh_all_ship_repair_record_when_base_expaned(...):
+      args: ['self']
+      names: ['_game_table_dict', 'SHIP_ESTIMATE', 'clear', 'SHIP_REFORM', 'insert_all_ship_repair_record_base_state']
+      consts: ['None']
+    def _is_need_reform(...):
+      args: ['self', 'ship_record']
+      names: ['common', 'time_utils', 'ShipField', 'REFORMING_END_TIME', 'get_server_time']
+      consts: ['None', '0', "('time_utils',)"]
+    def _handle_ship_insert(...):
+      args: ['self', 'ship_record']
+      names: ['ShipField', 'SHIP_ID_U', 'insert_ship_repair', '_is_need_reform', 'insert_record', 'SHIP_REFORM', 'REFORMING_END_TIME']
+      consts: ['None']
+    def _handle_ship_delete(...):
+      args: ['self', 'ship_id_u', '_deleted_record']
+      names: ['_game_table_dict', 'SHIP_ESTIMATE', 'delete_record']
+      consts: ['None']
+    def _handle_group_ship_update(...):
+      args: ['self', 'group_update_data']
+      names: ['common', 'time_utils', 'ship_utils', 'ShipField', 'SHIP_ID_U', 'get_record', 'TableID', 'SHIP', 'USERID', 'user_id', 'is_ship_in_shipyard', 'HP', 'HP_MAX', 'get_bind_drone_hp_info', '_game_table_dict', 'SHIP_ESTIMATE', 'BELONG_ID', 'SHIP_HP_CUR', 'append', 'delete_record', '_handle_ship_insert', 'get_server_time', 'SHIP_REPAIR_REFRESH_TIME', 'SHIP_REPAIR_SERVER_REFRESH_TIME', 'SHIP_SERVER_HP', 'get', 'STATE', 'State', 'STATE_NORMAL', 'is_ship_berth_in_any_dock', 'TEAM_ID', 'GameDataMgr', 'TEAM', 'TeamField', 'ACTION', 'Action', 'ACTION_PARK', 'update_record', 'insert_ship_repair', 'TEAM_TYPE', 'Type', 'TYPE_BASE', 'TYPE_AIRCRAFT_GUARD_TEAM', 'REFORMING_END_TIME', 'SHIP_REFORM', 'insert_record', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', '0', "('time_utils', 'ship_utils')", 'False', 'True']
+    def _handle_team_attr_insert(...):
+      args: ['self', 'team_attr_record']
+      names: ['TeamAttrField', 'USERID', 'user_id', 'data_manager', 'game_data_utils', 'common', 'ship_utils', 'parse_cfg_str_to_list', 'REPAIR_QUEUE', 'enumerate', 'REPAIR_QUEUE_LIMT', 'GameDataMgr', 'get_record', 'SHIP_ESTIMATE', 'TableID', 'SHIP', 'REPAIR_AND_PRODUCE_BEGIN_TIME', 'ShipField', 'HP', 'HP_MAX', 'get_bind_drone_hp_info', 'append', 'insert_record', 'SHIP_ID_U', 'SHIP_HP_CUR', 'SHIP_ID', 'SHIP_REPAIR_REFRESH_TIME', 'SHIP_REPAIR_SERVER_REFRESH_TIME', 'SHIP_SERVER_HP', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', '0', "('game_data_utils',)", "('ship_utils',)", 'True', "('is_num',)"]
+    def _handle_team_attr_delete(...):
+      args: ['self', 'team_id', '_deleted_record']
+      names: ['TeamAttrField', 'REPAIR_QUEUE', 'data_manager', 'game_data_utils', 'parse_cfg_str_to_list', 'GameDataMgr', 'get_record', 'SHIP_ESTIMATE', 'append', 'delete_record', 'TableID', 'SHIP', '_handle_ship_insert', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', '0', "('game_data_utils',)", 'True', "('is_num',)"]
+    def _handle_team_attr_update(...):
+      args: ['self', 'update_team_attr_record', 'old_record']
+      names: ['TeamAttrField', 'REPAIR_QUEUE', 'REPAIR_QUEUE_LIMT', 'data_manager', 'game_data_utils', 'GameDataMgr', 'get_record', 'TableID', 'TEAM_ATTR', 'TEAM_ID', 'parse_cfg_str_to_list', 'common', 'team_utils', 'ship_utils', 'TEAM', 'is_team_support_dock_self_building', 'enumerate', 'SHIP_ESTIMATE', 'append', 'delete_record', 'SHIP', 'REPAIR_AND_PRODUCE_BEGIN_TIME', 'ShipField', 'HP', 'HP_MAX', 'get_bind_drone_hp_info', 'insert_record', 'SHIP_ID_U', 'SHIP_HP_CUR', 'SHIP_ID', 'SHIP_REPAIR_REFRESH_TIME', 'SHIP_REPAIR_SERVER_REFRESH_TIME', 'SHIP_SERVER_HP', 'index', '_handle_ship_insert', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', '0', "('game_data_utils',)", 'True', "('is_num',)", "('team_utils', 'ship_utils')"]
+    def _handle_team_group_delete(...):
+      args: ['self', 'grouped_data']
+      names: ['all_team_record_node_dict', 'pop', 'all_team_record_list', 'remove']
+      consts: ['None']
+    def _handle_team_group_insert(...):
+      args: ['self', 'grouped_data']
+      names: ['common', 'team_utils', 'data_manager', 'game_data_utils', 'TeamField', 'TEAM_ID', '_handle_team_insert', 'is_planet_team_by_record', 'get_char_bit_info', 'ATTR_STR', 'AttrStr', 'ATTR_STR_PLANET_LANDING', 'all_team_record_list', 'append', 'all_team_record_node_dict']
+      consts: ['None', '0', "('team_utils',)", "('game_data_utils',)"]
+    def _handle_team_insert(...):
+      args: ['self', 'team_record']
+      names: ['TeamField', 'USERID', 'user_id', 'common', 'team_utils', 'ACTION', 'Action', 'ACTION_PARK', 'get_ship_uid_list_of_team', 'TEAM_ID', 'get_record', 'TableID', 'SHIP', 'append', '_handle_ship_insert', 'TEAM', 'get_table', 'SHIP_ESTIMATE', '_handle_ship_delete', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', '0', "('team_utils',)", 'True']
+    def _handle_team_update(...):
+      args: ['self', 'update_team_record', 'old_record']
+      names: ['TeamField', 'ACTION', 'Action', 'ACTION_PARK', 'get_record', 'TableID', 'TEAM', 'TEAM_ID', 'USERID', 'user_id', 'common', 'team_utils', 'get_ship_uid_list_of_team', 'SHIP', 'append', '_handle_ship_insert', 'get_table', 'SHIP_ESTIMATE', '_handle_ship_delete', 'STATE', 'State', 'STATE_SYNC_MOVE', 'TEAM_SYNC_POS', 'TEAM_SYNC_POS_COORDINATE', 'TEAM_SYNC_POS_LAST', 'TEAM_SYNC_POS_COORDINATE_LAST', 'TEAM_SYNC_RVO_STATE', 'get', 'TEAM_SYNC_RVO_START_POS', 'TEAM_SYNC_RVO_START_COORDINATE', 'TEAM_SYNC_RVO_END_POS', 'TEAM_SYNC_RVO_END_COORDINATE', 'TEAM_SYNC_RVO_SPEED', 'TEAM_SYNC_RVO_START_TIME', 'ATTR2', 'STATE_STATIC', 'GameDataMgr', 'data_manager', 'game_data_utils', 'get_bit_info', 'Attr2', 'ATTR2_RENDEZVOUS_OPENING', 'GameEventManager', 'notify', 'language', 'TEAM_ENTER_DOCK_OPEN_STATE', 'format', 'NAME', 'TEAM_ENTER_DOCK_EXIT_STATE', 'ATTR2_DOCKED', 'TEAM_ENTER_DOCKED_JOINT_STATE', 'data_event_mgr', 'notify_data_events']
+      consts: ['None', '0', "('team_utils',)", "('game_data_utils',)", "'toast_text'", 'True']
+    def _handle_user_res_update(...):
+      args: ['self', 'update_record', '_old_record']
+      names: ['UserResField', 'USERID', 'user_id', 'RES_COIN_CUR', 'RES_DEUTERIUM_CUR', 'RES_CRYSTAL_CUR', 'RES_METAL_CUR', 'RES_SPECIAL_MINE_CUR', 'data_manager', 'game_data_utils', 'cal_user_estimated_res']
+      consts: ['None', '0', "('game_data_utils',)"]
+    def _handle_user_stuff_update(...):
+      args: ['self', 'update_record', '_old_record']
+      names: ['UserResField', 'USERID', 'user_id', 'PLAN_POINT_CUR', 'data_manager', 'game_data_utils', 'cal_user_estimated_stuff', 'UserStuffField', 'TALENT_TYPE_INFO', 'parse_cfg_str_to_dict_of_list', 'CfgUnionTalentField', 'Type', 'TYPE_GUILD_DOCK_REPAIR', '_remove_all_repair_ship_from_guild', '_add_shipyard_ship_to_repair_after_talen_opened', 'UNLOCK_USER_COMMAND', 'parse_cfg_str_to_list', 'UserCommand', 'USER_COMMAND_UNLOCK_SHIP_REPAIR', 'refresh_ship_repair_when_unlock']
+      consts: ['None', '0', "('game_data_utils',)", 'True', "('is_num',)"]
+    def _handle_user_city_update(...):
+      args: ['self', 'update_record', '_old_record']
+      names: ['get_record', 'TableID', 'USER_CITY', 'UserCityField', 'ID', 'USERID', 'user_id', 'RES_INFO', 'RES_SMELT_SPEED', 'SMELT_TIME', 'data_manager', 'game_data_utils', 'cal_user_estimated_res', 'UNLOCK_SHIP_TYPE_REPAIR', 'refresh_ship_repair_when_unlock']
+      consts: ['None', '0', "('game_data_utils',)"]
+    def _handle_user_update(...):
+      args: ['self', 'update_record', 'old_record']
+      names: ['UserField', 'USERID', 'user_id', 'UNION_ID', 'GameEventManager', 'notify', 'get', 'UNION_NAME', 'language', 'trans', 'HAS_JOIN_UNION_FORMAT', 'format', 'data_manager.union', 'union_utils', 'open_union_main_view', '_game_table_dict', 'TableID', 'UNION_RELATION', 'clear', 'union_relation_dict', 'union_relation_sign_list', 'union_relation_custom_color', 'UNION_MANAGER_VIEW_QUIT', 'common.config.db', 'Tb_cfg_meta_world_item', 'six', 'iteritems', 'union_view_item_dict', 'append', 'PROXIMA_COIN', 'YUAN_BAO', 'ui', 'wealth_management_mainpage', 'get_record', 'USER', 'get_min_res_cost', 'common_config', 'save_newbie_wealth_management_tip', 'activity.activity_first_pay', 'newbie_wealth_can_show', 'RedPointSystem', 'notify_point_num', 'RedPointName', 'ACTIVITY_NORMAL_WEALTH']
+      consts: ['None', "'self_union_changed'", '0', "'toast_text'", "('union_utils',)", "('Tb_cfg_meta_world_item',)", "'union_view_item_update'", "('wealth_management_mainpage',)", 'True', "('newbie_wealth_can_show',)", '1']
+    def _handle_union_relation_insert(...):
+      args: ['self', 'new_record']
+      names: ['update_union_relation']
+      consts: ['None']
+    def _handle_union_relation_update(...):
+      args: ['self', 'update_record', '_old_record']
+      names: ['get_record', 'TableID', 'UNION_RELATION', 'UnionRelationField', 'ID', 'update_union_relation']
+      consts: ['None']
+    def _handle_union_sign_relation_insert(...):
+      args: ['self', 'new_record']
+      names: ['update_union_sign_relation']
+      consts: ['None']
+    def _handle_union_sign_relation_update(...):
+      args: ['self', 'update_record', '_old_record']
+      names: ['get_record', 'TableID', 'UNION_RELATION_SIGN', 'UnionRelationSignField', 'ID', 'update_union_sign_relation']
+      consts: ['None']
+    def _handle_user_org_member_update(...):
+      args: ['self', 'update_record', '_old_record']
+      names: ['data_manager.organization.organization_view_mgr', 'OrganizationViewMgr', 'data_manager.organization.organization_data_mgr', 'OrganizationDataMgr', 'UserOrganizationMemberField', 'USERID', 'user_id', 'UNIQUE_ORGANIZATION_ID', 'get', 'ORGANIZTION_NAME', 'language', 'trans', 'GameEventManager', 'notify', 'HAS_JOIN_ORG_FORMAT', 'format', '_close_ui_when_kick_out', 'HAS_QUIT_ORG', 'MEMBER_COUNT', 'refresh_organization_member_view', 'request_organization_info']
+      consts: ['None', '0', "('OrganizationViewMgr',)", "('OrganizationDataMgr',)", "'toast_text'", "'[Organization]new_org_apply_success'", "'[Organization]quit_organization'"]
+    def _handle_facility_update(...):
+      args: ['self', 'updated_record']
+      names: ['data_manager', 'game_data_utils', 'FacilityField', 'PRIMARY_KEY', 'GameDataMgr', 'get_record', 'TableID', 'FACILITY', 'FACILITY_ID', 'LEVEL', 'add_to_facility_finished_tips', 'BELONG_ID', 'CfgFacilityField', 'Fid', 'FID_CENTER_AREA_SIZE', 'FID_GANG_QU_SIZE', 'FID_INDUSTRIAL_AREA_SIZE', 'scheme_recommend_data', 'scheme_recommend_guide', 'facility_update_ad_sdk_handle', 'activity.activity_first_pay', 'newbie_wealth_can_show', 'RedPointSystem', 'notify_point_num', 'RedPointName', 'ACTIVITY_NORMAL_WEALTH', '_handle_user_red_dot_update']
+      consts: ['None', '0', "('game_data_utils',)", "('scheme_recommend_data',)", "('newbie_wealth_can_show',)", '1']
+    def _handle_bp_overview_insert(...):
+      args: ['self', 'new_record']
+      names: ['ShipBpOverviewField', 'ID', 'LEVEL', 'RESEARCH_POINT', 'RESEARCH_POINT_SEASON', 'bp_overview_level_dict', 'research_point_dict', 'research_point_season_dict']
+      consts: ['None']
+    def _handle_bp_overview_update(...):
+      args: ['self', 'updated_record']
+      names: ['common', 'common_definition', 'ShipBpOverviewField', 'ID', 'LEVEL', 'bp_overview_level_dict', 'GameEventManager', 'notify', 'NotifyType', 'NEWBIE_HELP_GUIDE', 'HelpGuideType', 'BLUEPRINT_UPGRADE', 'ADInterface', 'send_ad_event', 'ad_interface', 'ADEventName', 'upgrade_blueprint', 'send_blueprint_lv', 'RESEARCH_POINT', 'research_point_dict', 'increase_tech', 'RESEARCH_POINT_SEASON', 'research_point_season_dict']
+      consts: ['None', '0', "('common_definition',)"]
+    def _handle_user_io_data_update(...):
+      args: ['self', 'updated_record']
+      names: ['ui', 'io_explore_evaluate_help', 'process_evaluate_end_popview']
+      consts: ['None', '0', "('io_explore_evaluate_help',)"]
+    def _handle_io_team_apply_insert(...):
+      args: ['self', 'new_record']
+      names: ['ui.io_explore_help', 'IOApplyRecordType', 'IoApplyField', 'APPLY_TYPE', 'TYPE_RECEIVE', 'READ', 'RedPointName', 'IO_TEAM_APPLICATIONS', 'RedPointSystem', 'get_point_num', 'notify_point_num']
+      consts: ['None', '0', "('IOApplyRecordType',)", '1']
+    def _handle_io_team_apply_update(...):
+      args: ['self', 'updated_record', 'old_record']
+      names: ['ui.io_explore_help', 'IOApplyRecordType', 'IoApplyField', 'APPLY_TYPE', 'TYPE_RECEIVE', 'READ', 'RedPointName', 'IO_TEAM_APPLICATIONS', 'max', 'RedPointSystem', 'get_point_num', 'notify_point_num']
+      consts: ['None', '0', "('IOApplyRecordType',)", '1']
+    def _handle_io_contract_insert(...):
+      args: ['self', 'new_record']
+      names: ['data_manager.tutorial_assistant_push_mgr', 'TutorialAssistantPushMgr', 'common.config.table_definition', 'UserIoContractField', '_push_io_agreement_guide_tips_push', 'SIGN_TIME']
+      consts: ['None', '0', "('TutorialAssistantPushMgr',)", "('UserIoContractField',)"]
+    def _handle_sys_npc_union_delete(...):
+      args: ['self', '_union_id', '_deleted_recotd']
+      names: ['data_manager', 'game_data_utils', 'set', 'parse_cfg_str_to_list', 'SysNpcUnionCityField', 'CITY_IDS', 'npc_city_union_id']
+      consts: ['None', '0', "('game_data_utils',)", 'True']
+    def _handle_sys_npc_union_update(...):
+      args: ['self', '_new_record', '_old_record']
+      names: ['SysNpcUnionCityField', 'CITY_IDS', 'data_manager', 'game_data_utils', 'set', 'parse_cfg_str_to_list', 'UNION_ID', 'npc_city_union_id']
+      consts: ['None', '0', "('game_data_utils',)", 'True']
+    def _handle_sys_npc_union_insert(...):
+      args: ['self', 'insert_record']
+      names: ['data_manager', 'game_data_utils', 'parse_cfg_str_to_list', 'SysNpcUnionCityField', 'CITY_IDS', 'UNION_ID', 'npc_city_union_id']
+      consts: ['None', '0', "('game_data_utils',)", 'True']
+    def _handle_sys_city_insert(...):
+      args: ['self', 'insert_record']
+      names: ['_refresh_player_citys', 'SysCityField', 'PRIMARY_KEY', 'Id', 'ID_L4_RUIN_CITY', 'refresh_l4_ruin_city', 'refresh_curvature_back_info']
+      consts: ['None']
+    def _handle_sys_city_update(...):
+      args: ['self', '_new_record', '_old_record']
+      names: ['_refresh_player_citys', 'SysCityField', 'PRIMARY_KEY', 'Id', 'ID_L4_RUIN_CITY', 'refresh_l4_ruin_city', 'refresh_curvature_back_info']
+      consts: ['None']
+    def _handle_user_red_dot_update(...):
+      args: ['self']
+      names: ['data_manager.game_data_utils', 'get_user_red_dot_all_data', 'get_user_red_dot_data', 'UserRedDotField', 'Type', 'TYPE_SEASON', 'TYPE_PERMANENT', 'common_config', 'is_enable_community_mini_program', 'get', 'str', 'Permanent', 'PERMANENT_WECHAT_COMMUNITY', 'RedPointName', 'USER_SERVICE_COMMUNITY_MINI_PROGRAM', 'activity.activity_first_pay', 'newbie_level_match', 'NEWBIE_WEPROGRAM_REDPOINT_BASE_LEVEL', 'len', 'RedPointSystem', 'notify_point_num', 'Season', 'SEASON_PRE_SQUAD_INVITED', 'isinstance', 'int', 'PRE_UNION_INVITE', 'data_manager.activity_data_utils', 'is_activity_can_show', 'is_china_region', 'CfgActivityField', 'Id', 'ID_BASE_MODIFY_GUIDE', 'ID_BASE_MODIFY_GUIDE_GB', 'PERMANENT_BASE_MODIFY_GUIDE_BANNER', 'ACTIVITY_PLAYER_BASE_REWORK_GUIDE']
+      consts: ['None', '0', "('get_user_red_dot_all_data', 'get_user_red_dot_data')", "''", "('newbie_level_match', 'NEWBIE_WEPROGRAM_REDPOINT_BASE_LEVEL')", '1', "('is_activity_can_show',)", "'0'"]
+    def _handle_league_info_update(...):
+      args: ['self', 'data']
+      consts: ['None']
+    def _handle_on_receive_login_data(...):
+      args: ['self']
+      names: ['register_rendezvous_subscriber_timer', 'register_dock_item_subscriber_timer']
+      consts: ['None']
+    def _handle_union_dissolve(...):
+      args: ['self']
+      names: ['on_alliance_pin_clear', 'on_league_pin_clear']
+      consts: ['None']
+    def _handle_league_dissolve(...):
+      args: ['self']
+      names: ['on_league_pin_clear']
+      consts: ['None']
+    def _add_shipyard_ship_to_repair_after_talen_opened(...):
+      args: ['self']
+      names: ['get_table', 'SHIP_ESTIMATE', 'six', 'iteritems', 'shipyard_ship_uids', 'GameDataMgr', 'get_record', 'TableID', 'SHIP', 'append', 'insert_ship_repair', 'data_event_mgr', 'notify_data_events']
+      consts: ['None']
+    def _remove_all_repair_ship_from_guild(...):
+      args: ['self']
+      names: ['get_table', 'SHIP_ESTIMATE', 'list', 'keys', 'is_ship_in_shipyard', 'delete_record']
+      consts: ['None', 'True', "('notify',)"]
+    def _handle_level_exercise_grouped_insert(...):
+      args: ['self', 'grouped_data']
+      names: ['LevelExerciseField', 'USERID', 'GameDataMgr', 'user_id', 'PRIMARY_KEY', '_generate_military_drill_team_info_dict', '_military_drill_npc_team_info_dict', 'GameEventManager', 'notify']
+      consts: ['None', "'[military_drill]level_exercise_team_info_changed'", "'[military_drill]ship_retreat_info_changed'"]
+    def _handle_level_exercise_grouped_update(...):
+      args: ['self', 'grouped_data']
+      names: ['ui.military_drill_view.level_exercise_utils', 'LEVEL_EXERCISE_FINISHED_STATS', 'LevelExerciseField', 'RECORDS', 'FRIENDLY_RECORDS', 'CONVERGING_MONSTER', 'FRIENDLY_CONVERGING_MONSTER', 'ATTACK_TARGET', 'CACHE_RETREAT_INFO', 'PRIMARY_KEY', 'GameDataMgr', 'get_record', 'TableID', 'LEVEL_EXERCISE', 'USERID', 'user_id', 'STATE', '_generate_military_drill_team_info_dict', '_military_drill_npc_team_info_dict', 'GameEventManager', 'notify']
+      consts: ['None', '0', "('LEVEL_EXERCISE_FINISHED_STATS',)", 'False', 'True', "'[military_drill]level_exercise_team_info_changed'", "'[military_drill]ship_retreat_info_changed'"]
+    def _handle_level_exercise_grouped_delete(...):
+      args: ['self', 'grouped_data']
+      names: ['LevelExerciseField', 'USERID', 'GameDataMgr', 'user_id', '_military_drill_npc_team_info_dict']
+      consts: ['None']
+    def _handle_fort_boss_info_grouped_insert(...):
+      args: ['self', 'grouped_data']
+      names: ['RaiderFortBossInfoField', 'POS', 'map_utils', 'wid_to_index_g2', 'world_boss_block_index', 'insert_item', 'ID']
+      consts: ['None', '0']
+    def _handle_fort_boss_info_grouped_update(...):
+      args: ['self', 'grouped_data']
+      names: ['RaiderFortBossInfoField', 'POS', 'world_boss_block_index', 'delete_item', 'ID', 'map_utils', 'wid_to_index_g2', 'insert_item']
+      consts: ['None', '0']
+    def _handle_fort_boss_info_grouped_delete(...):
+      args: ['self', 'grouped_data']
+      names: ['world_boss_block_index', 'delete_item']
+      consts: ['None']
+    _generate_military_drill_team_info_dict = <staticmethod(<function GameDataMgr._generate_military_drill_team_info_dict at 0x000001A43B241260>)>
+    def dbg_plot_military_drill_data(...):
+      args: ['self']
+      names: ['common_config', 'is_dev_mode', '_military_drill_npc_team_info_dict', 'items', 'print', 'format', 'GameDataMgr', 'get_record', 'TableID', 'LEVEL_EXERCISE', 'LevelExerciseField', 'LEVEL_ID', 'level_exercise_monster_cfg_id', 'round_idx']
+      consts: ['None', "'team_id = {}'", "'level_cfg_id = {}'", "'\\t {} - {} - {}'"]
+    def _refresh_player_citys(...):
+      args: ['self']
+      names: ['data_manager.game_data_utils', 'parse_cfg_str_to_list_of_list', 'GameDataMgr', 'get_record', 'TableID', 'SYS_CITY', 'SysCityField', 'Id', 'ID', 'INFO', 'npc_city_union_id']
+      consts: ['None', '0', "('parse_cfg_str_to_list_of_list',)", 'True']
+    def refresh_l4_ruin_city(...):
+      args: ['self']
+      names: ['get_record', 'TableID', 'SYS_CITY', 'SysCityField', 'Id', 'ID_L4_RUIN_CITY', 'data_manager.game_data_utils', 'parse_cfg_str_to_dict_of_list', 'INFO', 'l4_ruin_city_lst']
+      consts: ['None', '0', "('parse_cfg_str_to_dict_of_list',)", 'True', "('is_num', 'is_force_list', 'default')"]
+    def refresh_curvature_back_info(...):
+      args: ['self']
+      names: ['data_manager.game_data_utils', 'parse_cfg_str_to_list', 'get_record', 'TableID', 'SYS_CITY', 'SysCityField', 'Id', 'ID_IO_CURVATURE_BACK_POINT_PUBLIC', 'set', 'INFO', 'curvature_back_list', 'difference', 'delete_curvature_back_record', 'insert_curvature_back_record', 'GameEventManager', 'notify']
+      consts: ['None', '0', "('parse_cfg_str_to_list',)", 'True', "('is_open',)", "'curvature_back_data_update'"]
+    def check_open_curvature_back(...):
+      args: ['self', 'wid']
+      names: ['curvature_back_list', 'open_curvature_back_list']
+      consts: ['None', 'False']
+    def clear_unopen_curvature_back(...):
+      args: ['self']
+      names: ['curvature_back_list', 'difference', 'open_curvature_back_list', 'delete_curvature_back_record']
+      consts: ['None']
+    def insert_curvature_back_record(...):
+      args: ['self', 'wid', 'is_open']
+      names: ['curvature_back_list', 'map_utils', 'wid_to_index_g2', 'add', 'curvature_back_block_index', 'insert_item', 'open_curvature_back_list']
+      consts: ['None']
+    def delete_curvature_back_record(...):
+      args: ['self', 'wid']
+      names: ['curvature_back_list', 'remove', 'curvature_back_block_index', 'delete_item', 'open_curvature_back_list']
+      consts: ['None']
+    def get_l4_ruin_city_by_wid(...):
+      args: ['self', 'wid']
+      names: ['common.preprocess_data', 'WORLD_ITEM_WID_TO_ID', 'get', 'l4_ruin_city_lst']
+      consts: ['None', '0', "('WORLD_ITEM_WID_TO_ID',)"]
+    def is_team_in_military_drill_with_user(...):
+      args: ['self', 'team_id', 'level_exercise_team_id']
+      names: ['_military_drill_npc_team_info_dict', 'get', 'values', 'update']
+      consts: ['None', 'True', 'False']
+    def get_military_drill_team_info(...):
+      args: ['self', 'team_id', 'level_exercise_team_id']
+      names: ['_military_drill_npc_team_info_dict', 'get', 'values', 'update']
+      consts: ['None']
+    def get_military_drill_team_info_by_monster_id(...):
+      args: ['self', 'monster_id', 'level_exercise_team_id']
+      names: ['_military_drill_npc_team_info_dict', 'get', 'values', 'update', 'level_exercise_monster_cfg_id']
+      consts: ['None']
+    def get_world_block_width(...):
+      args: ['self', 'level']
+      names: ['world_item_block_index', 'level_config']
+      consts: ['None']
+    def update_union_relation(...):
+      args: ['self', 'record']
+      names: ['UnionRelationField', 'UNION_ID', 'TARGET_UNION_ID', 'RELATION', 'union_relation_dict', 'GameEventManager', 'notify']
+      consts: ['None', "'union_relation_update'"]
+    def get_union_relation(...):
+      args: ['self', 'target_union_id']
+      names: ['get_record', 'TableID', 'USER', 'user_id', 'UserField', 'UNION_ID', 'UnionRelationField', 'Relation', 'RELATION_SELF', 'union_relation_dict', 'get']
+      consts: ['None']
+    def get_union_relation_custom_color(...):
+      args: ['self', 'target_union_id']
+      names: ['get_union_relation', 'get_record', 'TableID', 'USER', 'user_id', 'UserField', 'UNION_ID', 'union_relation_custom_color', 'get', 'UnionRelationSignField', 'Relation', 'RELATION_SIGN_ENEMY']
+      consts: ['None', '1', '0', '2']
+    def get_npc_city_union_id(...):
+      args: ['self', 'building_id']
+      names: ['npc_city_union_id', 'get', 'data_manager', 'game_data_utils', 'get_table', 'TableID', 'SYS_CITY', 'SysCityField', 'Id', 'ID', 'parse_cfg_str_to_list_of_list', 'INFO']
+      consts: ['None', '0', "('game_data_utils',)", 'True']
+    def get_npc_city_league_id(...):
+      args: ['self', 'building_id']
+      names: ['get_table', 'TableID', 'SYS_CITY', 'SysCityField', 'Id', 'ID_BELONG_LEAGUE', 'data_manager', 'game_data_utils', 'parse_cfg_str_to_dict_of_list', 'INFO']
+      consts: ['None', '0', "('game_data_utils',)", 'True']
+    def update_union_sign_relation(...):
+      args: ['self', 'record']
+      names: ['UnionRelationSignField', 'UNION_ID', 'TARGET_UNION_ID', 'RELATION', 'COLOR', 'union_relation_dict', 'union_relation_custom_color', 'GameEventManager', 'notify']
+      consts: ['None', "'union_relation_update'"]
+    def update_union_hub_info(...):
+      args: ['self', 'data']
+      names: ['organization_hub_info', 'GameEventManager', 'notify']
+      consts: ['None', "'union_hub_info_changed'"]
+    def set_union_hub_info(...):
+      args: ['self', 'data']
+      names: ['organization_hub_info']
+      consts: ['None']
+    def update_all_union_view_item(...):
+      args: ['self', 'data']
+      names: ['len', 'range', 'list', 'union_view_item_dict', 'keys', 'append', 'GameEventManager', 'notify']
+      consts: ['None', '3', '0', '1', '2', "'union_view_item_update'"]
+    def add_union_view_item(...):
+      args: ['self', 'data']
+      names: ['len', 'range', 'union_view_item_dict', 'append', 'GameEventManager', 'notify']
+      consts: ['None', '3', '0', '1', '2', "'union_view_item_update'"]
+    def remove_union_view_item(...):
+      args: ['self', 'data']
+      names: ['len', 'range', 'union_view_item_dict', 'append', 'GameEventManager', 'notify']
+      consts: ['None', '3', '0', '1', '2', "'union_view_item_update'"]
+    def _check_and_send_rendezvous_subscribtion(...):
+      args: ['self']
+      names: ['data_manager', 'team_data_utils', 'guide_mgr', 'core_framework.my_network.net_cmd_mgr', 'NetCmdMgr', 'is_all_guide_finish', 'get_teams_subscribe_rendezvous_dock_target_ids', 'protocol', 'TeamSubscribeTeamDock', 'send_protocol']
+      consts: ['None', '0', "('team_data_utils', 'guide_mgr')", "('NetCmdMgr',)"]
+    def register_rendezvous_subscriber_timer(...):
+      args: ['self']
+      names: ['common', 'time_utils', '_destroy_rendezvous_subscriber_timer', 'register_neox_timer', '_check_and_send_rendezvous_subscribtion', '_rendezvous_subscriber_timer']
+      consts: ['None', '0', "('time_utils',)", '600000']
+    def _destroy_rendezvous_subscriber_timer(...):
+      args: ['self']
+      names: ['_rendezvous_subscriber_timer', 'common', 'time_utils', 'unregister_neox_timer']
+      consts: ['None', '0', "('time_utils',)"]
+    def _check_and_send_dock_item_subscribtion(...):
+      args: ['self']
+      names: ['data_manager', 'guide_mgr', 'sub_fleet_utils', 'core_framework.my_network.net_cmd_mgr', 'NetCmdMgr', 'is_all_guide_finish', 'get_building_list_contain_sub_fleet', 'protocol', 'TeamDockWorldItemSubscribe', 'send_protocol']
+      consts: ['None', '0', "('guide_mgr', 'sub_fleet_utils')", "('NetCmdMgr',)"]
+    def register_dock_item_subscriber_timer(...):
+      args: ['self']
+      names: ['common', 'time_utils', '_destroy_dock_item_subscriber_timer', 'register_neox_timer', '_check_and_send_dock_item_subscribtion', '_dock_item_subscriber_timer']
+      consts: ['None', '0', "('time_utils',)", '590000']
+    def _destroy_dock_item_subscriber_timer(...):
+      args: ['self']
+      names: ['_dock_item_subscriber_timer', 'common', 'time_utils', 'unregister_neox_timer']
+      consts: ['None', '0', "('time_utils',)"]
+    def on_alliance_pin_add(...):
+      args: ['self', 'datas']
+      names: ['union_mark_list', 'append']
+      consts: ['None', '<code:<listcomp>>', "'id'"]
+        [nested] <listcomp>:
+          args: ['.0']
+          consts: ["'id'"]
+    def on_alliance_pin_del(...):
+      args: ['self', 'datas']
+      names: ['union_mark_list', 'remove']
+      consts: ['None', "'id'"]
+    def on_league_pin_add(...):
+      args: ['self', 'datas']
+      names: ['league_mark_list', 'append']
+      consts: ['None', '<code:<listcomp>>', "'id'"]
+        [nested] <listcomp>:
+          args: ['.0']
+          consts: ["'id'"]
+    def on_league_pin_del(...):
+      args: ['self', 'datas']
+      names: ['league_mark_list', 'remove']
+      consts: ['None', "'id'"]
+    def on_alliance_pin_clear(...):
+      args: ['self']
+      names: ['union_mark_list']
+      consts: ['None']
+    def on_league_pin_clear(...):
+      args: ['self']
+      names: ['league_mark_list']
+      consts: ['None']
+    def on_contract_member_add(...):
+      args: ['self', 'data']
+      names: ['city_union_member_list', 'add']
+      consts: ['None']
+    def on_union_plan_add(...):
+      args: ['self', 'datas']
+      names: ['league_plan_view_dict', 'PlanField', 'ID', 'league_plan_info_dict', 'LeaguePlanField', 'PLAN_ID', 'GameEventManager', 'notify', 'notify_org_plan_to_all']
+      consts: ['None', '0', '1', "'notify_union_org_plan_add'"]
+    def on_union_plan_del(...):
+      args: ['self', 'plan_id_list']
+      names: ['league_plan_view_dict', 'pop', 'GameEventManager', 'notify', 'league_plan_info_dict', 'notify_org_plan_to_all']
+      consts: ['None', "'object_selected'", "'notify_union_org_plan_delete'"]
+    def on_union_plan_update(...):
+      args: ['self', 'datas']
+      names: ['LeaguePlanField', 'DELEGATE_TEAMS', 'PlanField', 'ID', 'league_plan_view_dict', 'six', 'iteritems', 'PLAN_ID', 'league_plan_info_dict', 'notify_org_plan_to_all']
+      consts: ['None', 'False', '0', '1', 'True']
+    def update_union_building_plan(...):
+      args: ['self', 'table_name', 'record', 'change_type']
+      names: ['union_building_table', 'protocol', 'DEL_DATA_NOTIFY', 'union_building_plan_dict', 'league_plan_view_dict', 'pop', 'GameEventManager', 'notify', 'union_building_item_list', 'WorldItemField', 'ID', 'remove', 'union_building_alert_dict', 'INSERT_DATA_NOTIFY', 'PlanField', 'data_manager', 'game_data_utils', 'is_org_building_plan', 'USERID', 'GameDataMgr', 'user_id', 'append', 'six', 'iteritems']
+      consts: ['None', '0', "'refresh_union_building_plan_list_cell'", '1', "('game_data_utils',)"]
+    def notify_org_plan_to_all(...):
+      args: ['self']
+      names: ['GameEventManager', 'notify']
+      consts: ['None', "'refresh_org_plan_tv_tab'"]
+    def get_cache_dock_item_cfg_id(...):
+      args: ['self', 'wid']
+      names: ['dock_item_wid_2_cfg_id', 'get']
+      consts: ['None', '0']
+    def destroy(...):
+      args: ['self']
+      names: ['channel_data', '_destroy_rendezvous_subscriber_timer', '_destroy_dock_item_subscriber_timer', 'data_event_mgr', 'unregister_data_event', 'reg_name', 'GameEventManager', 'has_instance', 'unregister_event', 'destroy_singleton_instance']
+      consts: ['None', "('registrant',)"]
+    def destroy_singleton_instance(...):
+      args: ['self']
+      names: ['GameDataMgr', 'remove_instance']
+      consts: ['None']
+  WORLD_BOSS_MAIN_COST_LIMIT = 300
+  def is_eva_boss_mode(...):
+    args: ['scene']
+    names: ['SceneManager', 'get_current_scene_id', 'try_get_scene_instance', 'scene_id', 'SCENE_ZOOM0', 'boss_execrise_fight_mgr']
+    consts: ['None', 'True', 'False']
+  TYPE_CHECKING = False
+  class ShipData(ShipDataBase):
+    def __init__(...):
+      args: ['self', 'ship_record', 'ship_data_mgr']
+      names: ['_ship_record', '_fire_special_count_set', '_total_repair_armor_count', 'super', 'ShipData', '__init__']
+      consts: ['None', 'False', '0']
+    def _setup_ship_data(...):
+      args: ['self']
+      names: ['update_by_record', '_ship_record']
+      consts: ['None']
+    def update_by_record(...):
+      args: ['self', 'ship_record']
+      names: ['_ship_record', 'ShipField', 'SHIP_ID_U', 'ship_uid', 'ship_id_u', 'SHIP_ID', 'ship_id', 'TEAM_ID', 'team_id', 'ship_data_utils', 'is_ship_landing_ship', '_is_landing_ship', 'common', 'ship_utils', 'calc_is_berth_in_any_dock', 'ship_record', '_is_berth_in_any_dock', 'get_ship_total_repair_armor_count', '_total_repair_armor_count', 'set_current_repair_armor_count', 'get', 'REPAIR_ARMORS']
+      consts: ['None', '0', "('ship_utils',)"]
+    def update_dps_calc(...):
+      args: ['self']
+      names: ['ship_record', 'ShipField', 'USERID', 'GameDataMgr', 'user_id', 'common', 'ship_utils', 'dungeon', 'cross_dungeon_utils', 'get_table_strategy', 'get_ship_dps_for_types_by_ship_id_u', 'ship_id_u', 'common_definition', 'MA_SHIP_DPS', 'MA_SHIP_AIR_DPS', 'MA_SHIP_DESTROY_COEF_DPS', '_ship_dps', '_ship_air_dps', '_ship_coef_dps']
+      consts: ['None', '0', "('ship_utils',)", "('cross_dungeon_utils',)", "('strategy',)"]
+    def update_exploit_capacity(...):
+      args: ['self']
+      names: ['ship_record', 'ShipField', 'USERID', 'GameDataMgr', 'user_id', 'common', 'ship_utils', 'EFFECTS_ENHANCED', 'get_ship_capicity', 'ship_id', '_exploit_capacity']
+      consts: ['None', '0', "('ship_utils',)", "('record',)"]
+    ship_record = property
+    cfg_ship_id = property
+    ship_data_type = property
+    belong_home_uid = property
+    belong_ship_uid = property
+    ship_state = property
+    ship_img = property
+    is_reforming = property
+    def is_reforming_by_time(...):
+      args: ['self', 'time']
+      names: ['ship_record', 'ShipField', 'REFORMING_END_TIME']
+      consts: ["'某时刻是否在重整（为避免频繁调用获取服务器时间接口time_utils.get_server_time）'"]
+    reforming_end_time = property
+    reforming_left_time = property
+    user_id = property
+    is_own_ship = property
+    cost = property
+    health = property
+    def _do_set_health(...):
+      args: ['self', 'value']
+      names: ['health', 'utils', 'clamp', 'health_max', 'ship_record', 'ShipField', 'HP']
+      consts: ['None', '0']
+    health_max = property
+    health_percent = property
+    decal_id = property
+    decal_version = property
+    decal_custom_hashcode = property
+    build_speed = property
+    aircraft_limit = property
+    bp_id = property
+    is_home_base = property
+    is_mine_defend_ship = property
+    is_boss_execrise_main_ship = property
+    is_eva_boss_ship = property
+    is_eva_noself_virtual_ship = property
+    is_eva_self_virtual_ship = property
+    is_world_boss_reinforce_ship = property
+    is_world_boss_main_ship = property
+    is_world_boss_other_ship = property
+    is_world_boss_battle_virtual_ship = property
+    is_scene_prop = property
+    module_str = property
+    module_info_list = property
+    is_dynamic_slot_assign = property
+    effects_enhanced_str = property
+    r_team_id = property
+    tear_down_status = property
+    is_landing_ship = property
+    is_berth_in_any_dock = property
+    total_fire_special_count = property
+    total_repair_armor_count = property
+    current_repair_armor_count = property
+
+# ====== data.ship.client_battle_ship_data ======
+# file: script:/data/ship/client_battle_ship_data.nxz
+  utils = <module common.utils>
+  class GameEventManager(object):
+    def __init__(...):
+      args: ['self']
+      names: ['defaultdict', 'dict', '_event_handlers', 'set', '_registrants', 'unregister_look_up_dict', '_cached_actions', 'int', '_notifying_events', 'common_config', 'is_dev_mode', 'platform', 'is_win32', '_is_dev', 'late_event', 'GameEventManager', 'need_destroy_cache']
+      consts: ['None', '<code:<lambda>>']
+        [nested] <lambda>:
+          args: []
+          names: ['defaultdict', 'int']
+          consts: ['None']
+    def get_sort_order(...):
+      args: ['self']
+      names: ['SingletonSortOrder', 'GAME_EVENT_MGR']
+      consts: ['None']
+    def register_event(...):
+      args: ['self', 'event_type', 'handle_func', 'registrant']
+      names: ['_is_dev', '_event_handlers', 'get', '_cached_actions', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'event_type', 'registrant', 'handle_func', '_notifying_events', 'append', '_registrants', 'add']
+      consts: ['None', 'False', "'[禁止] 重复注册相同的事件，旧的回调函数被覆盖'"]
+    def unregister_event(...):
+      args: ['self', 'event_type', 'registrant']
+      names: ['ValueError', '_registrants', '_notifying_events', 'list', '_event_handlers', 'get', 'unregister_look_up_dict', '_cached_actions', 'append', '_CachedAction', 'ACTION_UNREGISTER', '_remove_registrant_event']
+      consts: ["'\\n\\t\\t注销事件的监听\\n\\t\\t当event_type=None时，注销registrant相关的所有事件监听\\n\\t\\t否则注销registrant特定event的事件监听\\n\\t\\t'", 'None', "'registrant cant be None'", '1']
+    def notify(...):
+      args: ['self', 'event_type']
+      names: ['_event_handlers', 'get', '_notifying_events', 'items', 'unregister_look_up_dict', 'Exception', '_cached_actions', '_process_cached_actions']
+      consts: ['None', '1', '0', "'notify depth should never less than zero!'", "'all cached actions should have been processed!'"]
+    def late_notify(...):
+      args: ['self', 'event_type']
+      names: ['late_event', 'append']
+      consts: ['None']
+    def do_late_notify(...):
+      args: ['self']
+      names: ['late_event', 'notify']
+      consts: ['None']
+    def _process_cached_actions(...):
+      args: ['self', 'event_type']
+      names: ['enumerate', '_cached_actions', 'event_type', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'register_event', 'handle_func', 'registrant', 'ACTION_UNREGISTER', 'unregister_look_up_dict', 'Exception', 'unregister_event', 'append']
+      consts: ['None', '1', '0', "'cached unregister event count should never less than zero!'"]
+    def _remove_registrant_event(...):
+      args: ['self', 'registrant', 'event_type']
+      names: ['_registrants', 'remove']
+      consts: ['None']
+    def get_registrant_listener_cnt(...):
+      args: ['self', 'registrant']
+      names: ['len', '_registrants', 'get', 'set', '_cached_actions', 'registrant', 'action_type', '_CachedAction', 'ACTION_REGISTER', 'ACTION_UNREGISTER']
+      consts: ["'\\n\\t\\t获取registrant注册的监听的数量\\n\\t\\t包括已注册的事件以及缓存中待处理的注册/注销操作\\n\\t\\t'", '1']
+    def destroy_singleton_instance(...):
+      args: ['self']
+      names: ['_event_handlers', 'clear', 'unregister_look_up_dict', '_registrants', '_cached_actions', '_notifying_events', 'late_event', 'GameEventManager', 'remove_instance']
+      consts: ['None']
+  class ClientBattleShipField(object):
+    SHIP_ID = 'ship_id'
+    SHIP_ID_U = 'ship_id_u'
+    BELONG_SHIP_ID_U = 'belong_ship_id_u'
+    TEAM_ID = 'team_id'
+    HP = 'hp'
+    HP_MAX = 'hp_max'
+    MODULES = 'modules'
+    USERID = 'userid'
+    BELONG_ID = 'belong_id'
+    STATE = 'state'
+    PAINTING = 'painting'
+    PAINTING_VERSION = 'painting_version'
+    EFFECTS_ENHANCED = 'effects_enhanced'
+    RETREAT_TIME = 'retreat_time'
+    INDEX = 'index'
+    SPEED = 'speed'
+    BUILD_SPEED = 'build_speed'
+    COST = 'cost'
+    BELONG_SHIP_SLOT_IDX = 'client_belong_ship_slot_idx'
+    AIRCRAFTS = 'aircrafts'
+    create_record_list = <staticmethod(<function ClientBattleShipField.create_record_list at 0x000001A42D33BEC0>)>
+    FIELDS = ['ship_id', 'ship_id_u', 'belong_ship_id_u', 'team_id', 'hp', 'hp_max', 'modules', 'userid', 'belong_id', 'state', 'pain
+  class ShipDataBase(object):
+    def __init__(...):
+      args: ['self', 'ship_data_mgr']
+      names: ['ship_uid', 'ship_id_u', 'ship_id', 'team_id', 'ship_data_mgr', '_ship_dps', '_ship_air_dps', '_ship_coef_dps', '_exploit_capacity', '_system_destroy_dict_in_battle', '_occupy_operation_mode', '_is_landing_ship', '_dynamic_weapon_info_list', '_total_fire_special_count', '_current_repair_armor_count', '_shield_hp', '_shield_hp_max', '_setup_ship_data', 'ShipAttribute', 'get', 'ship_attr', 'layout', 'row_index', '_real_row_index', 'region', '_table_strategy']
+      consts: ['None', 'False', '0']
+    def _setup_ship_data(...):
+      args: ['self']
+      consts: ["'继承这个来设置静态数据们'", 'None']
+    def update_by_record(...):
+      args: ['self', 'record']
+      consts: ['None']
+    def update_dps_calc(...):
+      args: ['self']
+      consts: ['None']
+    def update_exploit_capacity(...):
+      args: ['self']
+      consts: ['None']
+    def update_aircraft(...):
+      args: ['self']
+      consts: ['None']
+    def reset_system_destroy_dict(...):
+      args: ['self']
+      names: ['_system_destroy_dict_in_battle']
+      consts: ['None']
+    def on_system_destroy(...):
+      args: ['self', 'system_index', 'flag']
+      names: ['ship_id', 'CfgShipField', 'Prefix', 'PREFIX_SHIP_ID_TO_SYSTEM', '_system_destroy_dict_in_battle', 'GameEventManager', 'notify', 'ship_uid', 'has_system_destroyed']
+      consts: ['None', '-1', '1', 'True', "'zoom0_ship_system_destroyed_status_changed'"]
+    def set_occupy_operation_mode(...):
+      args: ['self', 'val']
+      names: ['_occupy_operation_mode']
+      consts: ['None']
+    def set_dynamic_weapon_info_list(...):
+      args: ['self', 'weapon_info_list']
+      names: ['_dynamic_weapon_info_list', 'append']
+      consts: ['None', "'weapon_index'", "'weapon_id'", "'weapon_hp'"]
+    strategy = property
+    occupy_operation_mode = property
+    ship_data_type = property
+    _debug_print = <classmethod(<function ShipDataBase._debug_print at 0x000001A43B3EA480>)>
+    has_system_destroyed = property
+    system_destroy_dict = property
+    belong_home_uid = property
+    belong_ship_uid = property
+    ship_state = property
+    ship_img = property
+    is_reforming = property
+    def is_reforming_by_time(...):
+      args: ['self', 'time']
+      consts: ["'某时刻是否在重整（为避免频繁调用获取服务器时间接口time_utils.get_server_time）'", 'False']
+    reforming_end_time = property
+    reforming_left_time = property
+    user_id = property
+    is_own_ship = property
+    real_row_index = property
+    cost = property
+    health = property
+    def _do_set_health(...):
+      args: ['self', 'value']
+      consts: ["'设置血量，返回new health, old health'", '(1, 1)']
+    def set_health_without_notify(...):
+      args: ['self', 'value']
+      names: ['ship_data_mgr', 'health', 'common.config', 'common_config', 'is_dev_mode', '_do_set_health', 'record_health_change_info', 'ship_uid']
+      consts: ["'更节能的更新血量值，notify不会马上做，要手动调用ShipDataMgr.notify_group_health_change，批量修改血量时尽量都使用这个逻辑'", '0', "('common_config',)", 'False', "'尝试对没有ship data mgr的ship data使用set_health_without_notify，联系程序'", 'None']
+    health_max = property
+    health_percent = property
+    calc_ship_health_percent = <staticmethod(<function ShipDataBase.calc_ship_health_percent at 0x000001A43B3EB2E0>)>
+    decal_id = property
+    decal_version = property
+    decal_custom_hashcode = property
+    build_speed = property
+    aircraft_limit = property
+    aircraft_dict = property
+    drone_dict = property
+    bp_id = property
+    is_home_base = property
+    is_mine_defend_ship = property
+    is_eva_boss_ship = property
+    is_boss_execrise_main_ship = property
+    is_eva_noself_virtual_ship = property
+    is_eva_self_virtual_ship = property
+    is_world_boss_reinforce_ship = property
+    is_world_boss_main_ship = property
+    is_world_boss_other_ship = property
+    is_scene_prop = property
+    is_world_boss_drone = property
+    is_world_boss_battle_virtual_ship = property
+    is_client_virtual_ship = property
+    module_str = property
+    module_info_list = property
+    module_info_dict = property
+    weapon_info_list = property
+    exhibition_ship_type = property
+    def set_current_repair_armor_count(...):
+      args: ['self', 'value']
+      names: ['_current_repair_armor_count', 'GameEventManager', 'notify', 'ship_id_u']
+      consts: ['None', "'[ship_data]current_repair_armor_count_changed'"]
+    shield_hp = property
+    shield_hp_max = property
+    def set_shield_hp(...):
+      args: ['self', 'value']
+      names: ['_shield_hp', 'GameEventManager', 'notify', 'ship_id_u']
+      consts: ['"设置护盾当前值。等值早返避免无意义事件抖动；变化时派发 \'[ship_data]shield_hp_changed\'"', 'None', "'[ship_data]shield_hp_changed'"]
+    def set_shield_hp_max(...):
+      args: ['self', 'value']
+      names: ['_shield_hp_max', 'GameEventManager', 'notify', 'ship_id_u']
+      consts: ['"设置护盾最大值。等值早返；变化时派发 \'[ship_data]shield_hp_max_changed\'"', 'None', "'[ship_data]shield_hp_max_changed'"]
+    is_dynamic_slot_assign = property
+    effects_enhanced_str = property
+    def get_weapon_info_list(...):
+      args: ['self', 'module_info_str']
+      names: ['data_manager', 'game_data_utils', 'parse_cfg_str_to_list_of_list', '_get_weapon_info_list']
+      consts: ['None', '0', "('game_data_utils',)", 'True']
+    def _get_weapon_info_list(...):
+      args: ['self', 'module_info_list']
+      names: ['common.preprocess_data', 'SHIP_MAIN_DOCK_SYSTEM_MODULE_ID', 'ship_id', 'get', 'ModuleType', 'MAIN', 'WEAPON', 'is_dynamic_slot_assign', 'Tb_cfg_module', 'MODULE_TYPE', 'append', 'data_manager', 'game_data_utils', 'get_module_slot_info', 'get_module_type_by_slot_cfg', 'print', 'format', 'max', 'Tb_cfg_ship_slot', 'TARGET_NUM']
+      consts: ['None', '0', "('SHIP_MAIN_DOCK_SYSTEM_MODULE_ID',)", '1', "('game_data_utils',)", "'[Error][ShipData] ship id: {0} has not slot: {1}'"]
+    get_cls_weapon_info_list = <staticmethod(<function ShipDataBase.get_cls_weapon_info_list at 0x000001A43B3FCB80>)>
+    sub_version_name = property
+    flagship_show_name = property
+    ship_dps = property
+    ship_air_dps = property
+    ship_coef_dps = property
+    exploit_capacity = property
+    r_team_id = property
+    tear_down_status = property
+    is_landing_ship = property
+    total_fire_special_count = property
+    total_repair_armor_count = property
+    current_repair_armor_count = property
+    def get_weapon_group_socket_to_weapon_cfg_id(...):
+      args: ['self']
+      names: ['ship_attr', 'facade', 'weapon_socket_dict', 'weapon_info_list', 'get']
+      consts: ['None']
+  class ClientBattleShipData(ShipDataBase):
+    def __init__(...):
+      args: ['self', 'client_ship_record', 'ship_data_mgr']
+      names: ['_client_ship_record', 'super', 'ClientBattleShipData', '__init__']
+      consts: ['None']
+    def _setup_ship_data(...):
+      args: ['self']
+      names: ['update_by_record', '_client_ship_record']
+      consts: ['None']
+    def update_by_record(...):
+      args: ['self', 'client_ship_record']
+      names: ['_client_ship_record', 'ClientBattleShipField', 'SHIP_ID_U', 'ship_uid', 'ship_id_u', 'SHIP_ID', 'ship_id', 'TEAM_ID', 'team_id']
+      consts: ['None']
+    user_id = property
+    ship_record = property
+    belong_ship_uid = property
+    ship_state = property
+    module_str = property
+    health = property
+    health_max = property
+    decal_id = property
+    decal_version = property
+    def _do_set_health(...):
+      args: ['self', 'value']
+      names: ['health', 'utils', 'clamp', 'health_max', 'ship_record', 'ClientBattleShipField', 'HP']
+      consts: ["'设置血量，返回new health, old health'", '0']

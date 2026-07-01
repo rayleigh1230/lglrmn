@@ -1,0 +1,505 @@
+# dumped from game runtime
+
+# ====== scene_zoom0.battle_entity ======
+# file: script:/scene_zoom0/battle_entity/__init__.nxz
+  battle_unit_model_info = <module scene_zoom0.battle_entity.battle_unit_model_info>
+  battle_unit_model = <module scene_zoom0.battle_entity.battle_unit_model>
+  standalone_ship_model = <module scene_zoom0.battle_entity.standalone_ship_model>
+  battle_entity = <module scene_zoom0.battle_entity.battle_entity>
+  battle_unit_full_model = <module scene_zoom0.battle_entity.battle_unit_full_model>
+  battle_entity_actionline_component = <module scene_zoom0.battle_entity.battle_entity_actionline_component>
+  battle_unit_simple_model = <module scene_zoom0.battle_entity.battle_unit_simple_model>
+  home_ship_model = <module scene_zoom0.battle_entity.home_ship_model>
+  aircraft_simple_model = <module scene_zoom0.battle_entity.aircraft_simple_model>
+  aircraft_full_model = <module scene_zoom0.battle_entity.aircraft_full_model>
+
+# import scene_zoom0.battle_ship_group.battle_ship_group_data FAILED: Invalid Code
+
+# ====== data.battle.client_battle_data ======
+# file: script:/data/battle/client_battle_data.nxz
+  class ShipField(object):
+    TABLE_NAME = 'Tb_ship'
+    PRIMARY_KEY = 'ship_id_u'
+    USER_ID_KEY = 'userid'
+    AIRCRAFT_COUNT = 'aircraft_count'
+    AIRCRAFT_EFFECT_LIMIT = 'aircraft_effect_limit'
+    AIRCRAFT_TYPE_AND_LIMIT = 'aircraft_type_and_limit'
+    AIRCRAFTS = 'aircrafts'
+    BATTLE_STATE = 'battle_state'
+    BELONG_ID = 'belong_id'
+    BELONG_SHIP_ID_U = 'belong_ship_id_u'
+    BP_ID = 'bp_id'
+    BUILD_SPEED = 'build_speed'
+    COST = 'cost'
+    CUSTOM_PAINTING_HASH_CODE = 'custom_painting_hash_code'
+    CUSTOM_PAINTING_NAME = 'custom_painting_name'
+    CUSTOM_PAINTING_V2_HASH_CODE = 'custom_painting_v2_hash_code'
+    CUSTOM_PAINTING_V2_NAME = 'custom_painting_v2_name'
+    DRONES = 'drones'
+    DRONES_CFG = 'drones_cfg'
+    EFFECTS_ADDITION = 'effects_addition'
+    EFFECTS_ENHANCED = 'effects_enhanced'
+    EFFECTS_PEAK_LEVEL = 'effects_peak_level'
+    EFFECTS_PRODUCE = 'effects_produce'
+    EMERGENCY_EVACUATION_TIME = 'emergency_evacuation_time'
+    EXCUTOR_USERID = 'excutor_userid'
+    EXPLOIT_ATTR = 'exploit_attr'
+    EXPLOIT_LEVEL = 'exploit_level'
+    FIX_FLAG = 'fix_flag'
+    FROM_STORE = 'from_store'
+    FUNDING_USER_ID = 'funding_user_id'
+    FUNDING_USER_MARK = 'funding_user_mark'
+    GUILD_DOCK_ID = 'guild_dock_id'
+    GUILD_DOCK_RECALL_MARK = 'guild_dock_recall_mark'
+    GUILD_DOCK_TRANSFER_TIME = 'guild_dock_transfer_time'
+    HP = 'hp'
+    HP_MAX = 'hp_max'
+    INCR_REPAIR_BEGIN_TIME = 'incr_repair_begin_time'
+    INCR_REPAIR_FLAG = 'incr_repair_flag'
+    INCR_REPAIR_REFRESH_TIME = 'incr_repair_refresh_time'
+    INCR_REPAIR_RES = 'incr_repair_res'
+    INDEX = 'index'
+    LAST_REFRESH_ENHANCE_TIME = 'last_refresh_enhance_time'
+    LEVEL = 'level'
+    MODULE_EFFECT = 'module_effect'
+    MODULE_EFFECT_CONDITION = 'module_effect_condition'
+    MODULE_EFFECT_EX = 'module_effect_ex'
+    MODULES = 'modules'
+    PAINTING = 'painting'
+    PAINTING_VERSION = 'painting_version'
+    PEAK_LEVEL = 'peak_level'
+    R_TEAM_ID = 'r_team_id'
+    RECORD_RESET_ENHANCE_BASE_INFO = 'record_reset_enhance_base_info'
+    REFORMING_END_TIME = 'reforming_end_time'
+    REFORMING_REMAIN_TIME = 'reforming_remain_time'
+    REPAIR_ARMORS = 'repair_armors'
+    RES_COST = 'res_cost'
+    RETREAT_TIME = 'retreat_time'
+    SHIP_BP_OVERVIEW = 'ship_bp_overview'
+    SHIP_ID = 'ship_id'
+    SHIP_ID_U = 'ship_id_u'
+    SPEED = 'speed'
+    STATE = 'state'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_IDU = 'super_main_ship_bp_system_scheme_idu'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_NAME = 'super_main_ship_bp_system_scheme_name'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_SYSTEMS = 'super_main_ship_bp_system_scheme_systems'
+    SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_UNIQUE_ID = 'super_main_ship_bp_system_scheme_unique_id'
+    SUPPLY_DOCK_PRODUCE_FROM_WORLD_ITEM_ID = 'supply_dock_produce_from_world_item_id'
+    SUPPLY_EXPLOIT_ATTR = 'supply_exploit_attr'
+    TEAM_ID = 'team_id'
+    TIME_LIMIT_INFO = 'time_limit_info'
+    TRANSFER_DOCK_USERID = 'transfer_dock_userid'
+    UNIQUE_ID = 'unique_id'
+    UNLOCK_NEW_MODEL = 'unlock_new_model'
+    USERID = 'userid'
+    WEIGHT = 'weight'
+    FIELDS = ['aircraft_count', 'aircraft_effect_limit', 'aircraft_type_and_limit', 'aircrafts', 'battle_state', 'belong_id', 'belong
+    WORLD_VIEW_FIELDS = ['ship_id_u', 'ship_bp_overview', 'ship_id', 'index', 'state', 'team_id', 'userid', 'belong_id', 'belong_ship_id_u', 'hp
+    State = <class 'common.config.table_definition.ShipField.State'>
+    ShipType = <class 'common.config.table_definition.ShipField.ShipType'>
+    RecallMark = <class 'common.config.table_definition.ShipField.RecallMark'>
+    BattleState = <class 'common.config.table_definition.ShipField.BattleState'>
+    RECORD_TEMPLATE = {'Tb_ship': 'Tb_ship', 'aircraft_count': 0, 'aircraft_effect_limit': '', 'aircraft_type_and_limit': '', 'aircrafts': '',
+  class TeamField(object):
+    TABLE_NAME = 'Tb_team'
+    PRIMARY_KEY = 'team_id'
+    USER_ID_KEY = 'userid'
+    ACCELERATION = 'acceleration'
+    ACTION = 'action'
+    ACTION_ATTR = 'action_attr'
+    AIRCRAFT_COUNT = 'aircraft_count'
+    ALERT_RADIUS = 'alert_radius'
+    ARRIVAL_TYPE = 'arrival_type'
+    ARRIVE_TARGET_TIME = 'arrive_target_time'
+    ATTACK_TARGET = 'attack_target'
+    ATTR = 'attr'
+    ATTR2 = 'attr2'
+    ATTR_STR = 'attr_str'
+    BASE_PLAN_ID = 'base_plan_id'
+    BASE_PLAN_POS = 'base_plan_pos'
+    BATTLE_BACK_TIME = 'battle_back_time'
+    BATTLE_START_TIME = 'battle_start_time'
+    BATTLE_TIME = 'battle_time'
+    BEACON_COLLECT_INFO = 'beacon_collect_info'
+    BEGIN_TIME = 'begin_time'
+    BELONG_CONTROL_ID = 'belong_control_id'
+    BELONG_ID = 'belong_id'
+    BSTEAM_INDEX = 'bsteam_index'
+    CANCEL_ACTION_INFO = 'cancel_action_info'
+    CFG_NPC_UNION_GUARD_TEAM_ID = 'cfg_npc_union_guard_team_id'
+    COST = 'cost'
+    COUNTER_ATTACK_TARGET = 'counter_attack_target'
+    CREATE_TIME = 'create_time'
+    CUR_GROUP = 'cur_group'
+    CURVATURE_ID = 'curvature_id'
+    DATA_WORLDITEM_ID = 'data_worlditem_id'
+    DELEGATE_BELONG_ORG_PLAN_ID = 'delegate_belong_org_plan_id'
+    DOCK_TARGET_TEAM_ID = 'dock_target_team_id'
+    DOCK_WORLD_ITEM_ID = 'dock_world_item_id'
+    END_TIME = 'end_time'
+    ESCORT_TEAM_ID = 'escort_team_id'
+    EVENT_DISTANCE = 'event_distance'
+    EXCUTOR_TYPE = 'excutor_type'
+    EXCUTOR_USERID = 'excutor_userid'
+    EXERCISE_TARGET_TEAM_ID = 'exercise_target_team_id'
+    EXERCISE_TARGET_USERID = 'exercise_target_userid'
+    EXERCISE_TEAM_ID = 'exercise_team_id'
+    EXERCISE_TYPE = 'exercise_type'
+    EXPLORE = 'explore'
+    EXTRA_INFO = 'extra_info'
+    FAKE_TEAM_INFO_COUNT = 'fake_team_info_count'
+    FLAGSHIP_EFFECTS = 'flagship_effects'
+    FLAGSHIP_ID_U = 'flagship_id_u'
+    FLOATER_STAR_FACADE = 'floater_star_facade'
+    FROM_COORDINATE = 'from_coordinate'
+    FROM_POS = 'from_pos'
+    FROM_TYPE = 'from_type'
+    GARRISON_RES_LIST = 'garrison_res_list'
+    GUILD_DOCK_ALLOT_TARGET_TEAM = 'guild_dock_allot_target_team'
+    HEIGHT = 'height'
+    HERO_SHIP_ID_LIST = 'hero_ship_id_list'
+    IMMUTABLE_ATTR = 'immutable_attr'
+    IMMUTABLE_TEAM_TYPE = 'immutable_team_type'
+    INDEX = 'index'
+    INITIAL_VELOCITY = 'initial_velocity'
+    INTELL_GATHER_PROGRESS = 'intell_gather_progress'
+    INTELL_GATHER_TIME = 'intell_gather_time'
+    INTELL_ID = 'intell_id'
+    LEAGUE_ID = 'league_id'
+    LEVEL_EXERCISE_MONSTER_ID = 'level_exercise_monster_id'
+    LEVEL_ID = 'level_id'
+    MAX_CRUISE_VELOCITY = 'max_cruise_velocity'
+    MOVE_BEGIN_TIME = 'move_begin_time'
+    MOVE_ID = 'move_id'
+    MOVE_ORIGIN = 'move_origin'
+    MOVE_ORIGIN_COORDINATE = 'move_origin_coordinate'
+    MOVE_PATH = 'move_path'
+    MOVE_SPEED = 'move_speed'
+    MOVE_TARGET = 'move_target'
+    MOVE_TARGET_COORDINATE = 'move_target_coordinate'
+    NAME = 'name'
+    NPC_ID = 'npc_id'
+    ORG_TEMPLATE_PLAN_ID = 'org_template_plan_id'
+    PAINTING = 'painting'
+    PARK_ON_TARGET_ID = 'park_on_target_id'
+    PARK_ON_TYPE = 'park_on_type'
+    PASSED_COUNT = 'passed_count'
+    PATH_ATTR = 'path_attr'
+    PATH_ID = 'path_id'
+    PIRATE_REFRESH_INFO = 'pirate_refresh_info'
+    PIRATE_REFRESH_TYPE = 'pirate_refresh_type'
+    PLAN_ID = 'plan_id'
+    PLAN_PATH_STATE = 'plan_path_state'
+    POS = 'pos'
+    POS_COORDINATE = 'pos_coordinate'
+    POWER = 'power'
+    PREV_PLAN_ID = 'prev_plan_id'
+    PURSUE_ID = 'pursue_id'
+    PURSUE_ORIGIN = 'pursue_origin'
+    PURSUE_ORIGIN_COORDINATE = 'pursue_origin_coordinate'
+    PURSUE_TIME = 'pursue_time'
+    PURSUE_TYPE = 'pursue_type'
+    RADIUS = 'radius'
+    RAVEN_TARGET_TIME = 'raven_target_time'
+    REACTION_STATE = 'reaction_state'
+    REINFORCE_TEAM_INFO_FOR_CROSS = 'reinforce_team_info_for_cross'
+    RELATED_USERID = 'related_userid'
+    RELAY_PATH = 'relay_path'
+    RELAY_ROUTE = 'relay_route'
+    RELAY_WAYPOINTS_INDEX = 'relay_waypoints_index'
+    RET_PLAN_POINT_ON_MOVE_FAILED = 'ret_plan_point_on_move_failed'
+    ROUTE_TYPE = 'route_type'
+    RVO_INFO = 'rvo_info'
+    SECONDARY_TARGET_ID = 'secondary_target_id'
+    SECONDARY_TARGET_TYPE = 'secondary_target_type'
+    SENDOUT_STATE = 'sendout_state'
+    SHIP_COUNT = 'ship_count'
+    SHIP_TYPE_BITS = 'ship_type_bits'
+    SPEED = 'speed'
+    SPEED_INC = 'speed_inc'
+    STATE = 'state'
+    SUPERIOR_USERID = 'superior_userid'
+    SUPPLY_STATE = 'supply_state'
+    TARGET_ID = 'target_id'
+    TARGET_TYPE = 'target_type'
+    TASK_TYPE = 'task_type'
+    TEAM_ID = 'team_id'
+    TEAM_TYPE = 'team_type'
+    TECH_ITEM_EFFECTS = 'tech_item_effects'
+    TO_COORDINATE = 'to_coordinate'
+    TO_POS = 'to_pos'
+    TRACE_PACK_LIMIT = 'trace_pack_limit'
+    UNION_ID = 'union_id'
+    USERID = 'userid'
+    VIEW_RADIUS = 'view_radius'
+    WAYPOINTS = 'waypoints'
+    WEIGHT = 'weight'
+    FIELDS = ['acceleration', 'action', 'action_attr', 'aircraft_count', 'alert_radius', 'arrival_type', 'arrive_target_time', 'attac
+    WORLD_VIEW_FIELDS = ['team_id', 'belong_id', 'union_id', 'userid', 'index', 'superior_userid', 'name', 'team_type', 'state', 'action', 'targ
+    BattleBeginNotifyType = <class 'common.config.table_definition.TeamField.BattleBeginNotifyType'>
+    State = <class 'common.config.table_definition.TeamField.State'>
+    Action = <class 'common.config.table_definition.TeamField.Action'>
+    TargetType = <class 'common.config.table_definition.TeamField.TargetType'>
+    Type = <class 'common.config.table_definition.TeamField.Type'>
+    ReactionState = <class 'common.config.table_definition.TeamField.ReactionState'>
+    ArrivalType = <class 'common.config.table_definition.TeamField.ArrivalType'>
+    Path = <class 'common.config.table_definition.TeamField.Path'>
+    Attr = <class 'common.config.table_definition.TeamField.Attr'>
+    ImmutableAttr = <class 'common.config.table_definition.TeamField.ImmutableAttr'>
+    ActionAttr = <class 'common.config.table_definition.TeamField.ActionAttr'>
+    Attr2 = <class 'common.config.table_definition.TeamField.Attr2'>
+    AttrStr = <class 'common.config.table_definition.TeamField.AttrStr'>
+    PathAttr = <class 'common.config.table_definition.TeamField.PathAttr'>
+    TaskType = <class 'common.config.table_definition.TeamField.TaskType'>
+    Entity = <class 'common.config.table_definition.TeamField.Entity'>
+    Cmd = <class 'common.config.table_definition.TeamField.Cmd'>
+    Explore = <class 'common.config.table_definition.TeamField.Explore'>
+    SupplyState = <class 'common.config.table_definition.TeamField.SupplyState'>
+    Group = <class 'common.config.table_definition.TeamField.Group'>
+    GroupType = <class 'common.config.table_definition.TeamField.GroupType'>
+    RouteFailType = <class 'common.config.table_definition.TeamField.RouteFailType'>
+    PirateType = <class 'common.config.table_definition.TeamField.PirateType'>
+    UserPirateInfoRefresh = <class 'common.config.table_definition.TeamField.UserPirateInfoRefresh'>
+    ExtraKey = <class 'common.config.table_definition.TeamField.ExtraKey'>
+    SendOutType = <class 'common.config.table_definition.TeamField.SendOutType'>
+    FromType = <class 'common.config.table_definition.TeamField.FromType'>
+    ParkOnType = <class 'common.config.table_definition.TeamField.ParkOnType'>
+    ExecutrorType = <class 'common.config.table_definition.TeamField.ExecutrorType'>
+    RECORD_TEMPLATE = {'Tb_team': 'Tb_team', 'acceleration': 0, 'action': 0, 'action_attr': 0, 'aircraft_count': 0, 'alert_radius': 0, 'arriva
+  class ClientBattleTableID(object):
+    CLIENT_BATTLE_SHIP = 'tb_client_battle_ship'
+    CLIENT_BATTLE_TEAM = 'tb_client_battle_team'
+  class ClientBattleShipField(object):
+    SHIP_ID = 'ship_id'
+    SHIP_ID_U = 'ship_id_u'
+    BELONG_SHIP_ID_U = 'belong_ship_id_u'
+    TEAM_ID = 'team_id'
+    HP = 'hp'
+    HP_MAX = 'hp_max'
+    MODULES = 'modules'
+    USERID = 'userid'
+    BELONG_ID = 'belong_id'
+    STATE = 'state'
+    PAINTING = 'painting'
+    PAINTING_VERSION = 'painting_version'
+    EFFECTS_ENHANCED = 'effects_enhanced'
+    RETREAT_TIME = 'retreat_time'
+    INDEX = 'index'
+    SPEED = 'speed'
+    BUILD_SPEED = 'build_speed'
+    COST = 'cost'
+    BELONG_SHIP_SLOT_IDX = 'client_belong_ship_slot_idx'
+    AIRCRAFTS = 'aircrafts'
+    create_record_list = <staticmethod(<function ClientBattleShipField.create_record_list at 0x000001A42D33BEC0>)>
+    FIELDS = ['ship_id', 'ship_id_u', 'belong_ship_id_u', 'team_id', 'hp', 'hp_max', 'modules', 'userid', 'belong_id', 'state', 'pain
+  class ClientBattleTeamField(object):
+    TEAM_ID = 'team_id'
+    USERID = 'userid'
+    NAME = 'name'
+    TEAM_TYPE = 'team_type'
+    STATE = 'state'
+    ACTION = 'action'
+    SHIP_COUNT = 'ship_count'
+    create_record_list = <staticmethod(<function ClientBattleTeamField.create_record_list at 0x000001A43B1B5580>)>
+    FIELDS = ['team_id', 'userid', 'name', 'team_type', 'state', 'action', 'ship_count']
+
+# ====== data.battle_ship_group.battle_ship_group_data ======
+# file: script:/data/battle_ship_group/battle_ship_group_data.nxz
+  dataclasses = <module dataclasses>
+  class Enum(object):
+    __new__ = <staticmethod(<function Enum.__new__ at 0x000001A42C954B80>)>
+    def __init__(...):
+      args: ['self']
+      consts: ['None']
+    def _generate_next_value_(...):
+      args: ['name', 'start', 'count', 'last_values']
+      names: ['sort', 'TypeError', 'warnings', 'warn', 'DeprecationWarning', 'reversed']
+      consts: ["'\\n        Generate the next value when not given.\\n\\n        name: the name of the member\\n        ", '-1', '1', '0', 'None', "'In 3.13 the default `auto()`/`_generate_next_value_` will require all values to be sortable and sup", '3', "('stacklevel',)"]
+    _missing_ = <classmethod(<function Enum._missing_ at 0x000001A42C954D60>)>
+    name = <enum.property object at 0x000001A42C93B690>
+    value = <enum.property object at 0x000001A42C93B810>
+    def _new_member_(...):
+      args: ['cls', 'value']
+      names: ['type', '_value2member_map_', 'KeyError', 'TypeError', '_member_map_', 'values', '_value_', '_missing_', 'Exception', 'isinstance', 'Flag', 'issubclass', '_boundary_', 'EJECT', 'int', 'ValueError', '__qualname__', '__name__', '__context__']
+      consts: ['None', "'%r has no members defined'", "' is not a valid '", "'error in '", "'._missing_: returned '", "' instead of None or a valid member'"]
+    _use_args_ = False
+    _member_names_ = []
+    _member_map_ = {}
+    _value2member_map_ = {}
+    _unhashable_values_ = []
+    _member_type_ = <class 'object'>
+    _value_repr_ = None
+  time_utils = <module common.time_utils>
+  Tb_cfg_perpetual_wz_ship_group = <module common.config.db.Tb_cfg_perpetual_wz_ship_group>
+  class ShipGroupLabelId(IntEnum):
+    def _generate_next_value_(...):
+      args: ['name', 'start', 'count', 'last_values']
+      names: ['sort', 'TypeError', 'warnings', 'warn', 'DeprecationWarning', 'reversed']
+      consts: ["'\\n        Generate the next value when not given.\\n\\n        name: the name of the member\\n        ", '-1', '1', '0', 'None', "'In 3.13 the default `auto()`/`_generate_next_value_` will require all values to be sortable and sup", '3', "('stacklevel',)"]
+    _new_member_ = <built-in method __new__ of type object at 0x00007FFE5240EA60>
+    _use_args_ = True
+    _member_names_ = ['MELEE', 'RANGED', 'ANTI_AIR', 'ENDURANCE', 'CARRIER', 'DRONE', 'BASE_SHIP', 'BEACON', 'ANTI_SMALL', 'ANTI_LARGE', 'MOM
+    _member_map_ = {'MELEE': <ShipGroupLabelId.MELEE: 1>, 'RANGED': <ShipGroupLabelId.RANGED: 2>, 'ANTI_AIR': <ShipGroupLabelId.ANTI_AIR: 3
+    _value2member_map_ = {1: <ShipGroupLabelId.MELEE: 1>, 2: <ShipGroupLabelId.RANGED: 2>, 3: <ShipGroupLabelId.ANTI_AIR: 3>, 4: <ShipGroupLabelI
+    _unhashable_values_ = []
+    _member_type_ = <class 'int'>
+    _value_repr_ = <slot wrapper '__repr__' of 'int' objects>
+    MELEE = <ShipGroupLabelId.MELEE: 1>
+    RANGED = <ShipGroupLabelId.RANGED: 2>
+    ANTI_AIR = <ShipGroupLabelId.ANTI_AIR: 3>
+    ENDURANCE = <ShipGroupLabelId.ENDURANCE: 4>
+    CARRIER = <ShipGroupLabelId.CARRIER: 5>
+    DRONE = <ShipGroupLabelId.DRONE: 6>
+    BASE_SHIP = <ShipGroupLabelId.BASE_SHIP: 7>
+    BEACON = <ShipGroupLabelId.BEACON: 8>
+    ANTI_SMALL = <ShipGroupLabelId.ANTI_SMALL: 9>
+    ANTI_LARGE = <ShipGroupLabelId.ANTI_LARGE: 10>
+    MOMENTUM_DMG = <ShipGroupLabelId.MOMENTUM_DMG: 11>
+    ENERGY_DMG = <ShipGroupLabelId.ENERGY_DMG: 12>
+    MOMENTUM_RESIST = <ShipGroupLabelId.MOMENTUM_RESIST: 13>
+    ENERGY_RESIST = <ShipGroupLabelId.ENERGY_RESIST: 14>
+    DODGE = <ShipGroupLabelId.DODGE: 15>
+    ANTI_BALLISTIC = <ShipGroupLabelId.ANTI_BALLISTIC: 16>
+    LANDING = <ShipGroupLabelId.LANDING: 17>
+    REPAIR = <ShipGroupLabelId.REPAIR: 18>
+    def __new__(...):
+      args: ['cls', 'value']
+      names: ['type', '_value2member_map_', 'KeyError', 'TypeError', '_member_map_', 'values', '_value_', '_missing_', 'Exception', 'isinstance', 'Flag', 'issubclass', '_boundary_', 'EJECT', 'int', 'ValueError', '__qualname__', '__name__', '__context__']
+      consts: ['None', "'%r has no members defined'", "' is not a valid '", "'error in '", "'._missing_: returned '", "' instead of None or a valid member'"]
+  game_data_utils = <module data_manager.game_data_utils>
+  class TacOpCfgInfo(object):
+    _TacOpCfgInfo__REPORTED_TAGS = set()
+    def __init__(...):
+      args: ['self', 'op_id', 'op_cfg']
+      names: ['_op_id', '_op_cfg', 'BattleShipGroupTacOpExecType', 'exec_type_raw', '_exec_type', 'BattleShipGroupTacOpTargetType', 'target_type_raw', '_target_type', 'Tb_cfg_tactical_operation', 'TAG', 'set', 'TacticalOperationTag', '_tag', '_TacOpCfgInfo__REPORTED_TAGS', 'common.config', 'common_config', 'is_dev_mode', 'core_framework.game_event_manager', 'GameEventManager', 'notify', 'add', 'TacticalOperationVoiceTag', 'int', 'VOICE_TAG', '_voice_tag']
+      consts: ['None', '0', "('common_config',)", "('GameEventManager',)", "'toast_text'", "'unknown tac op tag for client '"]
+    op_id = property
+    op_cfg = property
+    name = property
+    cd_mode = property
+    cd = property
+    exec_type = property
+    exec_type_raw = property
+    exec_param = property
+    target_type = property
+    target_type_raw = property
+    target_param = property
+    cost = property
+    effect = property
+    camera_delay_time = property
+    op_sel_target_tips = property
+    create_from_cfg = <classmethod(<function TacOpCfgInfo.create_from_cfg at 0x000001A42D1B7BA0>)>
+    tag = property
+    voice_tag = property
+    ship_group_id = property
+    is_deploy = property
+    _exec_type = <member '_exec_type' of 'TacOpCfgInfo' objects>
+    _op_cfg = <member '_op_cfg' of 'TacOpCfgInfo' objects>
+    _op_id = <member '_op_id' of 'TacOpCfgInfo' objects>
+    _tag = <member '_tag' of 'TacOpCfgInfo' objects>
+    _target_type = <member '_target_type' of 'TacOpCfgInfo' objects>
+    _voice_tag = <member '_voice_tag' of 'TacOpCfgInfo' objects>
+  class BattleShipGroupType(Enum):
+    def _generate_next_value_(...):
+      args: ['name', 'start', 'count', 'last_values']
+      names: ['sort', 'TypeError', 'warnings', 'warn', 'DeprecationWarning', 'reversed']
+      consts: ["'\\n        Generate the next value when not given.\\n\\n        name: the name of the member\\n        ", '-1', '1', '0', 'None', "'In 3.13 the default `auto()`/`_generate_next_value_` will require all values to be sortable and sup", '3', "('stacklevel',)"]
+    _new_member_ = <built-in method __new__ of type object at 0x00007FFE52415EC0>
+    _use_args_ = False
+    _member_names_ = ['NORMAL', 'BASE']
+    _member_map_ = {'NORMAL': <BattleShipGroupType.NORMAL: 1>, 'BASE': <BattleShipGroupType.BASE: 2>}
+    _value2member_map_ = {1: <BattleShipGroupType.NORMAL: 1>, 2: <BattleShipGroupType.BASE: 2>}
+    _unhashable_values_ = []
+    _member_type_ = <class 'object'>
+    _value_repr_ = None
+    NORMAL = <BattleShipGroupType.NORMAL: 1>
+    BASE = <BattleShipGroupType.BASE: 2>
+    def __new__(...):
+      args: ['cls', 'value']
+      names: ['type', '_value2member_map_', 'KeyError', 'TypeError', '_member_map_', 'values', '_value_', '_missing_', 'Exception', 'isinstance', 'Flag', 'issubclass', '_boundary_', 'EJECT', 'int', 'ValueError', '__qualname__', '__name__', '__context__']
+      consts: ['None', "'%r has no members defined'", "' is not a valid '", "'error in '", "'._missing_: returned '", "' instead of None or a valid member'"]
+  class TacOpEffectInfo(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'op_id', 'start_time', 'end_time']
+      names: ['_src_team_id', '_start_time', '_end_time', '_op_id']
+      consts: ['None']
+    src_team_id = property
+    start_time = property
+    end_time = property
+    op_id = property
+    _end_time = <member '_end_time' of 'TacOpEffectInfo' objects>
+    _op_id = <member '_op_id' of 'TacOpEffectInfo' objects>
+    _src_team_id = <member '_src_team_id' of 'TacOpEffectInfo' objects>
+    _start_time = <member '_start_time' of 'TacOpEffectInfo' objects>
+  class ShieldState(object):
+    def __init__(...):
+      args: ['self', 'active', 'percent']
+      names: ['__setattr__']
+      consts: ['None', "'active'", "'percent'"]
+    active = <member 'active' of 'ShieldState' objects>
+    percent = <member 'percent' of 'ShieldState' objects>
+  class BattleShipGroupData(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'group_id', 'member_uids', 'group_type', 'group_cfg_id']
+      names: ['_team_id', '_group_id', '_member_uids', '_group_type', '_group_cfg_id', '_tac_op_effect_data_list', '_first_ship_uid', '_init_cache_data']
+      consts: ['None', '0']
+    def _init_cache_data(...):
+      args: ['self']
+      names: ['Tb_cfg_perpetual_wz_ship_group', 'get', 'group_cfg_id', 'SHIP_INFO', 'game_data_utils', 'parse_cfg_str_to_list_of_list', 'get_ship_id_by_npc_team_effect_id', 'PLAYER_SHIP_INFO', '_sample_ship_id', 'ShipGroupLabelId', 'LABEL', '_label_id', 'SHORT_NAME', '_group_name', 'VOICE_PROMPT', '_group_voice_prompt_id', '_row_idx']
+      consts: ['None', 'True', "('is_num',)", '0']
+    team_id = property
+    group_id = property
+    group_name = property
+    group_voice_prompt_id = property
+    member_uids = property
+    group_type = property
+    group_cfg_id = property
+    sample_ship_id = property
+    label_id = property
+    row_idx = property
+    def set_row_idx(...):
+      args: ['self', 'new_row_idx', 'is_init']
+      names: ['_row_idx']
+      consts: ["'目前只应该由mgr调用，见BattleShipGroupDataMgr.set_group_row_idx'", 'False', 'True']
+    def get_tac_op_effect_data_list(...):
+      args: ['self']
+      names: ['_refresh_valid_tac_op_effect_data_list', 'list', '_tac_op_effect_data_list']
+      consts: ['None']
+    def push_tac_op_effect_data(...):
+      args: ['self', 'data']
+      names: ['end_time', 'time_utils', 'get_server_time', '_tac_op_effect_data_list', 'append']
+      consts: ['None']
+    def remove_tac_op_effect_data_by_op_id(...):
+      args: ['self', 'op_id']
+      names: ['_tac_op_effect_data_list']
+      consts: ['\'\\n\\t\\t按 op_id 显式移除该 group 的 TacOpEffectInfo。\\n\\t\\t用于"护盾驱动的 tac_op_id=1034"在护盾归 0 + UI fadeout 完成后的图', '<code:<listcomp>>', 'None']
+        [nested] <listcomp>:
+          args: ['.0']
+          names: ['op_id']
+    def _refresh_valid_tac_op_effect_data_list(...):
+      args: ['self']
+      names: ['time_utils', 'get_server_time', '_tac_op_effect_data_list', 'end_time', 'append']
+      consts: ['None']
+    def is_tag_effect_valid(...):
+      args: ['self', 'tag']
+      names: ['time_utils', 'get_server_time', '_tac_op_effect_data_list', 'end_time', 'op_id', 'TacOpCfgInfo', 'create_from_cfg', 'tag']
+      consts: ['None', "('op_id',)", 'True', 'False']
+    _first_ship_uid = <member '_first_ship_uid' of 'BattleShipGroupData' objects>
+    _group_cfg_id = <member '_group_cfg_id' of 'BattleShipGroupData' objects>
+    _group_id = <member '_group_id' of 'BattleShipGroupData' objects>
+    _group_name = <member '_group_name' of 'BattleShipGroupData' objects>
+    _group_type = <member '_group_type' of 'BattleShipGroupData' objects>
+    _group_voice_prompt_id = <member '_group_voice_prompt_id' of 'BattleShipGroupData' objects>
+    _label_id = <member '_label_id' of 'BattleShipGroupData' objects>
+    _member_uids = <member '_member_uids' of 'BattleShipGroupData' objects>
+    _row_idx = <member '_row_idx' of 'BattleShipGroupData' objects>
+    _sample_ship_id = <member '_sample_ship_id' of 'BattleShipGroupData' objects>
+    _tac_op_effect_data_list = <member '_tac_op_effect_data_list' of 'BattleShipGroupData' objects>
+    _team_id = <member '_team_id' of 'BattleShipGroupData' objects>
+  class TeamBattleShipGroupRowData(object):
+    def __init__(...):
+      args: ['self', 'team_id', 'group_id_row_list']
+      names: ['team_id', 'group_id_row_list']
+      consts: ['None']
+    group_id_row_list = <member 'group_id_row_list' of 'TeamBattleShipGroupRowData' objects>
+    team_id = <member 'team_id' of 'TeamBattleShipGroupRowData' objects>

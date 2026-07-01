@@ -1,0 +1,1132 @@
+# dumped from game runtime
+
+# ====== scene_zoom0.weapon.bullet_manager ======
+# file: script:/scene_zoom0/weapon/bullet_manager.nxz
+  math3d = <module math3d>
+  random = <module random>
+  world = <module world>
+  time = <module time>
+  cc = <module cc>
+  ccui = <module ccui>
+  def namedtuple(...):
+    args: ['typename', 'field_names']
+    names: ['isinstance', 'str', 'replace', 'split', 'list', 'map', '_sys', 'intern', 'set', 'enumerate', 'isidentifier', '_iskeyword', 'startswith', 'add', 'type', 'TypeError', 'ValueError', 'tuple', 'len', 'dict', 'reversed', 'zip', 'join', '__new__', 'eval', '__name__', '__doc__', '__defaults__', 'classmethod', '__func__', '__qualname__', '_tuplegetter', '_getframe', 'f_globals', 'get', 'AttributeError', '__module__']
+    consts: ['"Returns a new subclass of tuple with named fields.\\n\\n    >>> Point = namedtuple(\'Point\', [\'x\', \'y\'', "','", "' '", "'_'", "'Type names and field names must be strings'", "'Type names and field names must be valid identifiers: '", "'Type names and field names cannot be a keyword: '", "'Field names cannot start with an underscore: '", "'Encountered duplicate field name: '", 'None', "'Got more default values than field names'", "', '", '1', "'('", '<code:<genexpr>>', "')'", "'namedtuple_'", "('_tuple_new', '__builtins__', '__name__')", "'lambda _cls, '", "': _tuple_new(_cls, ('", "'))'", "'__new__'", "'Create new instance of '", '<code:_make>', "'Make a new '", "' object from a sequence or iterable'", '<code:_replace>', "'Return a new '", "' object replacing specified fields with new values'", '<code:__repr__>', '<code:_asdict>', '<code:__getnewargs__>', "'.'", '()', "('__doc__', '__slots__', '_fields', '_field_defaults', '__new__', '_make', '_replace', '__repr__', '", "'Alias for field number '", "'__name__'", "'__main__'"]
+      [nested] <genexpr>:
+        args: ['.0']
+        consts: ["'=%r'", 'None']
+      [nested] _make:
+        args: ['cls', 'iterable']
+        names: ['TypeError', 'len']
+        consts: ['None', "'Expected '", "' arguments, got '"]
+      [nested] _replace:
+        args: ['self']
+        names: ['_make', 'pop', 'ValueError', 'list']
+        consts: ['None', "'Got unexpected field names: '"]
+      [nested] __repr__:
+        args: ['self']
+        names: ['__class__', '__name__']
+        consts: ["'Return a nicely formatted representation string'"]
+      [nested] _asdict:
+        args: ['self']
+        names: ['_fields']
+        consts: ["'Return a new dict which maps field names to their values.'"]
+      [nested] __getnewargs__:
+        args: ['self']
+        consts: ["'Return self as a plain tuple.  Used by copy and pickle.'"]
+  common_definition = <module common.common_definition>
+  utils = <module common.utils>
+  battle_render_configs = <module common.config.battle_render_configs>
+  common_config = <module common.config.common_config>
+  cfg_trk_path = <module common.config.client_cfg.cfg_trk_path>
+  class GameConfig(object):
+    DEV_MODE = False
+    SERVER_LIST = ('35.236.116.103', 10001)
+    SERVER_LIST_CN = ('42.186.96.39', 10001)
+    BACKUP_SERVER_LIST = ('34.94.154.8', 10001)
+    BACKUP_SERVER_LIST_CN = ('42.186.16.239', 10001)
+    GAME_AUDIO = True
+    SDK_LOGIN = True
+    ENABLE_ULTRA_MODE = False
+    DEBUG_ALERT = False
+    REMOTE_DEBUG = False
+    REMOTE_VSCODE_DEBUG = False
+    AUTO_RELOAD_PYTHON = False
+    UPDATE_GAME = True
+    SHOW_SHIP_ID = False
+    EDITOR_MODE = False
+    EDITOR_MODE_NOT_SEND_RPC = True
+    SUNSHINE3_CONNECTED = False
+    SHOW_BATTLE_LOG = False
+    BATTLE_SHOW_ATTACK_LOG = False
+    BATTLE_SHOW_BATTLE_LOG = False
+    SERVER_INFO_TEST = 0
+    GAME_MIRROR = False
+    PATCH_URL_DOMAIN_NEW = 'g86naxx2gb.gph.easebar.com'
+    PATCH_LIST_DOMAIN_NEW = 'g86naxx2gb.update.easebar.com'
+    PATCH_LIST_NEW = 'https://{0}/pl/patch_list_migrate'
+    PATCH_LIST_NEW3 = 'https://{0}/pl/patch_list3'
+    PATCH_LIST_PRIOR = 'https://{0}/pl/patch_list_prior'
+    PATCH_URL_DOMAIN_CN_NEW = 'g86.gph.netease.com'
+    PATCH_LIST_DOMAIN_CN_NEW = 'g86.update.netease.com'
+    PATCH_LIST_CN_NEW = 'https://{0}/pl/patch_list_migrate'
+    PATCH_LIST_CN_NEW3 = 'https://{0}/pl/patch_list3'
+    PATCH_LIST_CN_PRIOR = 'https://{0}/pl/patch_list_prior'
+    REVIEW_VER_NUM_LIST = [1181214]
+    LANG_DEV_MODE = False
+    SHOW_DOCK_SHIP_MGR_LOG = False
+    SHOW_DOCK_SHIP_BOUNDING_BOX = False
+    BPO = False
+    SHOW_DEBUG_TOUCHABLE_UI_LAYER = False
+    REMOTE_VSCODE_DEBUG_PORT_PY3 = 18813
+    REMOTE_VSCODE_DEBUG_PORT_PY2 = 18813
+  class Entity(object):
+    NEED_UNREGISTER_LISTENER = True
+    def __init__(...):
+      args: ['self', 'name', 'scene', 'parent', 'tag']
+      names: ['super', 'Entity', '__init__', 'tag', 'World', 'create_entity', 'eid', 'scene', 'parent', 'name', '_active', '_has_been_destroyed', 'is_destroy_called', 'utils', 'get_reg_name', 'reg_name', 'init_container', 'add_entity', 'add_children']
+      consts: ['None', "'/'", 'True', 'False']
+    _logger = property
+    def init_container(...):
+      args: ['self']
+      names: ['defaultdict', 'set', '_component_find_dict', '_component_dict', '_children_entities', '_asyncio_task']
+      consts: ['None']
+    def remove_from_parent(...):
+      args: ['self']
+      names: ['parent', 'remove_children']
+      consts: ['None']
+    def add_children(...):
+      args: ['self', 'entity']
+      names: ['_children_entities', 'eid', 'parent']
+      consts: ['None']
+    def remove_children(...):
+      args: ['self', 'entity']
+      names: ['eid', '_children_entities', '_logger', 'error', 'name', 'parent']
+      consts: ['None', "'Child %s is not in entity: %s'"]
+    def get_all_children(...):
+      args: ['self']
+      names: ['list', '_children_entities', 'values']
+      consts: ['None']
+    def get_child_by_eid(...):
+      args: ['self', 'eid']
+      names: ['_children_entities']
+      consts: ['None']
+    active = property
+    has_been_destroyed = property
+    def is_destroyed(...):
+      args: ['self']
+      names: ['_has_been_destroyed']
+      consts: ['None']
+    def destroy(...):
+      args: ['self']
+      names: ['_has_been_destroyed', 'on_destroy', 'scene', 'remove_entity', '_active', 'is_destroy_called', '_destroy', 'NEED_UNREGISTER_LISTENER', 'unregister_all_event', 'unregister_data_event']
+      consts: ['None', 'True', 'False']
+    def scheduled_destroy_can_do_now(...):
+      args: ['self']
+      names: ['_has_been_destroyed']
+      consts: ['None']
+    def destroy_immediately(...):
+      args: ['self']
+      names: ['is_destroy_called', '_destroy']
+      consts: ["'按Unity Gameobj体系,这个接口只给编辑器用,逻辑不能用!'", 'None']
+    def on_destroy(...):
+      args: ['self']
+      consts: ['None']
+    def _destroy(...):
+      args: ['self']
+      names: ['is_destroy_called', '_active', '_component_dict', 'values', 'World', 'remove_system', 'component_destroy', 'parent', 'remove_children', '_children_entities', 'items', 'destroy', '_asyncio_task', 'cancel', 'init_container', '_has_been_destroyed', 'scene', 'remove_entity', 'print', 'NEED_UNREGISTER_LISTENER', 'remove_all_event_listener']
+      consts: ["'正式被destroy时执行\\n\\t\\t！！！注意！！！\\n\\t\\t\\t1. 若要销毁entity，请调用destroy接口，此接口一般不要手动调用，否则在场景管理中会有残留\\n\\t\\t\\t2. 如果", 'True', 'False', "'[ERROR]: Entity is not bound to a scene instance!!!'", 'None']
+    def remove_all_event_listener(...):
+      args: ['self']
+      names: ['unregister_all_event', 'unregister_data_event', 'unregister_all_net_event']
+      consts: ['None']
+    def register_event(...):
+      args: ['self', 'event', 'listener']
+      names: ['GameEventManager', 'register_event', 'reg_name']
+      consts: ['None', "('registrant',)"]
+    def unregister_event(...):
+      args: ['self', 'event']
+      names: ['GameEventManager', 'unregister_event', 'reg_name']
+      consts: ['None', "('registrant',)"]
+    def notify(...):
+      args: ['self', 'event_type']
+      names: ['GameEventManager', 'notify']
+      consts: ['None']
+    def unregister_all_event(...):
+      args: ['self']
+      names: ['GameEventManager', 'unregister_event', 'reg_name']
+      consts: ['None', "('registrant',)"]
+    def register_data_event(...):
+      args: ['self', 'table_name', 'event', 'handle_func']
+      names: ['DataEventMgr', 'register_data_event', 'reg_name']
+      consts: ['None']
+    def unregister_data_event(...):
+      args: ['self', 'table_name', 'event']
+      names: ['DataEventMgr', 'unregister_data_event', 'reg_name']
+      consts: ['None']
+    def unregister_all_net_event(...):
+      args: ['self']
+      names: ['NetMsgQueue', 'unregister_msg', 'reg_name']
+      consts: ['None', "('registrant',)"]
+    def add_component(...):
+      args: ['self', 'component']
+      names: ['_check_is_component', '_component_dict', 'cid', '_component_find_dict', 'type', '__name__', 'add', 'entity', 'scene', 'World', 'add_system']
+      consts: ['None']
+    def has_component(...):
+      args: ['self', 'cname']
+      names: ['_component_find_dict', 'len']
+      consts: ['None', 'False', '0', 'True']
+    def get_component(...):
+      args: ['self', 'cname']
+      names: ['has_component', 'list', '_component_find_dict', 'len', '_logger', 'warning', 'name', '_component_dict', 'KeyError']
+      consts: ['None', '0', '1', '"There\'s more than one %s component in Entity %s"']
+    def get_components(...):
+      args: ['self', 'cname']
+      names: ['_component_find_dict', 'get', 'set', 'append', '_component_dict']
+      consts: ['None']
+    def get_component_cast(...):
+      args: ['self', 'tp']
+      names: ['cast', 'get_component', '__name__']
+      consts: ["'\\n\\t\\tAuto cast target component to tp.\\n\\t\\tThe name of the component should be the same as the cl", "'_T | None'"]
+    def get_components_cast(...):
+      args: ['self', 'tp']
+      names: ['get_components', '__name__']
+      consts: ['None']
+    def remove_component(...):
+      args: ['self', 'component', 'need_destroy']
+      names: ['_check_is_component', 'type', '__name__', 'has_component', 'cid', 'enable', 'valid', 'World', 'remove_system', '_component_dict', 'pop', '_component_find_dict', 'remove', 'KeyError', '_logger', 'error', 'delay_destroy_component']
+      consts: ['None', 'False', "'%s: Failed to remove component %s, current find_dict: %s'"]
+    def _check_is_component(...):
+      args: ['self', 'obj']
+      names: ['issubclass', 'type', 'Component', '_logger', 'error']
+      consts: ['None', "'Expect instance of Component, not %s'", 'False', 'True']
+    def on_scene_seamless_switch_out(...):
+      args: ['self']
+      consts: ["'在自身场景被无缝切出时会被调用，重载这个方法来处理被切出时候需要的操作'", 'None']
+    def create_asyncio_task(...):
+      args: ['self', 'coro']
+      names: ['create_task', '_asyncio_task', 'add']
+      consts: ['None', '<code:wrapped>']
+        [nested] wrapped:
+          args: []
+          names: ['_has_been_destroyed', 'CancelledError', '_asyncio_task', 'discard']
+          consts: ['None']
+    def create_eager_task(...):
+      args: ['self', 'coro']
+      names: ['create_eager_task', '_asyncio_task', 'add']
+      consts: ['None', '<code:wrapped>', '0', 'False', '1']
+        [nested] wrapped:
+          args: []
+          names: ['_asyncio_task', 'discard']
+          consts: ['None', '0', 'False', '1']
+    def cancel_asyncio_task(...):
+      args: ['self', 'task']
+      names: ['cancel', '_asyncio_task', 'discard']
+      consts: ['None']
+    def cancel_all_asyncio_task(...):
+      args: ['self']
+      names: ['_asyncio_task', 'cancel', 'clear']
+      consts: ['None']
+    def _log(...):
+      args: ['self', 'msg']
+      names: ['print', '__class__', '__name__']
+      consts: ['None', "'['", "'] '"]
+    _active = <member '_active' of 'Entity' objects>
+    _asyncio_task = <member '_asyncio_task' of 'Entity' objects>
+    _children_entities = <member '_children_entities' of 'Entity' objects>
+    _component_dict = <member '_component_dict' of 'Entity' objects>
+    _component_find_dict = <member '_component_find_dict' of 'Entity' objects>
+    _has_been_destroyed = <member '_has_been_destroyed' of 'Entity' objects>
+    eid = <member 'eid' of 'Entity' objects>
+    is_destroy_called = <member 'is_destroy_called' of 'Entity' objects>
+    name = <member 'name' of 'Entity' objects>
+    parent = <member 'parent' of 'Entity' objects>
+    reg_name = <member 'reg_name' of 'Entity' objects>
+    scene = <member 'scene' of 'Entity' objects>
+    tag = <member 'tag' of 'Entity' objects>
+  class RenderQualityMgr(object):
+    RENDER_QUALITY = 3
+    BATTLE_RENDER_CONFIGS = {0: 6, 1: 50, 2: 2, 3: 1, 4: 1, 5: 1, 6: 0, 7: 60, 8: 0, 9: False, 10: 1, 11: 30, 12: False, 13: 300, 14: 1.0, 15: True,
+    LIMIT_SIZE = 4096
+    USE_HDR = False
+    USE_BLOOM = False
+    USE_SPOT = False
+    USE_SHADOW = False
+    USE_REFLECTION_PROBE = False
+    USE_HANGINGLIGHT = False
+    USE_SUN_EFFECT = False
+    USE_FLARE_RENDER = False
+    USE_UI_BLUR_EFFECT = False
+    USE_MSAA_NUM = 1
+    USE_MSAA = False
+    USE_FIX_LOD_MODEL = None
+    APPLE_DEVICE_CPU_CORE = 1
+    SCREEN_SCALE = 1.0
+    SKIP_MIPMAP_LEVEL = 0
+    MEM_SIZE = 32581
+    DEVICE_LEVEL = 2
+    SKIP_LOD_LEVEL = 1
+    MAX_POLICY_LEVEL = 5
+    MAX_PROFILE_LEVEL = 4
+    LOW_MEM_DEVICE = False
+    USE_HD_RES = True
+    SKIP_MIPMAP_PREFIX_FOR_ZOOM0 = 'model/ships'
+    ENGINE_RENDER_CONDITION = {0: 30, 1: 20, 2: 10, 3: 0}
+    SFX_RENDER_CONDITION = {0: 6, 1: 4, 2: 2, 3: 0}
+    NEW_FOG_SWITCH = 0
+    ALLOW_M0_FAKE_TRAIL_AIRCRAFT = True
+    TEMPORARY_DISABLE_HDR = False
+    is_discrete_graphics = <staticmethod(<function RenderQualityMgr.is_discrete_graphics at 0x000001A4382AC680>)>
+    _on_resume_game = <staticmethod(<function RenderQualityMgr._on_resume_game at 0x000001A4382AC720>)>
+    disbale_screen_scale = <staticmethod(<function RenderQualityMgr.disbale_screen_scale at 0x000001A4382AC7C0>)>
+    set_device_level = <staticmethod(<function RenderQualityMgr.set_device_level at 0x000001A4382AC860>)>
+    get_device_level_by_analysis_table = <staticmethod(<function RenderQualityMgr.get_device_level_by_analysis_table at 0x000001A4382AC900>)>
+    get_device_pc_level_by_analysis_table = <staticmethod(<function RenderQualityMgr.get_device_pc_level_by_analysis_table at 0x000001A4382AC9A0>)>
+    analyse_quality = <staticmethod(<function RenderQualityMgr.analyse_quality at 0x000001A4382ACA40>)>
+    init_render_quality_stuff = <staticmethod(<function RenderQualityMgr.init_render_quality_stuff at 0x000001A4382ACAE0>)>
+    get_render_quality = <staticmethod(<function RenderQualityMgr.get_render_quality at 0x000001A4382ACB80>)>
+    is_use_shadow = <staticmethod(<function RenderQualityMgr.is_use_shadow at 0x000001A4382ACC20>)>
+    is_use_hdr = <staticmethod(<function RenderQualityMgr.is_use_hdr at 0x000001A4382ACCC0>)>
+    is_use_bloom = <staticmethod(<function RenderQualityMgr.is_use_bloom at 0x000001A4382ACD60>)>
+    is_use_spot = <staticmethod(<function RenderQualityMgr.is_use_spot at 0x000001A4382ACE00>)>
+    is_use_hanginglight = <staticmethod(<function RenderQualityMgr.is_use_hanginglight at 0x000001A4382ACEA0>)>
+    is_use_flare_render = <staticmethod(<function RenderQualityMgr.is_use_flare_render at 0x000001A4382ACF40>)>
+    is_use_sun_effect = <staticmethod(<function RenderQualityMgr.is_use_sun_effect at 0x000001A4382ACFE0>)>
+    is_use_blur_effect = <staticmethod(<function RenderQualityMgr.is_use_blur_effect at 0x000001A4382AD080>)>
+    is_use_reflection_probe = <staticmethod(<function RenderQualityMgr.is_use_reflection_probe at 0x000001A4382AD120>)>
+    set_render_quality = <staticmethod(<function RenderQualityMgr.set_render_quality at 0x000001A4382AD1C0>)>
+    is_use_msaa = <staticmethod(<function RenderQualityMgr.is_use_msaa at 0x000001A4382AD260>)>
+    is_use_fix_lod_model = <staticmethod(<function RenderQualityMgr.is_use_fix_lod_model at 0x000001A4382AD300>)>
+    is_low_render_quality = <staticmethod(<function RenderQualityMgr.is_low_render_quality at 0x000001A4382AD3A0>)>
+    is_low_mem_device = <staticmethod(<function RenderQualityMgr.is_low_mem_device at 0x000001A4382AD440>)>
+    get_device_level = <staticmethod(<function RenderQualityMgr.get_device_level at 0x000001A4382AD4E0>)>
+    enable_ship_point_light = <staticmethod(<function RenderQualityMgr.enable_ship_point_light at 0x000001A4382AD580>)>
+    enable_point_light_from_star = <staticmethod(<function RenderQualityMgr.enable_point_light_from_star at 0x000001A4382AD620>)>
+    get_strategy_scene_m2_max_team_count = <staticmethod(<function RenderQualityMgr.get_strategy_scene_m2_max_team_count at 0x000001A4382AD6C0>)>
+    get_m0_default_optimize_power = <staticmethod(<function RenderQualityMgr.get_m0_default_optimize_power at 0x000001A4382AD760>)>
+    get_m0_use_fake_trail_aircraft = <staticmethod(<function RenderQualityMgr.get_m0_use_fake_trail_aircraft at 0x000001A4382AD800>)>
+    set_skip_mipmap_level = <staticmethod(<function RenderQualityMgr.set_skip_mipmap_level at 0x000001A4382AD8A0>)>
+    set_default_mipmap_level = <staticmethod(<function RenderQualityMgr.set_default_mipmap_level at 0x000001A4382AD940>)>
+    set_mipmap_level_with_prefix = <staticmethod(<function RenderQualityMgr.set_mipmap_level_with_prefix at 0x000001A4382AD9E0>)>
+    set_default_mipmap_level_and_prefix = <staticmethod(<function RenderQualityMgr.set_default_mipmap_level_and_prefix at 0x000001A4382ADA80>)>
+    set_skip_mipmap_prefix = <staticmethod(<function RenderQualityMgr.set_skip_mipmap_prefix at 0x000001A4382ADB20>)>
+    set_new_fog_switch = <staticmethod(<function RenderQualityMgr.set_new_fog_switch at 0x000001A4382ADBC0>)>
+    is_new_fog_on = <staticmethod(<function RenderQualityMgr.is_new_fog_on at 0x000001A4382ADC60>)>
+    is_asteroid_fog_on = <staticmethod(<function RenderQualityMgr.is_asteroid_fog_on at 0x000001A4382ADD00>)>
+    get_fix_lod_0_model_if_necessary = <staticmethod(<function RenderQualityMgr.get_fix_lod_0_model_if_necessary at 0x000001A4382ADDA0>)>
+  class BuffParameter(object):
+    def __init__(...):
+      args: ['self']
+      names: ['weapon_group_socket', 'buff_sfx_file', 'buff_sfx_socket', 'buff_sfx_socket_scale', 'buff_sfx_duration', 'buff_sfx_loop_only_file', 'buff_sfx_loop_only_socket', 'buff_sfx_loop_only_socket_scale', 'is_hanging_light_buff', 'buff_hanging_light_group']
+      consts: ['None', "''", '1.0', '5.0', 'False']
+    bullet_sfx_file = property
+    default = <staticmethod(<function BuffParameter.default at 0x000001A43B306B60>)>
+    deserialize = <staticmethod(<function BuffParameter.deserialize at 0x000001A43B306C00>)>
+  class BulletType(object):
+    LINE = 1
+    FOLLOW = 2
+    LINK = 3
+    MISSILE = 4
+    LINK_FLY = 5
+    LINK_FLY_MODEL = 6
+    FISSION_MISSILE = 7
+    FISSION_TORPEDO_LINE = 9
+    FISSION_TORPEDO_ARC = 10
+    MISSILE_PLASMA = 14
+    MISSILE_HEAVY = 24
+    MISSILE_TYPES = [4, 14, 24]
+    FISSION_TYPES = [7, 9, 10]
+    LINK_TYPES = [3, 5, 6]
+    CONSTRICT_ANGLE_TYPES = [1, 2, 3, 5, 6]
+    GPU_MISSILE_TYPES = [4, 24]
+  def cast(...):
+    args: ['typ', 'val']
+    consts: ['"Cast a value to a type.\\n\\n    This returns the value unchanged.  To the type checker this\\n    sig']
+  class Zoom0SceneBase(Scene,Zoom0SceneInterface):
+    def __init__(...):
+      args: ['self', 'scene_id']
+      names: ['super', '__init__']
+      consts: ['None']
+  class BulletBase(Entity):
+    def __init__(...):
+      args: ['self', 'scene', 'bullet_param']
+      names: ['super', 'BulletBase', '__init__', '_is_playing_bounce_off', 'cast', 'Zoom0SceneBase', 'scene', 'bullet_param', '_weapon_entity_id', '_target_ship_uid', '_attach_ship_uid', '_model', '_bullet_async_task', '_hit_index', '_hit_socket', '_hit_sfx_obj_lst', '_hit_sfx_origin_scale', '_hit_sfx_life_span', '_hit_update_passed', '_hit_update_timer', '_disappear_update_passed', '_disappear_update_timer', '_launch_sfx_obj', '_launch_async_task', '_launch_sfx_origin_scale_vec', '_launch_index', '_move_comp', '_trail_update_comp', '_sub_trails', '_is_trail_playing', 'set', '_loading_bullet_eid_set', '_original_alpha', '_original_scale', '_shut_down_timer_id', '_damage', '_is_anti_missile', '_in_used', '_duration', '_is_dead', '_is_hit_playing', '_attack_position', '_bullet_sfx_finished', '_dynamic_scale_comp', '_expire_timer', '_ex_bullet_scale', '_ex_launch_scale', '_ex_hit_scale', '_bullet_target_info', '_gpu_bullet_weapon_info']
+      consts: ['None', "'BulletBase'", '0', '0.0', 'False']
+    def remove_move_component(...):
+      args: ['self']
+      names: ['_move_comp', 'isinstance', 'Component', 'destroy', 'remove_component']
+      consts: ['None']
+    def _cancel_all_timers(...):
+      args: ['self']
+      names: ['_cancel_hit_update_timer', '_cancel_disappear_update_timer', '_cancel_shut_down_timer']
+      consts: ['None']
+    def set_active(...):
+      args: ['self', 'is_active']
+      names: ['_in_used', 'active']
+      consts: ['None']
+    def restart(...):
+      args: ['self']
+      names: ['isinstance', '_model', 'sfx', 'Sfx', 'restart']
+      consts: ['None']
+    def _has_trail_effect(...):
+      args: ['self']
+      names: ['_model', 'neox_obj', 'valid', 'isinstance', 'sfx', 'Sfx', 'hasattr', 'range', 'get_subfx_count', 'get_child_sfx_name', 'find', 'BULLET_TRAIL_SUB_SFX']
+      consts: ["'\\n\\t\\t是否存在拖尾\\n\\t\\t:return:\\n\\t\\t'", 'False', "'get_child_sfx_name'", '-1', 'True']
+    def _show_all_sub_effect(...):
+      args: ['self']
+      names: ['isinstance', '_model', 'sfx', 'Sfx', 'range', 'get_subfx_count', 'get_child_sfx_name', 'set_sub_visible_by_name']
+      consts: ["'\\n\\t\\t子特效全部显示\\n\\t\\t:return:\\n\\t\\t'", 'None', 'True']
+    def _show_trail_effect_only(...):
+      args: ['self']
+      names: ['_is_trail_playing', 'isinstance', '_model', 'sfx', 'Sfx', '_sub_trails', 'range', 'get_subfx_count', 'get_child_sfx_name', 'find', 'BULLET_TRAIL_SUB_SFX', 'set_sub_visible_by_name', 'get_sub_cur_time', 'get_sub_life_span', 'min', 'append', 'ExecuteRepeat', '_update_trail', '_trail_update_comp', 'add_component', '_shut_down']
+      consts: ["'\\n\\t\\t仅显示拖尾\\n\\t\\t:return:\\n\\t\\t'", 'False', 'None', '-1', 'True', "('poly_idx', 'poly_cur_time')", '2.0', "'life_span'", '0.10000000000000001', "('func', 'interval')"]
+    def _update_trail(...):
+      args: ['self']
+      names: ['_is_trail_playing', 'clock', 'delta_time', '_sub_trails', '_shut_down', 'remove_component', '_trail_update_comp']
+      consts: ['None', "'poly_cur_time'", "'life_span'", 'False']
+    def launch(...):
+      args: ['self', 'attack_command_id', 'launch_index', 'hit_index', 'offset', 'anti_missile_cb', 'assign_launch_position', 'assign_launch_rotation', 'need_play_launch_sfx']
+      names: ['bullet_type', 'BattleLogger', 'attack', '_is_anti_missile', '_is_dead', '_launch_index', '_init_ex_scale', '_get_launch_info', '_get_target_and_model_or_position', 'leader', 'entity_type', 'BattleEntityType', 'ASTEROID_BLAST_MINE_SHIP', 'EVA_BOSS_SHIP', '_get_eva_boss_target_and_model_or_position', 'try_get_defense_position', 'BattleDamageType', 'MISS', '_damage', '_attack_position', 'valid', '_logger', 'error', 'format', '_target_ship_uid', 'do_disappear', 'bullet_target_info', 'gpu_bullet_weapon_info', 'use_batch', 'world_position', 'length', 'bullet_param', 'speed', 'launch_delay_time', 'launch_interval', 'launch_count', 'get_estimate_position', 'math3d', 'vector3_normalize', 'AIRCRAFT_SWEEP_EXTEND_DISTANCE', 'weapon_utils', 'BulletTargetInfoSequence', 'set_get_model_fn', '_model', 'matrix_rotation_look', 'forward', 'up', 'world_rotation_matrix', 'visible', '_original_scale', 'vector', 'scale', '_original_alpha', 'alpha', 'set_alpha', '_in_used', '_is_trail_playing', '_is_hit_playing', 'remove_move_component', 'get_attach_battle_entity', 'cast', 'get_ship_hit_index', '_attach_ship_uid', 'get_eva_boss_hit_index', 'zoom0_ship_config', 'SHIP_ENTITY_TYPES', 'get_hit_index_by_location', 'model', 'world_transformation', 'get_random_hit_index', 'hit_socket_count', '_set_hit_socket', 'length_sqr', 'float', 'utils', 'check_condition_error', 'BulletType', 'LINK', '_launch_gpu_link_bullet', 'LINK_FLY_MODEL', '_launch_gpu_link_fly_bullet', 'GPU_MISSILE_TYPES', '_launch_gpu_missile_bullet', 'MISSILE_PLASMA', '_launch_gpu_array_bullet', 'is_gpu_bullet_railgun', '_launch_gpu_railgun_bullet', 'LINE', '_launch_line_bullet', 'FOLLOW', '_launch_follow_bullet', '_launch_link_bullet', 'MISSILE_TYPES', '_launch_missile_bullet', 'LINK_FLY', '_launch_link_fly_bullet', '_launch_link_model_bullet', 'FISSION_MISSILE', '_launch_fission_missile_bullet', 'FISSION_TORPEDO_LINE', '_launch_fission_torpedo_line_bullet', 'FISSION_TORPEDO_ARC', '_launch_fission_torpedo_arc_bullet', '_hit_socket', 'get_socket_matrix', 'world', 'SPACE_TYPE_WORLD', 'translation', '_play_launch_sfx', 'time_utils', 'call_later', 'LONG_DIST_MAX_LIFETIME', '_expire_timer']
+      consts: ["'\\n\\t\\t发射子弹\\n\\t\\t@param attack_command_id：攻击指令ID\\n\\t\\t@param launch_index: 发射点索引\\n\\t\\t@param hit_ind", "'[Bullet] launch'", 'False', 'None', '(None, None)', "'target invalid, target ship uid:{}'", 'True', "('immediately',)", '<code:<lambda>>', "'ResAsteroidShip'", "'EvaBossShip'", '0', "'inf'", "'[Bullet] Launch position invalid with detail'", "'bad launch position'", "'[bullet] unknown bullet type: {0}'", "'[Bullet] play launch sfx'", '1000.0']
+        [nested] <lambda>:
+          args: []
+          names: ['_get_target_and_model_or_position']
+          consts: ['None', '1']
+    def _launch_gpu_array_bullet(...):
+      args: ['self', 'launch_model', 'launch_position', 'self_battle_entity', 'target_battle_entity']
+      names: ['_model', 'remove_from_parent', 'set_parent', 'world', 'INHERIT_TRANSFORM', 'inherit_flag', 'math3d', 'matrix_transformation_prs', 'quaternion_identity', 'vector', 'world_transformation', 'GPUArtilleryArrayMoveComp', 'add_component', 're_init', 'gpu_bullet_weapon_info', 'bullet_target_info', 'bullet_param', 'hit_point_type', 'BulletHitPointType', 'RANDOM_SWEEP']
+      consts: ['None', '1']
+    def _launch_gpu_railgun_bullet(...):
+      args: ['self', 'launch_model', 'launch_position', 'launch_rotation', 'self_battle_entity', 'target_battle_entity']
+      names: ['GpuRailgunMoveComp', 'add_component', '_move_comp', '_model', 'remove_from_parent', 'set_parent', 'world', 'INHERIT_TRANSFORM', 'inherit_flag', 'scale', 'x', 'math3d', 'matrix_transformation_prs', 'quaternion_identity', 'vector', 'world_transformation', 'visible', 're_init', 'gpu_bullet_weapon_info', 'bullet_target_info', 'bullet_param', 'hit_point_type', 'BulletHitPointType', 'RANDOM_SWEEP']
+      consts: ['None', '1', 'True', "('launch_rotation',)"]
+    def _launch_line_bullet(...):
+      args: ['self', 'target', 'hit_index', 'target_is_aircraft']
+      names: ['_damage', 'BattleDamageType', 'MISS', '_model', 'world_position', 'get_mishit_world_position', '_get_hit_world_position', 'scene', 'neox_scene', 'world', 'get_active_scene', 'scene_zoom0.weapon.straight_move_native_comp', 'StraightMoveNativeComp', 'bullet_param', 'speed', '_target_ship_uid', 'set_target_pos', 'zoom0_ship_config', 'BULLET_LINE_MISS_EXTEND_DIST', 're_init', 'scene_zoom0.weapon.straight_move_comp', 'StraightMoveComp', 'add_component', 'set_speed', 'move', '_move_comp', 'restart']
+      consts: ['None', '0', "('StraightMoveNativeComp',)", "('extend_length',)", "('StraightMoveComp',)"]
+    def _launch_follow_bullet(...):
+      args: ['self', 'launch_position', 'hit_index', 'target', 'target_is_aircraft', 'anti_missile_cb']
+      names: ['scene', 'neox_scene', 'world', 'get_active_scene', 'bullet_target_info', 'scene_zoom0.weapon.follow_move_comp', 'FollowMoveComp', 'add_component', 'set_bullet_target_info', 'bullet_param', 'bounce_off_probability', 'bounce_off_min_incident_angle', 'scene_zoom0.weapon.follow_move_native_comp', 'FollowMoveNativeComp', '_move_comp', 'set_speed', 'speed', 'set_target_ship_uid', '_target_ship_uid', 'set_src_pos', 're_init', 'restart']
+      consts: ['None', '0', "('FollowMoveComp',)", "('bounce_off_probability', 'bounce_off_min_incident_angle')", "('FollowMoveNativeComp',)"]
+    def _launch_link_bullet(...):
+      args: ['self', 'launch_model', 'launch_socket', 'launch_position', 'hit_index', 'target', 'target_model', 'target_is_aircraft']
+      names: ['scene_zoom0.weapon.link_ctrl_comp', 'LinkCtrlComp', 'add_component', '_move_comp', '_model', 'remove_from_parent', 'math3d', 'vector', 'world_position', 'set_alpha', 'set_target_ship_uid', '_target_ship_uid', 'bullet_target_info', 'set_bullet_target_info', 'get_attach_battle_entity', 'is_eva_noself_virtual_ship', 'is_eva_boss_ship', 'get_socket_matrix', 'world', 'SPACE_TYPE_WORLD', 'set_parent', 'neox_obj', 'bind', 'INHERIT_TRANSFORM', 'inherit_flag', 'visible', 'hit_socket_count', 'leader', '_damage', 'BattleDamageType', 'MISS', 'matrix', 'world_transformation', 'inverse', 'get_mishit_world_position', 'LINK_MISS_SHOW_SCALE', 'end_pos', 'model', 'get_parent', 'matrix_inverse', 'matrix_identity', 'is_target_eva_boss', '_attack_position', 'set_world_end_pos', 'bullet_param', 'enable_air_burst', '_hit_socket', 'get_air_burst_position', 'translation', 'endpos_attach', '_logger', 'warn', 'format', 'filename', 'restart', '_duration', 'LINK_MISS_LAST_TIME', 'LINK_EVA_BOSS_LAST_TIME', 'set_last_time', 'register_sfx_event', 'enable', 'set_die_out_time', 'set_shut_down_callback', 're_init', 'get_all_dagame', 'valid', 'do_damage_and_play_hit']
+      consts: ['None', '0', "('LinkCtrlComp',)", '255.0', 'False', 'True', "'[socket error], can not find any hit socket for model: {}'", '<code:shut_down_callback>', '1000.0', '2', '1.0', '(None,)']
+        [nested] shut_down_callback:
+          args: ['sfx_obj', 'data']
+          names: ['has_been_destroyed', 'bullet_type', 'BulletType', 'LINK', '_destroy_all_sfx', 'valid', 'destroy', 'endpos_detach', 'unbind', 'neox_obj', '_finalize_bullet']
+          consts: ['None']
+    def _launch_gpu_link_bullet(...):
+      args: ['self', 'launch_model', 'launch_position', 'launch_rotation', 'self_battle_entity', 'target_battle_entity']
+      names: ['GpuLinkMoveComp', 'add_component', '_move_comp', '_model', 'remove_from_parent', 'set_parent', 'world', 'INHERIT_TRANSFORM', 'inherit_flag', 'scale', 'x', 'math3d', 'matrix_transformation_prs', 'quaternion_identity', 'vector', 'world_transformation', 'visible', 're_init', 'gpu_bullet_weapon_info', 'bullet_target_info', 'bullet_param', '_hit_index', 'get_all_dagame', 'valid', 'do_damage_and_play_hit']
+      consts: ['None', '1', 'True', "('hit_socket_index',)", '0']
+    def _launch_gpu_link_fly_bullet(...):
+      args: ['self', 'launch_model', 'launch_position', 'launch_rotation', 'self_battle_entity', 'target_battle_entity']
+      names: ['GpuLinkFlyMoveComp', 'add_component', '_move_comp', '_model', 'remove_from_parent', 'set_parent', 'world', 'INHERIT_TRANSFORM', 'inherit_flag', 'scale', 'x', 'math3d', 'matrix_transformation_prs', 'quaternion_identity', 'vector', 'world_transformation', 'visible', 're_init', 'gpu_bullet_weapon_info', 'bullet_target_info', 'bullet_param', 'hit_point_type', 'BulletHitPointType', 'RANDOM_SWEEP', 'try_get_special_launch_interval', '_reinit_gpu_bullet_weapon_info']
+      consts: ['None', '1', 'True']
+    def _reinit_gpu_bullet_weapon_info(...):
+      args: ['self', 'special_launch_interval']
+      names: ['weapon_utils', 'GPUBulletWeaponInfo', '_gpu_bullet_weapon_info', 'launch_delay_time', 'launch_count', 'use_batch']
+      consts: ['None']
+    def _launch_gpu_missile_bullet(...):
+      args: ['self', 'launch_model', 'launch_position', 'launch_rotation', 'self_battle_entity', 'target_battle_entity', 'anti_missile_cb']
+      names: ['GpuMissileMoveComp', 'add_component', '_move_comp', '_model', 'remove_from_parent', 'set_parent', 'world', 'INHERIT_TRANSFORM', 'inherit_flag', 'scale', 'x', 'math3d', 'matrix_transformation_prs', 'quaternion_identity', 'vector', 'world_transformation', 'visible', 're_init', 'gpu_bullet_weapon_info', 'bullet_target_info', 'bullet_param', 'hit_point_type', 'BulletHitPointType', 'RANDOM_SWEEP']
+      consts: ['None', '1', 'True', "('launch_rotation', 'anti_missile_callback')"]
+    def _launch_missile_bullet(...):
+      args: ['self', 'launch_position', 'launch_rotation', 'hit_index', 'target', 'target_is_aircraft', 'anti_missile_cb']
+      names: ['scene_zoom0.weapon.missile_move_comp', 'MissileMoveComp', 'bullet_param', 'add_component', '_move_comp', 'set_target_ship_uid', '_target_ship_uid', 'set_src_pos', '_attack_position', 'set_follow_type', 'FollowMoveType', 'CURVE_TYPE_LINE', 'set_line_dest_pos', '_damage', 'BattleDamageType', 'MISS', 'get_mishit_world_position', 'mishit_world_position', 'is_miss', 'bullet_target_info', 'set_bullet_target_info', 're_init', 'restart']
+      consts: ['None', '0', "('MissileMoveComp',)", 'True']
+    def _launch_link_fly_bullet(...):
+      args: ['self', 'launch_model', 'launch_socket', 'launch_position', 'hit_index', 'target', 'target_is_aircraft']
+      names: ['scene_zoom0.weapon.link_move_comp', 'LinkMoveComp', 'add_component', '_move_comp', 'set_speed', 'bullet_param', 'speed', 'set_target_ship_uid', '_target_ship_uid', 'set_src_pos', 're_init', 'is_target_eva_boss', 'set_follow_type', 'FollowMoveType', 'CURVE_TYPE_LINE', 'set_line_dest_pos', '_attack_position', '_model', 'remove_from_parent', 'math3d', 'vector', 'world_position', 'get_socket_matrix', 'world', 'SPACE_TYPE_WORLD', 'set_parent', 'neox_obj', 'bind', 'INHERIT_TRANSFORM', 'inherit_flag', 'visible', '_damage', 'BattleDamageType', 'MISS', 'set_is_miss', 'get_mishit_world_position', 'LINK_MISS_SHOW_SCALE', 'restart', 'set_shut_down_callback', 'register_sfx_event']
+      consts: ['None', '0', "('LinkMoveComp',)", 'True', '<code:shut_down_callback>', '(None,)']
+        [nested] shut_down_callback:
+          args: ['sfx_obj', 'data']
+          names: ['_bullet_sfx_finished', 'has_been_destroyed', 'bullet_type', 'BulletType', 'LINK_FLY', '_destroy_launch_sfx', 'valid', '_move_comp', 'enable', 'endpos_detach', 'unbind', 'neox_obj', '_is_hit_playing', '_destroy_hit_sfx', '_is_dead', 'is_arrive', 'do_hit', '_finalize_bullet']
+          consts: ['None', 'True', 'False']
+    def is_target_eva_boss(...):
+      args: ['self', 'target']
+      names: ['entity_type', 'BattleEntityType', 'EVA_BOSS_SHIP']
+      consts: ['None']
+    def _launch_link_model_bullet(...):
+      args: ['self', 'launch_model', 'launch_socket', 'launch_position', 'hit_index', 'target', 'target_is_aircraft']
+      names: ['_damage', 'BattleDamageType', 'MISS', 'scene_zoom0.weapon.link_model_move_comp', 'LinkModelMoveComp', 'bullet_param', 'bullet_sfx_size', 'link_move_model_miss_last_time', 'link_move_model_hit_last_time', 'add_component', '_move_comp', 'set_speed', 'speed', 'set_target_ship_uid', '_target_ship_uid', 'set_src_pos', 'bullet_target_info', 'set_bullet_target_info', 'is_target_eva_boss', 'set_follow_type', 'FollowMoveType', 'CURVE_TYPE_LINE', 'set_line_dest_pos', '_attack_position', '_model', 'remove_from_parent', 'math3d', 'vector', 'world_position', 'scene', 'neox_scene', 'add_object', 'neox_obj', 'visible', 'set_is_miss', 'get_mishit_world_position', 'set_miss_position', 're_init', 'restart', 'set_shut_down_callback']
+      consts: ['None', '0', "('LinkModelMoveComp',)", 'True', "('mishit_multiplier',)", '<code:shut_down_callback>', '(None,)']
+        [nested] shut_down_callback:
+          args: ['sfx_obj', 'data']
+          names: ['_bullet_sfx_finished', 'has_been_destroyed', 'bullet_type', 'BulletType', 'LINK_FLY_MODEL', '_destroy_launch_sfx', 'valid', '_move_comp', 'enable', 'remove_from_parent', '_is_hit_playing', '_destroy_hit_sfx', '_finalize_bullet']
+          consts: ['None', 'True', 'False']
+    def _launch_fission_missile_bullet(...):
+      args: ['self', 'launch_position', 'launch_rotation']
+      names: ['scene_zoom0.weapon.fission_missile_move_comp', 'FissionMissileMoveComp', 'bullet_param', 'fission_count', 'get_fission_bullet_param', 'scene', 'bullet_manager', 'get_bullets_async', '_damage', '_loading_bullet_eid_set', 'add']
+      consts: ['None', '0', "('FissionMissileMoveComp',)", '<code:launch>', '<code:on_bullets_loaded>', 'False', "('damage_list',)"]
+        [nested] launch:
+          args: ['bullet_list']
+          names: ['enumerate', 'damage', 'BattleDamageType', 'MISS', 'target_ship_uid', 'attack_position', '_hit_index', '_hit_socket', 'append', 'bullet_param', 'add_component', '_move_comp', 'restart', 'set_bullet_children', 'set_speed', 'speed', 're_init', 'play', '_target_ship_uid']
+          consts: ['None', '0', "('target_position',)"]
+        [nested] on_bullets_loaded:
+          args: ['is_success', 'bullet_list']
+          names: ['_loading_bullet_eid_set', 'discard', 'eid', '_has_been_destroyed', 'do_disappear', 'destroy']
+          consts: ['None', 'False', "('immediately',)"]
+    def _set_hit_socket(...):
+      args: ['self', 'target', 'hit_index', 'target_is_aircraft']
+      names: ['_hit_index', 'leader', 'get_hit_mount_name', '_hit_socket']
+      consts: ['None', "''"]
+    def _get_hit_world_position(...):
+      args: ['self', 'target', 'hit_index', 'target_is_aircraft']
+      names: ['_set_hit_socket', 'leader', 'get_hit_mount_matrix', 'translation', 'bullet_param', 'enable_air_burst', 'get_air_burst_position', '_model', 'world_position']
+      consts: ['None']
+    def get_mishit_world_position(...):
+      args: ['self', 'launch_position', 'target_battle_entity', 'mishit_multiplier', 'deviation_dir', 'mishit_length']
+      names: ['entity_type', 'BattleEntityType', 'ASTEROID_BLAST_MINE_SHIP', 'EVA_BOSS_SHIP', 'HOME_BASE', 'hasattr', 'is_world_boss_main_ship', '_attack_position', 'math3d', 'vector', 'bounding_box', 'x', 'y', 'z', 'world_transformation', 'bounding_radius_w', 'world_position', 'vector3_normalize', 'is_zero', 'math_utils', 'get_perpendicular_vector', 'matrix_rotation_look', 'matrix', 'make_rotation_z', 'random', 'math', 'pi', 'weapon_utils', 'get_mishit_direction', 'normalize', 'vector3_cross', 'get_vector_from_to_angle', 'radians', 'clamp', 'make_rotation', 'length']
+      consts: ["'\\n\\t\\t计算打偏点\\n\\t\\t:param launch_position: 发射位置\\n\\t\\t:param target_battle_entity: 目标battle entity\\n\\t", "'is_world_boss_main_ship'", '50', 'None', '1', '0', '2.0', '30.0', '1.0']
+    def _cancel_all_bullet_tasks(...):
+      args: ['self']
+      names: ['_loading_bullet_eid_set', 'scene', 'bullet_manager', 'remove_bullet', 'clear']
+      consts: ['None']
+    def _launch_fission_torpedo_line_bullet(...):
+      args: ['self']
+      names: ['scene_zoom0.weapon.fission_torpedo_move_comp', 'FissionTorpedoMoveComp', 'bullet_param', 'add_component', '_move_comp', 'set_bullet_target_info', 'bullet_target_info', 'set_target_ship_uid', '_target_ship_uid', 'set_speed', 'speed', 're_init', 'restart']
+      consts: ['None', '0', "('FissionTorpedoMoveComp',)"]
+    def _launch_fission_torpedo_arc_bullet(...):
+      args: ['self', 'launch_position', 'launch_rotation']
+      names: ['scene_zoom0.weapon.fission_torpedo_arc_move_comp', 'FissionTorpedoArcMoveComp', 'bullet_param', 'add_component', '_move_comp', 'set_target_ship_uid', '_target_ship_uid', 'set_speed', 'speed', 're_init', 'restart']
+      consts: ['None', '0', "('FissionTorpedoArcMoveComp',)"]
+    def _play_launch_sfx(...):
+      args: ['self', 'launch_position', 'launch_model', 'launch_socket', 'launch_rotation', 'is_use_launch_rotation', 'target_pos', 'set_direction']
+      names: ['has_been_destroyed', 'bullet_param', 'launch_sfx_file', 'math3d', 'matrix_rotation_look', 'forward', 'up', 'scene', 'bullet_manager', 'can_create_launch_sfx', '_destroy_launch_sfx', '_cancel_launch_async_task', 'gpu_bullet_weapon_info', 'use_batch', 'gpu_bullet_launch_loop_file', 'gpu_bullet_launch_loop_interval', 'NeoxResPool', 'get_res_async', 'neox_scene', '_launch_async_task']
+      consts: ['None', '<code:shut_down_callback>', 'False', '0.0', '<code:on_sfx_loaded>', 'True', '2', '3', "('neox_scene',)", '(None,)']
+        [nested] shut_down_callback:
+          args: ['sfx_obj', 'data']
+          names: ['_destroy_launch_sfx']
+          consts: ['None']
+        [nested] on_sfx_loaded:
+          args: ['sfx_obj']
+          names: ['_launch_async_task', 'valid', 'is_battle_res', 'has_been_destroyed', 'destroy', '_in_used', 'scene', 'get_ship_or_aircraft', '_attach_ship_uid', 'is_dead', 'loop', 'visible', '_launch_sfx_obj', 'remove_from_parent', 'bind', 'neox_obj', 'scale', 'get_bullet_launch_scale_float', '_launch_sfx_origin_scale_vec', 'inherit_flag', 'world', 'INHERIT_VISIBLE', 'set_parent', 'INHERIT_TRANSFORM', 'world_position', 'math3d', 'vector', 'neox_scene', 'add_object', '_destroy_launch_sfx', 'world_rotation_matrix', 'length', 'normalize', 'matrix_rotation_quaternion', 'quaternion_rotation_fromto', 'restart', 'gpu_bullet_weapon_info', 'launch_interval', 'launch_count', 'time_utils', 'call_later', 'launch_delay_time', 'register_sfx_event', 'RenderQualityMgr', 'enable_ship_point_light', '_turn_on_launch_light', '_refresh_dynamic_scaling_comp']
+          consts: ['None', 'True', 'False', '1', '0', '2', '3', '<code:_begin_show_sfx>', '1000.0']
+            [nested] _begin_show_sfx:
+              args: []
+              names: ['valid', 'is_destroyed', 'visible', 'loop', 'restart', 'time_utils', 'call_later', 'RenderQualityMgr', 'enable_ship_point_light', '_turn_on_launch_light']
+              consts: ['None', 'True', '1000.0', '<code:<lambda>>']
+                [nested] <lambda>:
+                  args: []
+                  consts: ['None']
+    def _destroy_launch_sfx(...):
+      args: ['self']
+      names: ['_launch_sfx_obj', 'valid', 'destroy']
+      consts: ['None']
+    def _cancel_launch_async_task(...):
+      args: ['self']
+      names: ['_launch_async_task', 'NeoxResPool', 'cancel_async_task']
+      consts: ['None']
+    def launch_anti_missile(...):
+      args: ['self', 'launch_index', 'target_bullet', 'tipping_point', 'from_ship_uid']
+      names: ['_is_dead', '_is_anti_missile', '_get_launch_info', 'math3d', 'matrix_rotation_look', 'forward', 'up', '_model', 'world_position', 'visible', 'restart', 'world_rotation_matrix', '_in_used', 'remove_move_component', 'scene_zoom0.weapon.anti_missle_move_comp', 'AntiMissileMoveComp', '_move_comp', 'set_target_bullet_id', 'eid', 'length', 'speed', 'bullet_param', 'set_delay_launch_time', 'set_speed', 'add_component', 'set_src_pos', 'set_from_ship_uid', 're_init', '_play_launch_sfx']
+      consts: ["'\\n\\t\\t发射反导子弹\\n\\t\\t:param launch_index: 发射点\\n\\t\\t:param target_bullet: 被反导的子弹\\n\\t\\t:param tipping_po", 'False', 'True', '0', "('AntiMissileMoveComp',)", '0.01', 'None']
+    def _get_launch_info(...):
+      args: ['self', 'launch_index']
+      names: ['scene', 'get_entity_by_id', '_weapon_entity_id', 'get_launch_info']
+      consts: ["'\\n        子弹发射点信息(位置、角度)，注意拿到的rotation是包含scale的符号信息的，需要设置到物体上时需要考虑是否去掉scale\\n\\t\\t'", 'None']
+    def load_bullet_sfx_sync(...):
+      args: ['self', 'is_enhanced', 'is_gpu_bullet']
+      names: ['bullet_param', 'bullet_sfx_file', 'destroy', 'gpu_bullet_sfx_file', 'parse_enhance_sfx', 'NeoxResPool', 'get_res_sync', 'valid', 'bullet_type', 'BulletType', 'LINK_TYPES', 'isinstance', 'sfx', 'Sfx', 'hasattr', 'neox_obj', 'enable_low_frequency', '_load_callback']
+      consts: ["'同步加载 bullet sfx，主线程阻塞读盘+解析。\\n\\n\\t\\t仅供 cinematic 等明确接受卡帧、必须保证子弹立即出现的场景使用。\\n\\t\\t镜像 ``load_bullet_sfx_", 'False', "'enable_low_frequency'", 'True']
+    def load_bullet_sfx_async(...):
+      args: ['self', 'load_callback', 'is_enhanced', 'is_gpu_bullet']
+      names: ['bullet_param', 'bullet_sfx_file', 'gpu_bullet_sfx_file', 'parse_enhance_sfx', 'NeoxResPool', 'get_res_async', 'scene', 'neox_scene', '_bullet_async_task']
+      consts: ['None', '<code:on_sfx_loaded>', "('neox_scene',)"]
+        [nested] on_sfx_loaded:
+          args: ['sfx_obj']
+          names: ['_bullet_async_task', 'bullet_param', 'bullet_type', 'BulletType', 'LINK_TYPES', 'isinstance', 'sfx', 'Sfx', 'hasattr', 'neox_obj', 'enable_low_frequency', 'valid', '_load_callback', 'destroy']
+          consts: ['None', 'False', "'enable_low_frequency'", 'True']
+    def _init_ex_scale(...):
+      args: ['self']
+      names: ['scene_zoom0.perpetual_warzone.m0_perpetual_warzone_cfg', 'PERPETUAL_WARZONE_FOCUS_BULLET_EX_SCALE', 'PERPETUAL_WARZONE_FOCUS_LAUNCH_EX_SCALE', 'PERPETUAL_WARZONE_FOCUS_HIT_EX_SCALE', 'PERPETUAL_WARZONE_NORMAL_BULLET_EX_SCALE', 'PERPETUAL_WARZONE_NORMAL_LAUNCH_EX_SCALE', 'PERPETUAL_WARZONE_NORMAL_HIT_EX_SCALE', 'scene', 'zoom0_mode', 'Zoom0SceneMode', 'PERPETUAL_WARZONE', 'BattleShipGroupDataMgr', 'is_damage_increase_effect_valid', '_attach_ship_uid', '_ex_bullet_scale', '_ex_launch_scale', '_ex_hit_scale']
+      consts: ['None', '0', "('PERPETUAL_WARZONE_FOCUS_BULLET_EX_SCALE', 'PERPETUAL_WARZONE_FOCUS_LAUNCH_EX_SCALE', 'PERPETUAL_WA"]
+    def get_bullet_scale_float(...):
+      args: ['self']
+      names: ['bullet_param', 'bullet_sfx_size', '_ex_bullet_scale']
+      consts: ['None']
+    def get_bullet_hit_scale_float(...):
+      args: ['self']
+      names: ['bullet_param', 'hit_sfx_size', '_ex_hit_scale', 'scene', 'mont_player', 'current_hit_effect_extra_scale']
+      consts: ['None']
+    def get_bullet_launch_scale_float(...):
+      args: ['self']
+      names: ['bullet_param', 'launch_sfx_size', '_ex_launch_scale']
+      consts: ['None']
+    def _load_callback(...):
+      args: ['self', 'bullet_obj']
+      names: ['remove_from_parent', 'scene', 'neox_scene', 'add_object', 'neox_obj', 'is_battle_res', '_model', 'math3d', 'vector', 'get_bullet_scale_float', 'scale', '_move_comp', 'enable', 'bullet_type', 'BulletType', 'GPU_MISSILE_TYPES', 'isinstance', 'Model', 'is_perpetual_warzone_mode', 'set_submesh_visible', 'get_socket_obj', 'visible']
+      consts: ['None', 'True', '1.0', "'Rocket'", 'False', "'glow'", '0', "'weiyan02'"]
+    def _cancel_bullet_async_task(...):
+      args: ['self']
+      names: ['_bullet_async_task', 'NeoxResPool', 'cancel_async_task']
+      consts: ['None']
+    def _detach_from_weapon(...):
+      args: ['self']
+      names: ['_weapon_entity_id', 'scene', 'get_entity_by_id', 'remove_bullet', 'eid']
+      consts: ['None']
+    def _cancel_expire_timer(...):
+      args: ['self']
+      names: ['_expire_timer', 'time_utils', 'unregister_neox_timer']
+      consts: ['None']
+    def destroy(...):
+      args: ['self']
+      names: ['has_been_destroyed', 'scene', 'bullet_manager', 'remove_bullet', 'eid', 'super', 'BulletBase', 'destroy']
+      consts: ['None']
+    def _destroy(...):
+      args: ['self']
+      names: ['_is_dead', '_cancel_expire_timer', '_cancel_launch_async_task', '_cancel_bullet_async_task', '_cancel_all_bullet_tasks', '_cancel_all_timers', '_detach_from_weapon', '_destroy_all_sfx', '_destroy_bullet', 'super', 'BulletBase', '_destroy']
+      consts: ['None', 'True']
+    def _destroy_all_sfx(...):
+      args: ['self']
+      names: ['_destroy_launch_sfx', '_destroy_hit_sfx']
+      consts: ['None']
+    def _shut_down(...):
+      args: ['self']
+      names: ['_is_trail_playing', '_show_all_sub_effect', 'bullet_type', 'BulletType', 'MISSILE_TYPES', 'gpu_bullet_weapon_info', 'time_utils', 'register_neox_timer', '_on_shut_down_timer', '_shut_down_timer_id', '_on_shut_down']
+      consts: ['None', '33']
+    def _on_shut_down(...):
+      args: ['self']
+      names: ['_model', '_cancel_all_timers', 'valid', 'visible', '_original_alpha', 'set_alpha', '_original_scale', 'scale', 'isinstance', 'sfx', 'Sfx', 'shutdown', 'destroy']
+      consts: ['None', 'False', 'True']
+    def _on_shut_down_timer(...):
+      args: ['self']
+      names: ['has_been_destroyed', '_model', 'valid', '_cancel_shut_down_timer', 'set_alpha', 'alpha', 'BULLET_FADE_OUT_SPEED', '_original_scale', 'utils', 'clamp', 'scale', '_on_shut_down']
+      consts: ['None', '255.0', '0.0', '1.0', '0']
+    def _cancel_shut_down_timer(...):
+      args: ['self']
+      names: ['_shut_down_timer_id', 'time_utils', 'unregister_neox_timer']
+      consts: ['None']
+    def do_hit(...):
+      args: ['self', 'world_rotation_matrix']
+      names: ['_in_used', '_is_dead', '_detach_from_weapon', '_destroy_launch_sfx', 'do_damage_and_play_hit', '_hit_update_passed', '_cancel_hit_update_timer', 'time_utils', 'register_scheduler_timer', '_on_hit_update', '_hit_update_timer', 'bullet_param', 'enable_scale_down_bullet_sfx_after_hit', '_model', 'valid', 'visible', '_play_disappear']
+      consts: ["'子弹进入命中阶段(命中)，包含了之后的destroy'", 'None', 'True', "('world_rotation_matrix',)", '0', 'False']
+    def play_deflect_sfx(...):
+      args: ['self', 'world_position', 'world_rotation_matrix']
+      names: ['bullet_param', 'hit_sfx_file', '_get_target_and_model_or_position', 'get_bullet_hit_scale_float', 'utils', 'play_sfx_on_pos', 'scene', 'math3d', 'matrix_transformation_prs', 'vector']
+      consts: ['None', 'False', '0.25', "('world_transformation',)"]
+    def _on_hit_update(...):
+      args: ['self']
+      names: ['_hit_update_passed', 'clock', 'delta_time', 'BULLET_HIT_DURATION', 'bullet_param', 'enable_scale_down_bullet_sfx_after_hit', '_model', 'valid', 'scale', '_hit_sfx_life_span', '_on_shut_down', '_cancel_hit_update_timer', 'remove_move_component']
+      consts: ['None', '0.90000000000000002']
+    def _cancel_hit_update_timer(...):
+      args: ['self']
+      names: ['_hit_update_timer', 'time_utils', 'unregister_scheduler_timer']
+      consts: ['None']
+    def do_disappear(...):
+      args: ['self', 'immediately', 'playing_bounce_off']
+      names: ['_in_used', '_is_dead', '_is_playing_bounce_off', '_detach_from_weapon', '_destroy_launch_sfx', '_destroy_hit_sfx', '_shut_down', '_play_disappear']
+      consts: ["'\\n\\t\\t子弹进入消隐阶段(未命中)\\n\\t\\t@param immediately: 是否立即消失\\n\\t\\t'", 'None', 'True']
+    def _play_disappear(...):
+      args: ['self']
+      names: ['_has_trail_effect', '_show_trail_effect_only', '_disappear_update_passed', '_cancel_disappear_update_timer', 'time_utils', 'register_scheduler_timer', '_on_disappear_update', '_disappear_update_timer', '_is_trail_playing', '_is_playing_bounce_off', '_destroy_hit_sfx']
+      consts: ['None', '0']
+    def _on_disappear_update(...):
+      args: ['self']
+      names: ['_disappear_update_passed', 'clock', 'delta_time', '_model', 'valid', 'BULLET_DISAPPEAR_DURATION', 'scale', 'set_alpha', 'alpha', '_on_shut_down', '_cancel_disappear_update_timer']
+      consts: ['None', '0.75']
+    def _cancel_disappear_update_timer(...):
+      args: ['self']
+      names: ['_disappear_update_timer', 'time_utils', 'unregister_scheduler_timer']
+      consts: ['None']
+    def _finalize_bullet(...):
+      args: ['self']
+      names: ['_is_dead', 'destroy', 'do_disappear']
+      consts: ["'\\n\\t\\t所有特效表现完成后的统一收口：如果已进入死亡流程则直接销毁，否则走消隐流程。\\n\\t\\t由子弹SFX回调和受击特效回调共同调用。\\n\\t\\t'", 'False', "('immediately',)", 'None']
+    def do_damage_and_play_hit(...):
+      args: ['self', 'world_rotation_matrix']
+      names: ['has_been_destroyed', 'get_all_dagame', 'do_damage', '_model', 'valid', '_play_hit_sfx', '_is_anti_missile']
+      consts: ['None', 'False', '0', "('world_rotation_matrix',)"]
+    def _play_hit_sfx(...):
+      args: ['self', 'world_rotation_matrix', 'destroy_later']
+      names: ['_get_target_and_model_or_position', 'entity_type', 'BattleEntityType', 'ASTEROID_BLAST_MINE_SHIP', 'EVA_BOSS_SHIP', '_attack_position', 'get_bullet_hit_scale_float', 'bullet_param', 'bullet_type', '_destroy_hit_sfx', 'scene', 'bullet_manager', '_target_ship_uid', 'eid', 'hit_sfx_file', '_is_anti_missile', 'valid', 'enable_air_burst', 'bullet_target_info', 'get_local_hit_position_normal_at_ratio', 'math3d', 'quaternion_rotation_fromto', 'vector', 'create_hit_sfx_on_model', 'neox_obj', 'matrix_transformation_prs', '_hit_socket', 'get_socket_matrix', 'world', 'SPACE_TYPE_WORLD', 'cast', 'play_mine_blast_effect', 'get_asteroid_item_model', '_play_eva_boss_hit_sfx', 'ZOOM0_MODEL_SCALE', 'BulletType', 'LINK', 'LINK_FLY', 'LINK_FLY_MODEL', '_move_comp', 'get_dest_pos', '_model', 'world_position', 'matrix_identity', 'create_hit_sfx_on_pos', '_hit_sfx_origin_scale', '_is_hit_playing']
+      consts: ['None', 'False', '0.25', '<code:load_success_callback>', '<code:destroyed_callback>', '(None, None)', '0', '1', "('load_success_callback', 'destroyed_callback', 'local_transformation')", 'True', "'ResAsteroidShip'", "('load_success_callback', 'destroyed_callback', 'scale', 'frame_rate')", "'EvaBossShip'", "('load_success_callback', 'destroyed_callback', 'world_transformation')"]
+        [nested] load_success_callback:
+          args: ['sfx_obj']
+          names: ['has_been_destroyed', 'destroy_bullet_hit_sfx', '_hit_sfx_obj_lst', 'append', 'utils', 'clamp', 'life_span', 'frame_rate', 'BULLET_HIT_DURATION', 'BULLET_HIT_SFX_MAX_DURATION', '_hit_sfx_life_span', 'is_battle_res', 'SpeedUpMgr', 'get_speed_up_rate', 'restart', 'RenderQualityMgr', 'enable_ship_point_light', '_turn_on_hit_light', '_refresh_dynamic_scaling_comp']
+          consts: ['None', 'True']
+        [nested] destroyed_callback:
+          args: ['sfx_obj']
+          names: ['_destroy_hit_sfx', '_is_hit_playing', 'has_been_destroyed', '_is_trail_playing', 'BulletType', 'LINK_TYPES', '_bullet_sfx_finished', '_finalize_bullet', '_on_shut_down']
+          consts: ['None', 'False']
+    def play_hit_sfx_at_local_mat(...):
+      args: ['self', 'local_pos', 'rotation_matrix']
+      names: ['_get_target_and_model_or_position', 'is_eva_boss_ship', 'bullet_param', 'hit_sfx_file', 'get_bullet_hit_scale_float', 'scale', 'x', '_ex_hit_scale', '_hit_sfx_origin_scale', 'scene', 'bullet_manager', '_target_ship_uid', 'eid', '_play_eva_boss_hit_sfx', 'create_hit_sfx_on_model', 'math3d', 'matrix_transformation_prs', 'vector']
+      consts: ['None', '0.25', '<code:load_success_callback>', '<code:destroy_callback>', 'False', "('need_set_scale',)", '1', "('load_success_callback', 'destroyed_callback', 'local_transformation')"]
+        [nested] load_success_callback:
+          args: ['sfx_obj']
+          names: ['has_been_destroyed', 'destroy_bullet_hit_sfx', '_hit_sfx_obj_lst', 'append', 'SpeedUpMgr', 'get_speed_up_rate', 'frame_rate', 'restart', 'RenderQualityMgr', 'enable_ship_point_light', '_turn_on_hit_light', '_refresh_dynamic_scaling_comp']
+          consts: ['None']
+        [nested] destroy_callback:
+          args: ['sfx_obj']
+          names: ['_hit_sfx_obj_lst', 'remove']
+          consts: ['None']
+    def _play_eva_boss_hit_sfx(...):
+      args: ['self', 'hit_sfx_file', 'target_ship', 'target_ship_model', 'hit_sfx_scale', 'load_success_callback', 'destroyed_callback', 'need_set_scale']
+      names: ['scene', 'bullet_manager', '_target_ship_uid', 'eid', 'is_at_skill_effcting', 'ui_res', 'EVA_BOSS_HIT_SFX', 'scene_zoom0.eva_boss_scene.eva_boss_config', 'BOSS_HIT_SFX_PARAM', 'random', 'randint', 'int', 'get_at_sfx_rotation', 'attack_position', 'math3d', 'matrix_identity', 'matrix_transformation_prs', 'vector', 'create_hit_sfx_on_pos', 'play_at_defence_sfx', 'get_attach_battle_entity', 'world_position', 'matrix_rotation_look']
+      consts: ['None', '0', "('BOSS_HIT_SFX_PARAM',)", "'min_scale'", "'max_scale'", '1', '10', '0.10000000000000001', '1.0', "('load_success_callback', 'destroyed_callback', 'world_transformation')"]
+    def _turn_on_hit_light(...):
+      args: ['self', 'hit_sfx_obj']
+      names: ['valid', 'bullet_param', 'scene', 'get_ship_or_aircraft', '_target_ship_uid', 'hit_sfx_light_color', 'hit_sfx_light_radius', 'hit_point_light_duration_percent', 'zoom0_ship_config', 'SHIP_HIT_POINT_LIGHT_DURATION_PERCENT_DEFAULT', '_turn_on_sfx_light']
+      consts: ["'开启受击特效虚拟光效果'", 'None', 'False']
+    def _turn_on_launch_light(...):
+      args: ['self', 'launch_sfx_obj']
+      names: ['valid', 'bullet_param', 'scene', 'get_ship_or_aircraft', '_attach_ship_uid', 'shoot_sfx_light_color', 'shoot_sfx_light_radius', 'launch_point_light_duration_percent', 'zoom0_ship_config', 'SHIP_LAUNCH_POINT_LIGHT_DURATION_PERCENT_DEFAULT', '_gpu_bullet_weapon_info', 'use_batch', 'gpu_bullet_launch_loop_file', '_turn_on_sfx_light']
+      consts: ["'开启启动特效虚拟光效果'", 'None', '1.0', 'True']
+    def _turn_on_sfx_light(...):
+      args: ['self', 'host_ship', 'sfx_obj', 'sfx_light_color', 'sfx_light_radius', 'duration_percent', 'is_launch']
+      names: ['world_position', 'scene', 'camera', 'length_sqr', 'zoom0_ship_config', 'SHIP_POINT_LIGHT_ACTION_RADIUS_SQR', 'scale', 'x', 'gpu_bullet_weapon_info', 'use_batch', 'max', 'launch_interval', 'launch_count', 'int', 'life_span', 'turn_on_point_light', '_turn_on_nearby_ships']
+      consts: ['None', '3', '0.0', '0', '1', '2', '0.20000000000000001', '0.001', "('light_repeat_times',)"]
+    def _turn_on_nearby_ships(...):
+      args: ['self', 'host_ship', 'light_position', 'light_color', 'light_intensity', 'light_radius', 'light_duration', 'light_repeat_times']
+      names: ['hasattr', 'team_id', 'scene', 'ship_manager', 'get_nearby_ships', 'turn_on_point_light']
+      consts: ['None', "'team_id'", "('team_id',)", "('light_repeat_times',)"]
+    def _refresh_dynamic_scaling_comp(...):
+      args: ['self']
+      names: ['_dynamic_scale_comp', 'BulletSfxDynamicScaleComp', 'add_component', 'wake_up']
+      consts: ['None']
+    def _destroy_hit_sfx(...):
+      args: ['self']
+      names: ['scene', 'bullet_manager', 'destroy_bullet_hit_sfx', 'eid', '_hit_sfx_obj_lst']
+      consts: ['None']
+    def _destroy_bullet(...):
+      args: ['self']
+      names: ['_model', 'valid', 'destroy']
+      consts: ['None']
+    model = property
+    world_position = property
+    world_rotation_matrix = property
+    is_dead = property
+    is_valid = property
+    target_ship_uid = property
+    bullet_target_info = property
+    gpu_bullet_weapon_info = property
+    attack_position = property
+    launch_index = property
+    def _get_target_and_model_or_position(...):
+      args: ['self']
+      names: ['has_been_destroyed', 'scene', 'get_execute_attack_target_info', 'attach_ship_uid', '_target_ship_uid', 'model', 'leader']
+      consts: ['None', '(None, None, None, None)', 'True', 'False']
+    def _get_eva_boss_target_and_model_or_position(...):
+      args: ['self']
+      names: ['has_been_destroyed', '_damage', 'BattleDamageType', 'MISS', 'scene', 'get_execute_attack_eva_boss_info', 'attach_ship_uid', '_target_ship_uid', 'bullet_type', 'model', 'leader']
+      consts: ['None', '(None, None, None, None)', 'True', 'False']
+    def get_target_battle_entity(...):
+      args: ['self']
+      names: ['scene', 'get_ship_or_aircraft', 'target_ship_uid', 'leader']
+      consts: ['None']
+    def get_target_battle_entity_model(...):
+      args: ['self']
+      names: ['scene', 'get_ship_or_aircraft', 'target_ship_uid', 'model', 'leader']
+      consts: ['None']
+    def get_attach_battle_entity(...):
+      args: ['self']
+      names: ['scene', 'get_ship_or_aircraft', 'attach_ship_uid', 'leader']
+      consts: ['None', 'True', 'False', '(None, False)']
+    def get_air_burst_position(...):
+      args: ['self', 'start_pos', 'target_pos']
+      names: ['math3d', 'vector3_normalize', 'length', 'bullet_param', 'air_burst_dist']
+      consts: ['None']
+    bullet_type = property
+    is_fission_bullet = property
+    def set_attach_info(...):
+      args: ['self', 'attach_ship_uid', 'weapon_entity_id']
+      names: ['_attach_ship_uid', '_weapon_entity_id']
+      consts: ['None']
+    attach_ship_uid = property
+    speed = property
+    def update_scale(...):
+      args: ['self']
+      names: ['bullet_type', '_model', 'valid', 'print', 'math3d', 'vector', 'get_bullet_scale_float', 'scale', 'is_fission_bullet', 'BulletType', 'LINK_FLY_MODEL', '_move_comp', 'hasattr', 'update_scale']
+      consts: ['None', "'[Bullet] Error: model is invalid'", '1.0', "'set_scale'"]
+    alpha = property
+    def set_alpha(...):
+      args: ['self', 'alpha']
+      names: ['isinstance', '_model', 'neox_obj', 'world', 'model', 'alpha', 'alpha_percent']
+      consts: ["'\\n\\t\\t:param alpha:[0,255]\\n\\t\\t'", '255.0', 'None']
+    def set_duration(...):
+      args: ['self', 'duration']
+      names: ['_duration']
+      consts: ['None']
+    hit_socket = property
+    launch_sfx = property
+    hit_sfx_list = property
+    launch_sfx_origin_scale_vec = property
+    hit_sfx_origin_scale_vec = property
+    def do_damage(...):
+      args: ['self']
+      names: ['get_all_dagame', '_get_target_and_model_or_position', 'do_damage', '_hit_index']
+      consts: ['None', '0', "('hit_index',)"]
+    def is_all_miss(...):
+      args: ['self']
+      names: ['isinstance', '_damage', 'list', 'BattleDamageType', 'HIT']
+      consts: ['None', '0']
+    def is_damage_hit(...):
+      args: ['self']
+      names: ['isinstance', '_damage', 'list', 'any', 'BattleDamageType', 'MISS']
+      consts: ["'子弹自身是否为命中弹（非 MISS）'", '<code:<genexpr>>']
+        [nested] <genexpr>:
+          args: ['.0']
+          names: ['BattleDamageType', 'MISS']
+          consts: ['None']
+    damage = property
+    def get_all_dagame(...):
+      args: ['self']
+      names: ['isinstance', '_damage', 'list']
+      consts: ['None', '0']
+    calculate_damage = <staticmethod(<function BulletBase.calculate_damage at 0x000001A44F33CB80>)>
+    create_bullet_async = <staticmethod(<function BulletBase.create_bullet_async at 0x000001A44F33CC20>)>
+    create_bullet_sync = <staticmethod(<function BulletBase.create_bullet_sync at 0x000001A44F33CCC0>)>
+  class BuffBullet(BulletBase):
+    def __init__(...):
+      args: ['self', 'scene', 'buff_param']
+      names: ['super', 'BuffBullet', '__init__', 'buff_param']
+      consts: ['None']
+    bullet_type = property
+    speed = property
+    def update_scale(...):
+      args: ['self']
+      names: ['_model', 'valid', 'print', 'math3d', 'vector', 'buff_param', 'buff_sfx_socket_scale', 'scale']
+      consts: ['None', "'[Bullet] Error: model is invalid'", '1.0']
+    def is_fission_bullet(...):
+      args: ['self']
+      consts: ['None', 'False']
+    def load_bullet_sfx_sync(...):
+      args: ['self', 'is_enhanced', 'is_gpu_bullet']
+      names: ['buff_param', 'buff_sfx_file', 'is_hanging_light_buff', 'grid_config', 'EMPTY_MODEL', 'destroy', 'NeoxResPool', 'get_res_sync', 'valid', '_load_callback']
+      consts: ["'同步加载 buff bullet sfx，主线程阻塞读盘+解析。\\n\\n\\t\\t仅供 cinematic 等明确接受卡帧的场景使用。镜像 ``load_bullet_sfx_async`` 的\\n\\", 'None', 'False', 'True']
+    def load_bullet_sfx_async(...):
+      args: ['self', 'load_callback', 'is_enhanced', 'is_gpu_bullet']
+      names: ['buff_param', 'buff_sfx_file', 'NeoxResPool', 'get_res_async', 'scene', 'neox_scene', '_bullet_async_task', 'is_hanging_light_buff', 'grid_config', 'EMPTY_MODEL']
+      consts: ['None', '<code:on_sfx_loaded>', "('neox_scene',)"]
+        [nested] on_sfx_loaded:
+          args: ['sfx_obj']
+          names: ['_bullet_async_task', 'valid', '_load_callback', 'destroy']
+          consts: ['None', 'False', 'True']
+    def _load_callback(...):
+      args: ['self', 'bullet_obj']
+      names: ['remove_from_parent', 'scene', 'neox_scene', 'add_object', 'neox_obj', 'is_battle_res', '_model', 'math3d', 'vector', 'buff_param', 'buff_sfx_socket_scale', 'scale', 'filename', 'visible', '_move_comp', 'enable']
+      consts: ['None', 'True', '1.0', "'m0sanjiao'", 'False']
+    def do_hit(...):
+      args: ['self']
+      names: ['_in_used', '_is_dead']
+      consts: ["'子弹进入命中阶段(命中)'", 'None']
+    def _on_hit_update(...):
+      args: ['self']
+      names: ['_hit_update_passed', 'clock', 'delta_time']
+      consts: ['None']
+    def _play_hit_sfx(...):
+      args: ['self']
+      consts: ['None', 'True']
+    def _get_launch_info(...):
+      args: ['self', 'launch_index']
+      names: ['scene', 'get_entity_by_id', '_weapon_entity_id', 'buff_param', 'buff_sfx_socket', 'battle_entity', 'entity_model', 'get_ship_socket', 'translation', 'rotation']
+      consts: ["'\\n\\t\\t子弹发射点位置、旋转\\n\\t\\t'", 'False', 'None']
+    def _bind_to_socket(...):
+      args: ['self', 'launch_model', 'launch_socket']
+      names: ['_model', 'remove_from_parent', 'world', 'INHERIT_ALL_FLAG', 'inherit_flag', 'set_parent', 'neox_obj']
+      consts: ['None']
+    def launch(...):
+      args: ['self', 'attack_command_id', 'launch_index', 'hit_index', 'offset', 'anti_missile_cb', 'assign_launch_position', 'assign_launch_rotation', 'need_play_launch_sfx']
+      names: ['BattleLogger', 'attack', '_is_anti_missile', '_is_dead', '_launch_index', 'buff_param', 'is_hanging_light_buff', '_get_launch_info', '_bind_to_socket', '_model', 'world_position', 'world_rotation_matrix', 'visible', '_original_scale', 'math3d', 'vector', 'scale', '_original_alpha', 'alpha', 'set_alpha', '_in_used', '_is_trail_playing', '_is_hit_playing', 'remove_move_component', '_get_target_and_model_or_position', 'valid', 'leader', 'hit_socket_count', 'get_random_hit_index', '_set_hit_socket', '_launch_hanging_light_buff', '_launch_normal_buff']
+      consts: ['None', "'[BuffBullet] launch'", '-1', 'False', '(None, None)', 'True', '0']
+    def _launch_normal_buff(...):
+      args: ['self', 'launch_position', 'launch_rotation']
+      names: ['NormalBuffComp', 'buff_param', 'add_component', '_move_comp', 'set_last_time', 'buff_sfx_duration', 'shut_down_callback', '_shut_down_callback', 'restart']
+      consts: ['None']
+    def _launch_hanging_light_buff(...):
+      args: ['self']
+      names: ['HangingLightBuffComp', 'buff_param', 'add_component', '_move_comp', 'set_last_time', 'buff_sfx_duration', 'shut_down_callback', '_shut_down_callback', 'restart']
+      consts: ['None']
+    def restart(...):
+      args: ['self']
+      names: ['buff_param', 'is_hanging_light_buff', 'scene', 'get_entity_by_id', '_weapon_entity_id', 'model', 'HangingLightManager', 'set_group_visible', 'neox_obj', 'buff_hanging_light_group', 'get_ship_or_aircraft', '_attach_ship_uid', 'entity_model', 'isinstance', '_model', 'sfx', 'Sfx', 'shutdown', 'restart']
+      consts: ['None', "'default'", 'False', 'True']
+    def _shut_down_callback(...):
+      args: ['self']
+      names: ['has_been_destroyed', '_shut_down']
+      consts: ['None']
+    def _on_shut_down(...):
+      args: ['self']
+      names: ['buff_param', 'is_hanging_light_buff', 'scene', 'get_entity_by_id', '_weapon_entity_id', 'model', 'HangingLightManager', 'set_group_visible', 'neox_obj', 'buff_hanging_light_group', 'get_ship_or_aircraft', '_attach_ship_uid', 'entity_model', 'super', 'BuffBullet', '_on_shut_down']
+      consts: ['None', "'default'", 'True', 'False']
+    create_bullet_async = <staticmethod(<function BuffBullet.create_bullet_async at 0x000001A44FF97740>)>
+    create_bullet_sync = <staticmethod(<function BuffBullet.create_bullet_sync at 0x000001A44FF977E0>)>
+  class FollowMoveType(object):
+    CURVE_TYPE_LINE = 0
+    CURVE_TYPE_TARGET = 1
+  class UiLayerIdx(object):
+    BACKGROUND = 0
+    LAYER_1 = 1
+    LAYER_3 = 2
+    LAYER_NORMAL = 3
+    LATER_PERFORMANCE = 4
+    LAYER_5 = 5
+    LAYER_MSG = 6
+    HELP_GUIDE = 7
+    GUIDE = 8
+    TOP = 9
+    LAYER_COUNT = 10
+  ui_mgr = <module common.ui.ui_mgr>
+  node_delegate = <module common.ui.node_delegate>
+  class ExecuteRepeat(Component):
+    def __init__(...):
+      args: ['self', 'is_per_frame', 'interval', 'func', 'is_late_update', 'priority']
+      names: ['super', 'ExecuteRepeat', '__init__', 'is_per_frame', 'interval', 'last_update_time', 'func', 'args', 'kwargs', 'is_late_update']
+      consts: ['None', "('priority',)", '0']
+    def update(...):
+      args: ['self']
+      names: ['is_late_update', 'do_update']
+      consts: ['None']
+    def late_update(...):
+      args: ['self']
+      names: ['is_late_update', 'do_update']
+      consts: ['None']
+    def do_update(...):
+      args: ['self']
+      names: ['is_per_frame', 'func', 'args', 'kwargs', 'last_update_time', 'interval', 'time']
+      consts: ['None']
+    def on_destroy(...):
+      args: ['self']
+      names: ['func']
+      consts: ['None', '<code:<lambda>>']
+        [nested] <lambda>:
+          args: []
+          consts: ['None']
+  class range(object):
+    __new__ = <built-in method __new__ of type object at 0x00007FFE52412EF0>
+    count = <method 'count' of 'range' objects>
+    index = <method 'index' of 'range' objects>
+    start = <member 'start' of 'range' objects>
+    stop = <member 'stop' of 'range' objects>
+    step = <member 'step' of 'range' objects>
+  HIGH_PIRORITY_WEAPON_CFG_IDS = [27005, 27006]
+  FOCUS_BULLET_ADDITION = 5
+  FOCUS_BULLET_TYPE_ADDITION = 5
+  class HitSfxRecord(tuple):
+    _fields = ('sfx_obj', 'target_ship_uid', 'bullet_eid', 'sfx_file', 'destroyed_callback')
+    _field_defaults = {}
+    __new__ = <staticmethod(<function HitSfxRecord.__new__ at 0x000001A44FF97D80>)>
+    _make = <classmethod(<function HitSfxRecord._make at 0x000001A44FF97F60>)>
+    def _replace(...):
+      args: ['self']
+      names: ['_make', 'pop', 'ValueError', 'list']
+      consts: ['None', "'Got unexpected field names: '"]
+    def _asdict(...):
+      args: ['self']
+      names: ['_fields']
+      consts: ["'Return a new dict which maps field names to their values.'"]
+    sfx_obj = _tuplegetter(0, 'Alias for field number 0')
+    target_ship_uid = _tuplegetter(1, 'Alias for field number 1')
+    bullet_eid = _tuplegetter(2, 'Alias for field number 2')
+    sfx_file = _tuplegetter(3, 'Alias for field number 3')
+    destroyed_callback = _tuplegetter(4, 'Alias for field number 4')
+  DBG_BULLET_LIMIT_MULTIPLIER = 1.0
+  class BulletManager(Entity):
+    DBG_BLOCK_BULLET_SPAWN = False
+    def __init__(...):
+      args: ['self', 'scene', 'param_ratio']
+      names: ['super', 'BulletManager', '__init__', 'param_ratio', 'cast', 'Zoom0SceneBase', 'scene', '_bullet_trk_pool', '_hit_time_interval', '_in_use_bullet_dict', 'RenderQualityMgr', 'BATTLE_RENDER_CONFIGS', 'get_param_modified_val', 'battle_render_configs', 'BULLET_TOTAL_LIMIT', '_bullet_total_limit', 'int', '_bullet_total_limit_half', 'FOCUS_BULLET_ADDITION', '_focus_bullet_total_limit', 'BULLET_CREATE_SPEED', '_bullet_create_speed', '_bullet_overload_limit', 'BULLET_CREATE_SPEED_OVERLOAD', '_bullet_create_speed_overload', 'BULLET_LAUNCH_SFX_RANDOM', '_bullet_launch_random', 'FOCUS_BULLET_CREATE_SPEED', '_focus_bullet_create_speed', 'FOCUS_AIRCRAFT_BULLET_CREATE_SPEED', '_focus_aircraft_bullet_create_speed', 'HIGH_PRIORITY_BULLET_LIMIT_COE', '_high_priority_bullet_limit_coe', '_bullet_counter', '_focus_bullet_counter', '_focus_aircraft_bullet_counter', '_bullet_sfx_count_dict', 'BULLET_PER_SFX_LIMIT', '_default_count_per_sfx', '_dedicate_count_per_sfx_dict', '_block_bullet_spawn', '_enable_bullet_auto_scale', '_gim_to_category', '_scale_by_category', '_hit_sfx_by_id', '_hit_sfx_by_ship', '_hit_sfx_by_bullet', 'set', '_model_destroy_listeners']
+      consts: ['None', "'BulletManager'", "'bullet_manager'", "('tag',)", '0.5', '0.80000000000000004', '0', 'False']
+    def set_bullet_auto_scale(...):
+      args: ['self', 'enable', 'gim_to_category', 'scale_by_category']
+      names: ['_enable_bullet_auto_scale', '_gim_to_category', '_scale_by_category']
+      consts: ["'设置子弹自动缩放参数\\n\\t\\t\\n\\t\\tArgs:\\n\\t\\t\\tenable: 是否开启子弹自动缩放\\n\\t\\t\\tgim_to_category: 子弹gim到种类的映射 {gim_path", 'None']
+    enable_bullet_auto_scale = property
+    def get_bullet_auto_scale_params(...):
+      args: ['self', 'gim_path']
+      names: ['_gim_to_category', '_scale_by_category', 'get', 'common_config', 'is_dev_mode']
+      consts: ["'根据子弹gim路径获取对应的自动缩放参数\\n\\t\\t\\n\\t\\t查找路径: gim_path → category → (start_dis, sensitivity)\\n\\t\\t\\n\\t\\tArg", 'None', 'False', "'bullet gim not found in M0_BULLET_GIM_TO_CATEGORY: %s'"]
+    def get_param_modified_val(...):
+      args: ['self', 'origin_val']
+      names: ['common_config', 'is_dev_mode', 'max', 'int', 'param_ratio', 'DBG_BULLET_LIMIT_MULTIPLIER']
+      consts: ['None', '1']
+    def get_bullet_async(...):
+      args: ['self', 'bullet_param', 'need_check', 'callback', 'from_ship_uid', 'to_ship_uid', 'damages', 'is_enhanced', 'is_gpu_bullet']
+      names: ['block_bullet_spawn', 'can_create_new_bullet', 'BulletBase', 'calculate_damage', 'scene', 'is_target_ship_valid', '_bullet_counter', 'type', 'BuffParameter', 'BuffBullet', 'create_bullet_async', 'eid', 'bullet_sfx_file', '_in_use_bullet_dict', '_bullet_sfx_count_dict', 'setdefault']
+      consts: ["'\\n\\t\\t获取子弹实体(Entity),异步加载特效\\n\\t\\t@param bullet_param: 子弹参数\\n\\t\\t@param need_check: 是否做限制判断,成组创建的通常不", 'False', 'None', '<code:on_bullet_created>', '1', "('is_gpu_bullet',)", '0']
+        [nested] on_bullet_created:
+          args: ['is_success', 'bullet_obj']
+          names: ['set_active', '_in_use_bullet_dict', 'pop', 'eid', '_bullet_sfx_count_dict', 'bullet_sfx_file']
+          consts: ['None', 'True', '1']
+    def get_bullet_sync(...):
+      args: ['self', 'bullet_param', 'need_check', 'callback', 'from_ship_uid', 'to_ship_uid', 'damages', 'is_enhanced', 'is_gpu_bullet']
+      names: ['block_bullet_spawn', 'can_create_new_bullet', 'BulletBase', 'calculate_damage', 'scene', 'is_target_ship_valid', '_bullet_counter', 'type', 'BuffParameter', 'BuffBullet', 'create_bullet_sync', 'set_active', 'eid', 'bullet_sfx_file', '_in_use_bullet_dict', '_bullet_sfx_count_dict', 'setdefault']
+      consts: ["'\\n\\t\\t同步版 get_bullet_async：主线程阻塞读盘+解析 sfx。\\n\\t\\t仅供 cinematic 等明确接受卡帧、必须保证子弹立即出现的场景调用。\\n\\n\\t\\t镜像 get", 'False', 'None', '1', "('is_gpu_bullet',)", 'True', '0']
+    def get_bullets_async(...):
+      args: ['self', 'bullet_param', 'bullet_count', 'need_check', 'callback', 'from_ship_uid', 'to_ship_uid', 'damage_list', 'is_enhanced']
+      names: ['block_bullet_spawn', 'can_create_new_bullet', 'BulletBase', 'calculate_damage', 'scene', 'is_target_ship_valid', 'range', 'type', 'BuffParameter', 'BuffBullet', 'create_bullet_async', '_bullet_counter', 'eid', 'bullet_sfx_file', '_in_use_bullet_dict', '_bullet_sfx_count_dict', 'setdefault', 'append']
+      consts: ["'\\n\\t\\t获取子弹组,同步异步加载特效\\n\\t\\t@param bullet_param: 子弹参数\\n\\t\\t@param bullet_count: 子弹数目\\n\\t\\t@param call", '1', 'False', 'None', '<code:on_bullet_created>', '0']
+        [nested] on_bullet_created:
+          args: ['is_success', 'bullet_obj']
+          names: ['set_active', 'append', '_in_use_bullet_dict', 'pop', 'eid', '_bullet_sfx_count_dict', 'bullet_sfx_file', 'len']
+          consts: ['None', 'True', '1']
+    skip_bullet_check = property
+    def can_create_launch_sfx(...):
+      args: ['self']
+      names: ['skip_bullet_check']
+      consts: ['None', 'True']
+    def can_create_new_bullet(...):
+      args: ['self', 'from_ship_uid', 'to_ship_uid', 'bullet_param', 'is_gpu_bullet', 'weapon_cfg_id']
+      names: ['block_bullet_spawn', 'skip_bullet_check', 'scene', 'get_ship_or_aircraft', 'get_execute_attack_target_info', 'is_eva_boss_ship', 'HIGH_PIRORITY_WEAPON_CFG_IDS', 'ship_id', 'common_definition', 'FAST_ASTEROID_SHIP_IDS', 'len', '_in_use_bullet_dict', 'get_camera_follow_ship_uid', '_high_priority_bullet_limit_coe']
+      consts: ["'\\n\\t\\t判断当前能否发射/创建子弹\\n\\t\\t@param from_ship_uid: 攻击舰船uid\\n\\t\\t@param to_ship_uid: 目标舰船uid\\n\\t\\t@param", 'False', 'True', 'None', '1.0', '<code:get_bullet_total_count_check_res>', '<code:get_bullet_type_check_res>']
+        [nested] get_bullet_total_count_check_res:
+          args: []
+          names: ['_focus_aircraft_bullet_counter', '_focus_aircraft_bullet_create_speed', '_focus_bullet_total_limit', '_focus_bullet_counter', '_focus_bullet_create_speed', '_bullet_total_limit', '_bullet_overload_limit', '_bullet_create_speed_overload', '_bullet_create_speed', '_bullet_counter', '_is_ship_inside_screen', '_is_position_inside_screen']
+          consts: ['None', '1', 'True', 'False', '10000']
+        [nested] get_bullet_type_check_res:
+          args: []
+          names: ['bullet_sfx_file', '_dedicate_count_per_sfx_dict', 'get', '_default_count_per_sfx', 'FOCUS_BULLET_TYPE_ADDITION', '_bullet_sfx_count_dict']
+          consts: ['None', "''", '0', 'False', 'True']
+    def _is_ship_inside_screen(...):
+      args: ['self', 'ship', 'bullet_count']
+      names: ['is_dead', 'scene', 'camera', 'camera_obj', 'is_inside', 'world_position', '_bullet_total_limit_half']
+      consts: ['None', 'False', 'True']
+    def _is_position_inside_screen(...):
+      args: ['self', 'position', 'bullet_count']
+      names: ['_bullet_total_limit_half', 'scene', 'camera', 'camera_obj', 'is_inside']
+      consts: ['None', 'True', 'False']
+    def remove_bullet(...):
+      args: ['self', 'bullet_eid']
+      names: ['_in_use_bullet_dict', 'pop', '_bullet_sfx_count_dict']
+      consts: ['None', '1']
+    def set_block_bullet_spawn(...):
+      args: ['self', 'value']
+      names: ['_block_bullet_spawn']
+      consts: ['None']
+    block_bullet_spawn = property
+    def destroy_all_bullet(...):
+      args: ['self']
+      names: ['list', '_in_use_bullet_dict', 'keys', 'scene', 'get_entity_by_id', 'destroy']
+      consts: ['None']
+    def update(...):
+      args: ['self']
+      names: ['_bullet_counter', '_focus_bullet_counter', '_focus_aircraft_bullet_counter', 'scene_zoom0.battle_logger', 'BattleLogger', 'bullet_stat', 'len', '_in_use_bullet_dict']
+      consts: ['None', '0', "('BattleLogger',)", "'in_use_bullet.count'"]
+    def anti_missile(...):
+      args: ['self', 'bullet_type', 'anti_missile_list']
+      names: ['scene', 'ship_manager', 'get_ship', 'aircraft_manager', 'get_aircraft_group', 'BulletType', 'MISSILE', 'FOLLOW']
+      consts: ["'\\n\\t\\t被对方反导\\n\\t\\t:return:\\n\\t\\t'", 'None', '1', '2', '<code:calc_tipping_point>', '<code:call_back>', '<code:call_back>']
+        [nested] calc_tipping_point:
+          args: ['target_id', 'dest_pos']
+          names: ['scene', 'ship_manager', 'get_ship', 'bounding_radius_w', 'world_position', 'length', 'normalize', 'math3d', 'vector', 'random', 'aircraft_manager', 'get_aircraft_group']
+          consts: ['None', '0', '2', '0.5', '1']
+        [nested] call_back:
+          args: ['bullet_obj', 'missile_comp']
+          names: ['get_dest_pos', '_logger', 'error', 'get_target_ship_uid', 'set_follow_type', 'FollowMoveType', 'CURVE_TYPE_LINE', 'set_line_dest_pos', '_launch_anti_bullet']
+          consts: ['None', "'anti missile destination is None'"]
+        [nested] call_back:
+          args: ['bullet_obj', 'follow_comp']
+          names: ['get_dest_pos', '_logger', 'error', 'get_target_ship_uid', 'set_follow_type', 'FollowMoveType', 'CURVE_TYPE_LINE', 'set_line_dest_pos', '_launch_anti_bullet']
+          consts: ['None', "'anti follow destination is None'"]
+    _launch_anti_bullet = <staticmethod(<function BulletManager._launch_anti_bullet at 0x000001A44FFC0F40>)>
+    def get_bullet_track(...):
+      args: ['self', 'bullet_type']
+      names: ['cfg_trk_path', 'get', 'TRK_PATH_LIST', 'range', 'len', 'enumerate', '_bullet_trk_pool', 'world', 'track']
+      consts: ['None', '<code:<listcomp>>']
+        [nested] <listcomp>:
+          args: ['.0']
+          consts: ['None']
+    _HIT_SFX_LOG = False
+    def _hit_sfx_log(...):
+      args: ['self', 'action', 'sfx_id', 'record', 'extra']
+      names: ['_HIT_SFX_LOG', 'target_ship_uid', 'bullet_eid', 'sfx_file', 'sfx_obj', 'valid', 'len', '_hit_sfx_by_id', 'sum', '_hit_sfx_by_ship', 'values', '_hit_sfx_by_bullet', 'print']
+      consts: ['None', "'[HitSfxTrack] '", "'  sfx_id='", "'  ship='", "'  bullet='", "'  file='", "'  valid='", "'?'", "'  '", "'  |  by_id=%d  by_ship=%d  by_bullet=%d'", '<code:<genexpr>>', '<code:<genexpr>>']
+        [nested] <genexpr>:
+          args: ['.0']
+          names: ['len']
+          consts: ['None']
+        [nested] <genexpr>:
+          args: ['.0']
+          names: ['len']
+          consts: ['None']
+    def _register_hit_sfx(...):
+      args: ['self', 'sfx_obj', 'target_ship_uid', 'bullet_eid', 'sfx_file', 'destroyed_callback']
+      names: ['id', 'HitSfxRecord', '_hit_sfx_by_id', '_hit_sfx_by_ship', 'setdefault', 'append', '_hit_sfx_by_bullet', '_register_model_destroy_listener', '_hit_sfx_log']
+      consts: ['None', "('sfx_obj', 'target_ship_uid', 'bullet_eid', 'sfx_file', 'destroyed_callback')", "'REGISTER'"]
+    def _unregister_hit_sfx(...):
+      args: ['self', 'sfx_id']
+      names: ['_hit_sfx_by_id', 'pop', '_hit_sfx_log', '_hit_sfx_by_bullet', 'get', 'bullet_eid', 'remove', 'ValueError', '_hit_sfx_by_ship', 'target_ship_uid', 'sfx_obj', 'valid', 'destroy']
+      consts: ['None', "'UNREGISTER(natural)'"]
+    def create_hit_sfx_on_model(...):
+      args: ['self', 'model_object', 'sfx_path', 'socket_name', 'scene', 'target_ship_uid', 'bullet_eid', 'sfx_file', 'load_success_callback', 'destroyed_callback', 'scale', 'local_transformation', 'frame_rate']
+      names: ['utils', 'play_sfx_on_model']
+      consts: ["'通过 BulletManager 创建绑定模型的 hit sfx，自动纳入追踪'", '<code:wrapped_load_cb>', '<code:wrapped_destroy_cb>', "('scale', 'local_transformation', 'frame_rate', 'load_success_callback', 'destroyed_callback')"]
+        [nested] wrapped_load_cb:
+          args: ['sfx_obj']
+          names: ['scene', '_register_hit_sfx']
+          consts: ['None', "('destroyed_callback',)"]
+        [nested] wrapped_destroy_cb:
+          args: ['sfx_obj']
+          names: ['scene', '_unregister_hit_sfx', 'id']
+          consts: ['None']
+    def create_hit_sfx_on_pos(...):
+      args: ['self', 'pos', 'sfx_path', 'scene', 'target_ship_uid', 'bullet_eid', 'sfx_file', 'load_success_callback', 'destroyed_callback', 'world_transformation']
+      names: ['utils', 'play_sfx_on_pos']
+      consts: ["'通过 BulletManager 创建世界坐标 hit sfx，自动纳入追踪'", '<code:wrapped_load_cb>', '<code:wrapped_destroy_cb>', "('load_success_callback', 'destroyed_callback', 'world_transformation')"]
+        [nested] wrapped_load_cb:
+          args: ['sfx_obj']
+          names: ['scene', '_register_hit_sfx']
+          consts: ['None', "('destroyed_callback',)"]
+        [nested] wrapped_destroy_cb:
+          args: ['sfx_obj']
+          names: ['scene', '_unregister_hit_sfx', 'id']
+          consts: ['None']
+    def _register_model_destroy_listener(...):
+      args: ['self', 'target_ship_uid']
+      names: ['_model_destroy_listeners', 'scene', 'get_ship_or_aircraft', 'unit_model', 'leader', 'add', 'register_on_destroy', '_hit_sfx_log']
+      consts: ["'在目标舰船的 BattleUnitModel 上注册销毁回调，模型销毁时自动清理关联 hit sfx'", 'None', '<code:<lambda>>', "'MODEL_LISTEN'", '0', "'ship=%s'", "('extra',)"]
+        [nested] <lambda>:
+          args: ['uid']
+          names: ['_on_model_destroyed']
+          consts: ['None']
+    def _on_model_destroyed(...):
+      args: ['self', 'ship_uid']
+      names: ['_model_destroy_listeners', 'discard', 'has_been_destroyed', 'len', '_hit_sfx_by_ship', 'get', '_hit_sfx_log', 'destroy_ship_hit_sfx']
+      consts: ["'BattleUnitModel 销毁时的回调'", 'None', "'MODEL_DESTROYED'", '0', "'ship=%s  pending_sfx=%d'", "('extra',)"]
+    def destroy_bullet_hit_sfx(...):
+      args: ['self', 'bullet_eid']
+      names: ['_hit_sfx_by_bullet', 'pop', '_hit_sfx_log', 'len', 'list', '_hit_sfx_by_id', '_hit_sfx_by_ship', 'get', 'target_ship_uid', 'remove', 'ValueError', 'sfx_obj', 'valid', 'destroy']
+      consts: ["'销毁指定子弹关联的所有 hit sfx'", 'None', "'DESTROY_BY_BULLET'", '0', "'bullet=%s  count=%d'", "('extra',)"]
+    def destroy_ship_hit_sfx(...):
+      args: ['self', 'ship_uid']
+      names: ['_hit_sfx_by_ship', 'pop', '_hit_sfx_log', 'len', 'list', '_hit_sfx_by_id', '_hit_sfx_by_bullet', 'get', 'bullet_eid', 'remove', 'ValueError', 'sfx_obj', 'valid', 'destroy', 'destroyed_callback']
+      consts: ["'销毁指定舰船关联的所有 hit sfx，并触发回调以驱动子弹生命周期'", 'None', "'DESTROY_BY_SHIP'", '0', "'ship=%s  count=%d'", "('extra',)"]
+    def cleanup_all_hit_sfx(...):
+      args: ['self']
+      names: ['_hit_sfx_log', 'len', '_hit_sfx_by_id', 'values', 'sfx_obj', 'valid', 'destroy', 'clear', '_hit_sfx_by_ship', '_hit_sfx_by_bullet', '_model_destroy_listeners']
+      consts: ["'销毁所有被追踪的 hit sfx'", "'CLEANUP_ALL'", '0', "'total=%d'", "('extra',)", 'None']
+    def destroy(...):
+      args: ['self']
+      names: ['cleanup_all_hit_sfx', 'list', '_in_use_bullet_dict', 'values', 'scene', 'get_entity_by_id', 'destroy', '_bullet_trk_pool', 'super', 'BulletManager']
+      consts: ['None']
+  class BulletManagerDebugView(Entity):
+    def __init__(...):
+      args: ['self', 'm0_scene']
+      names: ['cast', 'Zoom0SceneBase', 'super', 'BulletManagerDebugView', '__init__', 'bullet_manager', 'BulletManager', 'parent', 'cc', 'Size', 'LISTVIEW_SIZE', 'sfx_info_item_dict', '_init_ui', 'refresh_info', 'ExecuteRepeat', 'add_component', 'time', '_init_time']
+      consts: ['None', "'BulletManagerDebugView'", "'bullet_manager_debug_view'", "('parent', 'tag')", '500', '600', "('func',)"]
+    def refresh_info(...):
+      args: ['self']
+      names: ['list', 'parent', '_bullet_sfx_count_dict', 'items', 'sfx_info_item_dict', 'get_text_element_item', 'cc', 'Size', 'LISTVIEW_SIZE', 'width', 'sfx_listview', 'pushBackCustomItem', 'cc_node', 'max', 'setString', 'format', '_dedicate_count_per_sfx_dict', 'get', '_default_count_per_sfx', 'str']
+      consts: ['None', '30', '(0.80000000000000004, 0.14000000000000001, 0.059999999999999998)', '0', '1', "'Text_0'", "'Text_1'", "'{}/{}'", "'Text_2'"]
+    def _init_ui(...):
+      args: ['self']
+      names: ['ccui', 'Layout', 'create', 'inst', 'ui_mgr', 'UIMgr', 'get_ui_layer', 'UiLayerIdx', 'TOP', 'addChild', 'setAnchorPoint', 'cc', 'Vec2', 'setLayoutComponentEnabled', 'setPositionType', 'WIDGET_POSITIONTYPE_PERCENT', 'setPositionPercent', 'setSizeType', 'WIDGET_SIZETYPE_PERCENT', 'setSizePercent', 'setSwallowTouches', 'add_list_widget', 'LISTVIEW_SIZE', 'sfx_listview']
+      consts: ['None', '0.5', 'True', '1.0', 'False', '0', "'子弹种类限制 (文件名) - (当前数量/上限) - (历史峰值)'", "('title',)"]
+    get_text_element_item = <staticmethod(<function BulletManagerDebugView.get_text_element_item at 0x000001A44FFC1940>)>
+    def add_list_widget(...):
+      args: ['self', 'panel_size', 'anchor_point', 'pos_percent', 'title']
+      names: ['ccui', 'ListView', 'create', 'inst', 'addChild', 'setBackGroundColorType', 'LAYOUT_BACKGROUNDCOLORTYPE_GRADIENT', 'setBackGroundColor', 'cc', 'Color3B', 'setAnchorPoint', 'setPositionType', 'WIDGET_POSITIONTYPE_PERCENT', 'setContentSize', 'setLayoutComponentEnabled', 'setPositionPercent', 'setSwallowTouches', 'Text', 'setFontSize', 'pushBackCustomItem', 'Layout', 'Size']
+      consts: ['None', '44', '45', '46', '77', 'True', 'False', "'cocosui/_resource/font/simhei.ttf'", '24', '22', '1', '30']
+    def export_to_file(...):
+      args: ['self']
+      names: ['game3d', 'os.path', 'path', 'join', 'get_root_dir', 'exists', 'mkdir', 'format', 'open', 'truncate', 'datetime', 'write', 'str', 'timedelta', 'time', '_init_time', 'list', 'sfx_info_item_dict', 'items']
+      consts: ['None', '0', "'battle_sfx_log'", "'battle_sfx_record_{}.txt'", '1', "'w'", "'Battle sfx output, total duration = {}\\n\\n'", "('seconds',)", "'{0:<80}{1}\\n'", "'\\n\\n'", "'total cache count = {}'"]
+    def destroy(...):
+      args: ['self']
+      names: ['inst', 'removeFromParent', 'super', 'BulletManagerDebugView', 'destroy']
+      consts: ['None']
+
+# import scene_zoom0.weapon.link_ctrl_comp FAILED: Invalid Code

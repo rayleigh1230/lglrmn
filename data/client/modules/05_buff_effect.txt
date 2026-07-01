@@ -1,0 +1,173 @@
+# dumped from game runtime
+
+# ====== scene_zoom0.buff_effect ======
+# file: script:/scene_zoom0/buff_effect/__init__.nxz
+  buff_effect_base = <module scene_zoom0.buff_effect.buff_effect_base>
+  buff_effect_normal = <module scene_zoom0.buff_effect.buff_effect_normal>
+  buff_effect_battle_entity = <module scene_zoom0.buff_effect.buff_effect_battle_entity>
+  buff_effect_mgr = <module scene_zoom0.buff_effect.buff_effect_mgr>
+  buff_effect_battle_ship = <module scene_zoom0.buff_effect.buff_effect_battle_ship>
+
+# ====== scene_zoom0.buff_effect.buff_effect_base ======
+# file: script:/scene_zoom0/buff_effect/buff_effect_base.nxz
+  asyncio = <module asyncio>
+  dataclasses = <module dataclasses>
+  class CancelledError(BaseException):
+  Optional = typing.Optional
+  Callable = typing.Callable
+  class TypeVar(_Final,_Immutable,_BoundVarianceMixin,_PickleUsingNameMixin):
+    def __init__(...):
+      args: ['self', 'name']
+      names: ['__name__', 'super', '__init__', 'TypeError', 'len', 'tuple', '__constraints__', '_caller', '__module__']
+      consts: ['None', "'Constraints cannot be combined with bound=...'", '1', "'A single constraint is not allowed'", "'TypeVar(name, constraint, ...): constraints must be types.'", '<code:<genexpr>>', "'typing'"]
+        [nested] <genexpr>:
+          args: ['.0']
+          names: ['_type_check']
+          consts: ['None']
+  math3d = <module math3d>
+  world = <module world>
+  time_utils = <module common.time_utils>
+  AnyCoroutine = collections.abc.Coroutine[typing.Any, typing.Any, +_T_co]
+  def create_task(...):
+    args: ['coro']
+    names: ['_main_event_loop', 'create_task', 'add_done_callback', '_result_handle']
+    consts: ["'\\n    将协程推入主事件循环，返回task对象。将在下次主事件循环调度时执行。\\n\\n    name, context两个参数不需要管。\\n    如果外部会主动await返回的task，可以", "('name', 'context')"]
+  def create_eager_task(...):
+    args: ['coro']
+    names: ['asyncio_helper', 'EAGER_COUNTER', 'send', 'StopIteration', 'value', 'create_task']
+    consts: ["'\\n    尝试立即执行协程，若不挂起则立刻返回(True, 结果)，否则返回(False, task对象)。\\n\\n    如果eager执行过程中抛出异常，会直接抛回调用方。\\n\\n    若协", '1', 'None', 'True', 'False', "('name', 'context')"]
+  TYPE_CHECKING = False
+  ship_macro_mgr = <module ui.ship_macro.ship_macro_mgr>
+  _T = ~_T
+  class BuffAttachInfo(object):
+    def __init__(...):
+      args: ['self']
+      names: ['attach_model', 'math3d', 'matrix_identity', 'attach_matrix', 'attach_socket', 'neox_scene', 'is_effect_attach_to_scene']
+      consts: ['None', "''", 'False']
+    attach_matrix = <member 'attach_matrix' of 'BuffAttachInfo' objects>
+    attach_model = <member 'attach_model' of 'BuffAttachInfo' objects>
+    attach_socket = <member 'attach_socket' of 'BuffAttachInfo' objects>
+    is_effect_attach_to_scene = <member 'is_effect_attach_to_scene' of 'BuffAttachInfo' objects>
+    neox_scene = <member 'neox_scene' of 'BuffAttachInfo' objects>
+  class BuffScanLightInfo(object):
+    def apply_to_mtl(...):
+      args: ['self', 'mtl']
+      names: ['set_macro', 'ship_macro_mgr', 'ShipMacroMgr', 'set_mtl_macro_param', 'speed', 'line_brightness', 'area_width', 'line_density', 'fresnel_intensity', 'fresnel_effect_intensity', 'scan_light_color']
+      consts: ['None', "'SCANLIGHT_ENABLE'", "'TRUE'", "'Scanlight_Speed'", "'Scanlight_Line_Brightness'", "'Scanlight_Area_Width'", "'Scanlight_Line_Density'", "'Scanlight_Fresnel_Intensity'", "'Scanlight_Fresnel_Effect_Intensity'", "'Scanlight_Color'"]
+    reset_mtl = <staticmethod(<function BuffScanLightInfo.reset_mtl at 0x000001A43440F600>)>
+    def __init__(...):
+      args: ['self', 'speed', 'line_brightness', 'area_width', 'line_density', 'fresnel_intensity', 'fresnel_effect_intensity', 'scan_light_color']
+      names: ['speed', 'line_brightness', 'area_width', 'line_density', 'fresnel_intensity', 'fresnel_effect_intensity', 'scan_light_color']
+      consts: ['None']
+    area_width = <member 'area_width' of 'BuffScanLightInfo' objects>
+    fresnel_effect_intensity = <member 'fresnel_effect_intensity' of 'BuffScanLightInfo' objects>
+    fresnel_intensity = <member 'fresnel_intensity' of 'BuffScanLightInfo' objects>
+    line_brightness = <member 'line_brightness' of 'BuffScanLightInfo' objects>
+    line_density = <member 'line_density' of 'BuffScanLightInfo' objects>
+    scan_light_color = <member 'scan_light_color' of 'BuffScanLightInfo' objects>
+    speed = <member 'speed' of 'BuffScanLightInfo' objects>
+  class CamouflageInfo(object):
+    def apply_to_mtl(...):
+      args: ['self', 'mtl']
+      names: ['set_macro', 'ship_macro_mgr', 'ShipMacroMgr', 'set_mtl_macro_tex', 'camouflage_map', 'set_mtl_macro_param', 'uv_index', 'map_tilling', 'map_speed', 'alpha_map', 'alpha_map_tilling', 'alpha_map_speed', 'uv_dist_tilling', 'uv_dist_intensity', 'color', 'brightness', 'base_color', 'base_brightness', 'mirror_info', 'fresnel_intensity', 'fresnel_power']
+      consts: ['None', "'CAMOUFLAGE_ENABLE'", "'TRUE'", "'Camouflage_Map'", "'Camouflage_UV_Index'", "'Camouflage_Map_Tilling'", "'Camouflage_Map_Speed'", "'Camouflage_Alpha_Map'", "'Camouflage_Alpha_Map_Tilling'", "'Camouflage_Alpha_Map_Speed'", "'Camouflage_UV_Dist_Tilling'", "'Camouflage_UV_Dist_Intensity'", "'Camouflage_Color'", "'Camouflage_Brightness'", "'Camouflage_BaseColor'", "'Camouflage_BaseBrightness'", "'Camouflage_Mirror_Info'", "'Camouflage_Fresnel_Intensity'", "'Camouflage_Fresnel_Power'"]
+    reset_mtl = <staticmethod(<function CamouflageInfo.reset_mtl at 0x000001A43440F9C0>)>
+    def __init__(...):
+      args: ['self', 'camouflage_map', 'uv_index', 'map_tilling', 'map_speed', 'alpha_map', 'alpha_map_tilling', 'alpha_map_speed', 'uv_dist_tilling', 'uv_dist_intensity', 'color', 'brightness', 'base_color', 'base_brightness', 'mirror_info', 'fresnel_intensity', 'fresnel_power']
+      names: ['camouflage_map', 'uv_index', 'map_tilling', 'map_speed', 'alpha_map', 'alpha_map_tilling', 'alpha_map_speed', 'uv_dist_tilling', 'uv_dist_intensity', 'color', 'brightness', 'base_color', 'base_brightness', 'mirror_info', 'fresnel_intensity', 'fresnel_power']
+      consts: ['None']
+    alpha_map = <member 'alpha_map' of 'CamouflageInfo' objects>
+    alpha_map_speed = <member 'alpha_map_speed' of 'CamouflageInfo' objects>
+    alpha_map_tilling = <member 'alpha_map_tilling' of 'CamouflageInfo' objects>
+    base_brightness = <member 'base_brightness' of 'CamouflageInfo' objects>
+    base_color = <member 'base_color' of 'CamouflageInfo' objects>
+    brightness = <member 'brightness' of 'CamouflageInfo' objects>
+    camouflage_map = <member 'camouflage_map' of 'CamouflageInfo' objects>
+    color = <member 'color' of 'CamouflageInfo' objects>
+    fresnel_intensity = <member 'fresnel_intensity' of 'CamouflageInfo' objects>
+    fresnel_power = <member 'fresnel_power' of 'CamouflageInfo' objects>
+    map_speed = <member 'map_speed' of 'CamouflageInfo' objects>
+    map_tilling = <member 'map_tilling' of 'CamouflageInfo' objects>
+    mirror_info = <member 'mirror_info' of 'CamouflageInfo' objects>
+    uv_dist_intensity = <member 'uv_dist_intensity' of 'CamouflageInfo' objects>
+    uv_dist_tilling = <member 'uv_dist_tilling' of 'CamouflageInfo' objects>
+    uv_index = <member 'uv_index' of 'CamouflageInfo' objects>
+  class BuffEffectBase(object):
+    def __init__(...):
+      args: ['self']
+      names: ['_visible_flag', '_is_destroyed', '_attach_info', '_finish_cb', '_auto_release', 'set', '_asyncio_task', '_update_timer', 'need_update', 'time_utils', 'register_neox_timer', 'update']
+      consts: ['None', 'True', 'False', '0']
+    def set_finish_cb(...):
+      args: ['self', 'finish_cb']
+      names: ['_finish_cb']
+      consts: ['None']
+    def play_effect(...):
+      args: ['self']
+      names: ['_on_play_effect_finished']
+      consts: ['None']
+    def _on_play_effect_finished(...):
+      args: ['self']
+      names: ['_finish_cb', '_auto_release', 'destroy']
+      consts: ['None']
+    def set_attach_info(...):
+      args: ['self', 'attach_info']
+      names: ['_attach_info', '_redo_attach']
+      consts: ['None']
+    def _redo_attach(...):
+      args: ['self']
+      consts: ['None']
+    def create_asyncio_task(...):
+      args: ['self', 'coro']
+      names: ['create_task', '_asyncio_task', 'add']
+      consts: ['None', '<code:wrapped>']
+        [nested] wrapped:
+          args: []
+          names: ['_is_destroyed', 'CancelledError', '_asyncio_task', 'discard']
+          consts: ['None']
+    def create_eager_task(...):
+      args: ['self', 'coro']
+      names: ['create_eager_task', '_asyncio_task', 'add']
+      consts: ['None', '<code:wrapped>', '0', 'False', '1']
+        [nested] wrapped:
+          args: []
+          names: ['_asyncio_task', 'discard']
+          consts: ['None', '0', 'False', '1']
+    def cancel_asyncio_task(...):
+      args: ['self', 'task']
+      names: ['cancel', '_asyncio_task', 'discard']
+      consts: ['None']
+    def cancel_all_asyncio_task(...):
+      args: ['self']
+      names: ['_asyncio_task', 'cancel', 'clear']
+      consts: ['None']
+    def destroy(...):
+      args: ['self']
+      names: ['_is_destroyed', 'cancel_all_asyncio_task', '_update_timer', 'time_utils', 'unregister_neox_timer', '_on_destroy']
+      consts: ['None', 'True']
+    need_update = property
+    def update(...):
+      args: ['self']
+      consts: ['None']
+    def _on_destroy(...):
+      args: ['self']
+      consts: ['None']
+    def get_scan_light_info(...):
+      args: ['self']
+      consts: ['None']
+    def get_camouflage_info(...):
+      args: ['self']
+      consts: ['None']
+    def set_visible(...):
+      args: ['self', 'is_visible']
+      names: ['_visible_flag', 'refresh_visible']
+      consts: ['None']
+    def refresh_visible(...):
+      args: ['self']
+      names: ['_do_set_effect_visible', '_visible_flag']
+      consts: ['None']
+    def _do_set_effect_visible(...):
+      args: ['self', '_visible_flag']
+      consts: ['None']
+    def set_effect_scale(...):
+      args: ['self', 'scale']
+      consts: ['None']
