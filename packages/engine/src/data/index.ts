@@ -53,3 +53,9 @@ export {
   type ParsedShipConfig,
   type HpSample,
 } from './battleReportParser.js';
+
+export {
+  countTechPoints,
+  type TechPointCost,
+  type TechPointSummary,
+} from './techPointCounter.js';
