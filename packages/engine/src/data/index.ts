@@ -34,4 +34,5 @@ export {
   type ResolvedEffect,
   type UnresolvedEffect,
   type ResolvedBlueprint,
+  type BlueprintOptions,
 } from './blueprintResolver.js';

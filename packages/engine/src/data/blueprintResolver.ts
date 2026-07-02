@@ -32,6 +32,26 @@ import { parseTechString, type TechModule } from './techString.js';
 /** 万分比基数（A类 PARAM / PERMILLE = 百分比） */
 const PERMILLE = 10000;
 
+/**
+ * 蓝图外部参数（非科技串来源的加成）。
+ *
+ * 版本号和巅峰等级的结构加成属于蓝图等级/巅峰系统的产物，
+ * 不在科技串里，也非配置表静态值（属于游戏运行时计算），
+ * 因此由调用方传入，保持 resolver 的纯净性。
+ */
+export interface BlueprintOptions {
+  /**
+   * 巅峰等级结构加成（绝对值，如斗牛巅峰5 = 2745）。
+   * 来源：巅峰等级系统，每级固定加成（基数待定位，暂由调用方提供）。
+   */
+  peakStructureBonus?: number;
+  /**
+   * 版本号结构加成（绝对值，如斗牛技术值98 = 3920 = 98×40）。
+   * 来源：蓝图投入技术值的派生加成，每技术值点+固定结构（基数随舰种）。
+   */
+  versionStructureBonus?: number;
+}
+
 /** 一个解析后的效果（已取出 EFFECT_ID 与按等级缩放后的数值） */
 export interface ResolvedEffect {
   /** 来源科技模块（便于追溯） */
@@ -199,12 +219,14 @@ function lookupParamLevel(paramLevel: string, level: number): number {
  * @param store 配置表存储
  * @param shipId 舰船 ID（5位）
  * @param techStr 战报科技串
+ * @param options 可选：巅峰等级/技术值等外部参数（产出蓝图等级和巅峰等级的结构加成）
  * @returns 蓝图解析结果（含全面板属性）
  */
 export function resolveBlueprint(
   store: ClientDataStore,
   shipId: string,
-  techStr: string
+  techStr: string,
+  options?: BlueprintOptions
 ): ResolvedBlueprint {
   const modules = parseTechString(techStr);
   const effects: ResolvedEffect[] = [];
@@ -321,8 +343,11 @@ export function resolveBlueprint(
     }
   }
 
-  // 结构值 = base×(1+Σ万分比/10000)。巅峰/版本号绝对值加成由调用方额外传入或后续里程碑处理
-  const finalStructure = Math.round(baseStructure * (1 + structureBonusPermille / PERMILLE));
+  // 结构值 = base×(1+Σ万分比/10000) + 巅峰绝对值 + 版本号绝对值
+  // 用 floor（向下取整）：36040×1.09=39283.6 → 39283（游戏面板行为）
+  const peakBonus = options?.peakStructureBonus ?? 0;
+  const versionBonus = options?.versionStructureBonus ?? 0;
+  const finalStructure = Math.floor(baseStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus + versionBonus;
 
   return {
     shipId,

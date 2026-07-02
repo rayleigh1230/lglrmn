@@ -58,8 +58,25 @@ test('斗牛级结构强化（仅科技串，不含巅峰/版本号）', async (
   const bp = resolveBlueprint(store, '40501', BULL_TECH_STR);
   // 龙骨增强1121@2 = 4%（万分比400）
   assert.equal(bp.structureBonusPermille, 400, '龙骨2级=4%');
-  // 36040 × 1.04 = 37482
-  assert.equal(bp.finalStructure, 37482);
+  // 36040 × 1.04 = 37481.6 → floor = 37481
+  assert.equal(bp.finalStructure, 37481);
+});
+
+test('斗牛级完整结构值 = 45948（科技串+抗冲击调校+巅峰+版本号）', async () => {
+  const store = await getStore();
+  // 抗冲击结构8890(+5%)是巅峰调校激活，加入装甲槽科技串
+  // 巅峰5级=2745, 版本号(技术值98×40)=3920
+  const techWithAntiImpact = BULL_TECH_STR.replace(
+    '4050102,1,1207,4,2,1206,4,3,1121,2;',
+    '4050102,1,1207,4,2,1206,4,3,1121,2,4,8890,1;'
+  );
+  const bp = resolveBlueprint(store, '40501', techWithAntiImpact, {
+    peakStructureBonus: 2745,
+    versionStructureBonus: 3920,
+  });
+  // 36040 × 1.09(龙骨4%+抗冲击5%) + 2745 + 3920 = 45948
+  assert.equal(bp.structureBonusPermille, 900, '龙骨4%+抗冲击5%=9%');
+  assert.equal(bp.finalStructure, 45948, '完整结构值=45948(误差0)');
 });
 
 test('斗牛级抵抗 = 36（基础20 + 淬火8 + 刚性8）', async () => {
