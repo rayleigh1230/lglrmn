@@ -72,7 +72,9 @@ test('斗牛级完整结构值 = 45948（科技串+抗冲击调校+巅峰+版本
   );
   const bp = resolveBlueprint(store, '40501', techWithAntiImpact, {
     peakStructureBonus: 2745,
-    versionStructureBonus: 3920,
+    // 版本号自动计算：技术值98 × 驱逐舰shipHpAdd(40) = 3920
+    techPoints: 98,
+    shipHpAdd: 40,
   });
   // 36040 × 1.09(龙骨4%+抗冲击5%) + 2745 + 3920 = 45948
   assert.equal(bp.structureBonusPermille, 900, '龙骨4%+抗冲击5%=9%');

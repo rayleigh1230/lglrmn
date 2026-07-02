@@ -35,21 +35,26 @@ const PERMILLE = 10000;
 /**
  * 蓝图外部参数（非科技串来源的加成）。
  *
- * 版本号和巅峰等级的结构加成属于蓝图等级/巅峰系统的产物，
- * 不在科技串里，也非配置表静态值（属于游戏运行时计算），
- * 因此由调用方传入，保持 resolver 的纯净性。
+ * 版本号和巅峰等级的结构加成属于蓝图等级/巅峰系统的产物，不在科技串里。
+ *
+ * ★版本号公式（已确认，来自 cfg_ship_type）：
+ *   versionStructureBonus = techPoints × shipHpAdd
+ *   shipHpAdd = cfg_ship_type[shipType][9]（每技术值点的结构加成）
+ *   主力舰（护卫20/驱逐40/巡洋60）有值，超主力舰（战巡/航母/战列）=0 不走此机制。
+ *   若提供 techPoints + shipHpAdd，resolver 自动计算；也可直接提供 versionStructureBonus。
+ *
+ * 巅峰等级加成：公式尚未完全定位（≈ floor(版本号×0.7×巅峰等级/5)），
+ * 暂由调用方直接提供 peakStructureBonus 绝对值。
  */
 export interface BlueprintOptions {
-  /**
-   * 巅峰等级结构加成（绝对值，如斗牛巅峰5 = 2745）。
-   * 来源：巅峰等级系统，每级固定加成（基数待定位，暂由调用方提供）。
-   */
+  /** 巅峰等级结构加成（绝对值，如斗牛巅峰5 = 2745） */
   peakStructureBonus?: number;
-  /**
-   * 版本号结构加成（绝对值，如斗牛技术值98 = 3920 = 98×40）。
-   * 来源：蓝图投入技术值的派生加成，每技术值点+固定结构（基数随舰种）。
-   */
+  /** 版本号结构加成（绝对值，优先级最高，直接使用） */
   versionStructureBonus?: number;
+  /** 技术值点数（用于自动计算版本号，需配合 shipHpAdd） */
+  techPoints?: number;
+  /** 每技术值点的结构加成（cfg_ship_type[shipType][9]，如驱逐舰=40） */
+  shipHpAdd?: number;
 }
 
 /** 一个解析后的效果（已取出 EFFECT_ID 与按等级缩放后的数值） */
@@ -346,7 +351,12 @@ export function resolveBlueprint(
   // 结构值 = base×(1+Σ万分比/10000) + 巅峰绝对值 + 版本号绝对值
   // 用 floor（向下取整）：36040×1.09=39283.6 → 39283（游戏面板行为）
   const peakBonus = options?.peakStructureBonus ?? 0;
-  const versionBonus = options?.versionStructureBonus ?? 0;
+  // 版本号：优先用直接提供的值，否则用 techPoints × shipHpAdd 自动计算
+  const versionBonus =
+    options?.versionStructureBonus ??
+    (options?.techPoints != null && options?.shipHpAdd != null
+      ? options.techPoints * options.shipHpAdd
+      : 0);
   const finalStructure = Math.floor(baseStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus + versionBonus;
 
   return {
