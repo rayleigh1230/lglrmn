@@ -33,6 +33,132 @@ import { parseTechString, type TechModule } from './techString.js';
 const PERMILLE = 10000;
 
 /**
+ * EFFECT_ID 分类映射（用于归类未单独实现 case 的效果）。
+ * 所有 EFFECT_ID 都会被收录到 effects[]，区别只在于是否聚合到具体字段。
+ * 未在此映射中的 EFFECT_ID 归为 'other'（仍收录，不进 unresolved）。
+ */
+const EFFECT_CATEGORY: Record<number, string> = {
+  // 命中类
+  12006: 'hit', 12007: 'hit', 12008: 'hit', 12009: 'hit', 12011: 'hit',
+  12014: 'hit', 12015: 'hit', 12018: 'hit', 12019: 'hit',
+  // 伤害类
+  12020: 'damage', 12021: 'damage', 12022: 'damage', 12023: 'damage',
+  12024: 'damage', 12025: 'damage', 12034: 'damage', 12035: 'damage',
+  12036: 'damage', 12037: 'damage', 12038: 'damage', 12039: 'damage',
+  12040: 'damage', 12044: 'damage', 12045: 'damage',
+  12046: 'damage', 12047: 'damage', 12048: 'damage',
+  12170: 'damage', 12171: 'damage', 12360: 'damage', 12361: 'damage',
+  // 暴击类
+  12031: 'crit', 12042: 'crit',
+  12130: 'crit', 12131: 'crit', 12132: 'crit', 12133: 'crit',
+  12134: 'crit', 12135: 'crit', 12161: 'crit', 12162: 'crit',
+  12320: 'crit', 12390: 'crit', 12391: 'crit',
+  // 防御类
+  10002: 'defense', 10003: 'defense', 10011: 'defense', 10013: 'defense',
+  10014: 'defense', 10015: 'defense', 10016: 'defense',
+  10020: 'defense', 10022: 'defense', 10023: 'defense', 10024: 'defense',
+  10025: 'defense', 10026: 'defense', 10029: 'defense', 10030: 'defense',
+  10032: 'defense', 10035: 'defense', 10040: 'defense',
+  10050: 'defense', 10051: 'defense',
+  10060: 'defense', 10061: 'defense', 10062: 'defense', 10063: 'defense',
+  10064: 'defense', 10065: 'defense', 10066: 'defense', 10067: 'defense',
+  10070: 'defense', 10080: 'defense', 10082: 'defense',
+  10083: 'defense', 10084: 'defense', 10085: 'defense', 10086: 'defense',
+  10087: 'defense', 10089: 'defense', 10090: 'defense', 10091: 'defense',
+  10092: 'defense', 10093: 'defense', 10094: 'defense', 10095: 'defense',
+  10096: 'defense', 10097: 'defense', 10098: 'defense', 10099: 'defense',
+  10101: 'defense', 10102: 'defense', 10103: 'defense',
+  10201: 'defense', 10202: 'defense', 10204: 'defense', 10205: 'defense',
+  10206: 'defense', 10207: 'defense', 10210: 'defense', 10211: 'defense',
+  10212: 'defense', 10221: 'defense', 10222: 'defense', 10230: 'defense',
+  10231: 'defense', 10232: 'defense', 10233: 'defense', 10234: 'defense',
+  10235: 'defense', 10236: 'defense', 10238: 'defense', 10239: 'defense',
+  10240: 'defense', 10241: 'defense', 10242: 'defense',
+  10539: 'defense', 10540: 'defense', 10541: 'defense', 10542: 'defense',
+  10543: 'defense', 10544: 'defense', 10545: 'defense',
+  // 拦截/反导类
+  12083: 'intercept', 12084: 'intercept', 12090: 'intercept',
+  12091: 'intercept', 12092: 'intercept', 12093: 'intercept',
+  12291: 'intercept', 12292: 'intercept', 12293: 'intercept',
+  12295: 'intercept', 12296: 'intercept', 12297: 'intercept', 12298: 'intercept',
+  // 目标选择/攻击时序类
+  12070: 'target', 12071: 'target', 12072: 'target', 12073: 'target',
+  12074: 'target', 12075: 'target', 12076: 'target', 12077: 'target',
+  12078: 'target', 12079: 'target',
+  12110: 'target', 12140: 'target', 12141: 'target',
+  12142: 'target', 12143: 'target', 12144: 'target', 12145: 'target',
+  12146: 'target', 12150: 'target', 12151: 'target', 12152: 'target',
+  12153: 'target', 12154: 'target', 12155: 'target', 12156: 'target',
+  12157: 'target', 12158: 'target',
+  12200: 'target', 12201: 'target', 12230: 'target', 12231: 'target',
+  12232: 'target', 12263: 'target', 12265: 'target', 12266: 'target',
+  12267: 'target', 12268: 'target', 12269: 'target',
+  12280: 'target', 12281: 'target', 12282: 'target', 12283: 'target',
+  12299: 'target',
+  12330: 'target', 12331: 'target', 12340: 'target', 12370: 'target',
+  12371: 'target', 12381: 'target',
+  // 维修类
+  12050: 'repair', 12051: 'repair', 12100: 'repair', 12240: 'repair',
+  12249: 'repair', 12250: 'repair', 12251: 'repair', 12252: 'repair',
+  12253: 'repair', 12254: 'repair', 12255: 'repair', 12256: 'repair',
+  12257: 'repair', 12259: 'repair', 12502: 'repair', 12505: 'repair',
+  12506: 'repair', 12507: 'repair', 12609: 'repair',
+  // 攻城/对空/额外伤害类
+  12060: 'siege', 12062: 'antiair', 12210: 'siege', 12211: 'siege',
+  12212: 'siege', 12213: 'siege', 12214: 'siege',
+  12300: 'antiair', 12301: 'antiair', 12305: 'antiair', 12306: 'antiair',
+  12310: 'antiair', 12311: 'antiair',
+  12411: 'antiair', 12412: 'antiair', 12413: 'antiair',
+  // 技能/buff类
+  10501: 'skill', 10511: 'skill', 10512: 'skill', 10513: 'skill',
+  10514: 'skill', 10515: 'skill', 10516: 'skill', 10517: 'skill',
+  10518: 'skill', 10519: 'skill', 10520: 'skill', 10521: 'skill',
+  10522: 'skill', 10523: 'skill', 10524: 'skill', 10533: 'skill',
+  10534: 'skill', 10535: 'skill',
+  12401: 'skill', 12402: 'skill', 12403: 'skill', 12404: 'skill',
+  12405: 'skill', 12406: 'skill', 12420: 'skill',
+  12501: 'skill', 12503: 'skill', 12504: 'skill',
+  12601: 'skill', 12602: 'skill', 12603: 'skill', 12604: 'skill',
+  12605: 'skill', 12606: 'skill', 12607: 'skill', 12608: 'skill',
+  12610: 'skill', 12611: 'skill', 12612: 'skill',
+  13001: 'skill', 13002: 'skill', 13003: 'skill', 13004: 'skill',
+  13005: 'skill', 13006: 'skill', 13007: 'skill', 13008: 'skill',
+  13009: 'skill', 13010: 'skill', 13011: 'skill', 13012: 'skill',
+  13013: 'skill', 13014: 'skill', 13021: 'skill', 13022: 'skill',
+  13023: 'skill', 13024: 'skill', 13025: 'skill',
+  // 旗舰技能类
+  2059: 'flagship', 2060: 'flagship', 2061: 'flagship', 2062: 'flagship',
+  2063: 'flagship', 2064: 'flagship', 2065: 'flagship', 2066: 'flagship',
+  2067: 'flagship', 2068: 'flagship', 2069: 'flagship', 2070: 'flagship',
+  2071: 'flagship', 2072: 'flagship', 2073: 'flagship', 2074: 'flagship',
+  2075: 'flagship', 2076: 'flagship', 2077: 'flagship', 2078: 'flagship',
+  2079: 'flagship', 2080: 'flagship', 2081: 'flagship', 2082: 'flagship',
+  2083: 'flagship', 2084: 'flagship', 2085: 'flagship', 2086: 'flagship',
+  2087: 'flagship', 2088: 'flagship', 2089: 'flagship', 2090: 'flagship',
+  // 生产/经济/非战斗类
+  3: 'economy', 4: 'economy', 5: 'economy', 8: 'economy', 9: 'economy',
+  14: 'economy', 16: 'economy', 20: 'economy', 21: 'economy', 30: 'economy',
+  31: 'economy', 40: 'economy', 50: 'economy', 60: 'economy', 70: 'economy',
+  80: 'economy', 90: 'economy', 100: 'economy',
+  101: 'economy', 102: 'economy', 103: 'economy', 104: 'economy',
+  105: 'economy', 106: 'economy', 107: 'economy', 108: 'economy',
+  2020: 'economy', 2021: 'economy', 2022: 'economy', 2023: 'economy',
+  2024: 'economy',
+  2030: 'economy', 2031: 'economy', 2032: 'economy', 2033: 'economy',
+  2034: 'economy', 2035: 'economy', 2040: 'economy', 2041: 'economy',
+  2042: 'economy', 2043: 'economy', 2044: 'economy', 2045: 'economy',
+  2046: 'economy', 2047: 'economy', 2048: 'economy', 2049: 'economy',
+  2050: 'economy', 2051: 'economy', 2053: 'economy', 2054: 'economy',
+  2055: 'economy', 2056: 'economy', 2057: 'economy', 2058: 'economy',
+  71001: 'economy', 71002: 'economy', 71003: 'economy', 71004: 'economy',
+  71005: 'economy', 71006: 'economy', 71010: 'economy', 71020: 'economy',
+  // 其他特殊
+  10001: 'other', 10034: 'other',
+  3000: 'other', 20010: 'other', 21001: 'other',
+  50001: 'other', 70001: 'other',
+};
+
+/**
  * 蓝图外部参数（非科技串来源的加成）。
  *
  * 版本号和巅峰等级的结构加成属于蓝图等级/巅峰系统的产物，不在科技串里。
@@ -67,6 +193,8 @@ export interface ResolvedEffect {
   name: string;
   /** 数值（已按 level 缩放，单位取决于机制） */
   value: number;
+  /** 效果分类（hit/damage/crit/defense/intercept/target/repair/siege/antiair/skill/flagship/economy/other） */
+  category: string;
   /** 满级值（PARAM 或 PARAM_LEVEL 最大值，便于审查） */
   maxParamValue: number;
   /** 该强化的最大等级（来自 ENHANCE_COST 长度） */
@@ -357,6 +485,7 @@ export function resolveBlueprint(
       effectId,
       name: lookup.effect.NAME ?? '(无名)',
       value: lookup.value,
+      category: EFFECT_CATEGORY[effectId] ?? 'other',
       maxParamValue: lookup.maxParamValue,
       maxLevel: findMaxLevel(store, tech),
       source: lookup.source,
@@ -549,13 +678,9 @@ export function resolveBlueprint(
           effects.push(resolved);
           break;
         }
-        // 未实现的 EFFECT
-        unresolved.push({
-          tech,
-          effectId,
-          name: resolved.name,
-          reason: `EFFECT_ID=${effectId} 暂未实现转译`,
-        });
+        // 所有其他 EFFECT_ID：按分类映射归类收录，不进 unresolved
+        // 分类用于后续按类别查询，数值已记录在 resolved.value 中
+        effects.push(resolved);
         break;
     }
   }
