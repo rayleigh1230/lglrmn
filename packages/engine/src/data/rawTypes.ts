@@ -112,5 +112,30 @@ export interface ClientDataStore {
   // 以下表已加载但里程碑1未使用，后续里程碑按需读取
   weapon: Record<string, Record<string, unknown>>;
   shipSlot: Record<string, unknown[]>;
-  shipSystem: Record<string, Record<string, unknown>>;
+  shipSystem: Record<string, RawShipSystem>;
+}
+
+// ===== cfg_ship_system.json（舰船子系统/模块定义）=====
+// 格式：{ system_id: {字段} }，system_id = shipId(5) + slot(2)
+export interface RawShipSystem {
+  NAME?: string;
+  /** 子系统HP */
+  HP?: number;
+  /** 系统标签（载机/装甲/动力等） */
+  SYSTEM_LABEL?: string;
+  /** 系统类型 */
+  SYSTEM_TYPE?: number;
+  /** 所属组（同组模块互斥选择） */
+  GROUP?: number;
+  /** 是否主系统 */
+  MAIN_SYSTEM?: number;
+  /** 是否可攻击 */
+  ATTACKABLE?: number;
+  /** 是否可选模块（1=可选，玩家装配；0/缺省=固定） */
+  ADDITIONAL_SYS?: number;
+  /** 解锁该组所需技术值点数 */
+  POINT_REQUIRED_FOR_UNLOCK_GROUP?: number;
+  /** 强化上限 */
+  ENHANCEMENTS_LIMIT?: number;
+  [k: string]: unknown;
 }

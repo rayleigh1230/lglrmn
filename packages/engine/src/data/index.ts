@@ -36,3 +36,11 @@ export {
   type ResolvedBlueprint,
   type BlueprintOptions,
 } from './blueprintResolver.js';
+
+export {
+  resolveAssembly,
+  getEnabledSystemIds,
+  type AssembledSystem,
+  type AssemblyResult,
+  type AssemblyError,
+} from './moduleAssembler.js';
