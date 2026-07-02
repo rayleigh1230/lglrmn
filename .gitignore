@@ -8,10 +8,22 @@ dist/
 *.js.map
 # (keep ts source; track only via tsc output dirs)
 !*.config.js
+# 保留 editor 的源码 global.d.ts
+!packages/editor/types/global.d.ts
 
 # Test / dump artifacts
 coverage/
 *.log
+
+# 提取的游戏图标 PNG (234MB, 不入库; 通过 frida 工具重新提取)
+# manifest.json 保留(供UI查询映射)
+data/client/icons/*.png
+data/client/icons/_missing_prefixes.py
+data/client/icons/_extracted_files.json
+
+# SWC 插件二进制 (Taro 自动下载)
+packages/editor/.swc/
+
 
 # Editor / OS
 .vscode/

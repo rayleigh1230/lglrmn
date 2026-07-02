@@ -1,0 +1,130 @@
+.ship-list {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0a0e1a;
+}
+
+.ship-list-loading,
+.ship-list-error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+/* 搜索栏 */
+.ship-list__search {
+  padding: 16px 24px;
+  background: #0f1424;
+  border-bottom: 1px solid #1e2942;
+}
+.ship-list__search-input {
+  background: #1a2038;
+  border: 1px solid #2a3458;
+  border-radius: 8px;
+  padding: 16px 24px;
+  color: #e0e6f0;
+  font-size: 28px;
+}
+.ship-list__search-placeholder {
+  color: #4a5670;
+}
+
+/* 筛选 chips */
+.ship-list__filters {
+  white-space: nowrap;
+  padding: 16px 24px;
+  background: #0f1424;
+  border-bottom: 1px solid #1e2942;
+}
+.ship-list__chip {
+  display: inline-block;
+  padding: 10px 28px;
+  margin-right: 16px;
+  background: #1a2038;
+  border: 1px solid #2a3458;
+  border-radius: 20px;
+  color: #8a96b0;
+  font-size: 24px;
+}
+.ship-list__chip--active {
+  background: #1a3a5c;
+  border-color: #4fc3f7;
+  color: #4fc3f7;
+}
+
+.ship-list__stats {
+  padding: 12px 24px;
+  background: #0d1220;
+}
+
+/* 网格 */
+.ship-list__grid-scroll {
+  flex: 1;
+  overflow: hidden;
+}
+.ship-list__grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 16px;
+  gap: 16px;
+}
+
+/* 舰船卡片 */
+.ship-card {
+  width: calc(50% - 8px);
+  background: linear-gradient(180deg, #131a2e 0%, #0f1424 100%);
+  border: 1px solid #1e2942;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.ship-card:active {
+  border-color: #4fc3f7;
+  background: linear-gradient(180deg, #1a2340 0%, #131a30 100%);
+}
+
+.ship-card__info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ship-card__name {
+  font-size: 24px;
+  color: #e0e6f0;
+  font-weight: 600;
+  line-height: 1.3;
+  /* 2行省略 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ship-card__meta {
+  display: flex;
+  gap: 8px;
+}
+.ship-card__tier {
+  font-size: 20px;
+  color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.1);
+  padding: 2px 12px;
+  border-radius: 4px;
+}
+.ship-card__cost {
+  font-size: 22px;
+  color: #ffc857;
+}
+
+.ship-list__empty {
+  text-align: center;
+  padding: 80px 0;
+}

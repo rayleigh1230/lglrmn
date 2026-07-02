@@ -76,3 +76,6 @@ export { getConfig, setConfig, resetConfig, DEFAULT_CONFIG, type EngineConfig } 
 export { critCheck, type CritCalc } from './phases/crit.js';
 export { selectTarget, aliveShips } from './phases/target.js';
 export { interceptCheck, type InterceptResult } from './phases/intercept.js';
+
+// 数据层 (蓝图解析/装配/科技点计数/战报解析) - 供 editor/UI 使用
+export * from './data/index.js';

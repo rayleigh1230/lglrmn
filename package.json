@@ -9,5 +9,11 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm test --workspace=@lagrange/engine"
+  },
+  "overrides": {
+    "webpack": "5.78.0"
+  },
+  "devDependencies": {
+    "webpack": "5.78.0"
   }
 }

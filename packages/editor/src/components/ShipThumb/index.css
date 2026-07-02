@@ -1,0 +1,26 @@
+.ship-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a2440 0%, #0d1428 100%);
+  border: 1px solid #2a3a5c;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+.ship-thumb--small { width: 80px; height: 80px; }
+.ship-thumb--medium { width: 120px; height: 120px; }
+.ship-thumb--large { width: 180px; height: 180px; }
+
+.ship-thumb__img {
+  width: 80%;
+  height: 80%;
+}
+
+.ship-thumb__placeholder {
+  font-size: 32px;
+  color: #4fc3f7;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+.ship-thumb--large .ship-thumb__placeholder { font-size: 48px; }
