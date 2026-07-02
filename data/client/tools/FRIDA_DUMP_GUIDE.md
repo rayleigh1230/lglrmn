@@ -21,11 +21,22 @@ python -m pip install frida frida-tools
 | `rpc.exports` + `exports_sync` | 用 `send()` 回传结果（避开RPC版本差异） |
 
 ### 1.3 工具脚本位置
-所有脚本在 `D:\无尽的拉格朗日\`（游戏客户端目录）：
+
+> **⚠️ 路径适配（2026-07-02）**：交接文档原本面向另一台机器（游戏在 `D:\无尽的拉格朗日\`）。
+> 本机环境：游戏在 `E:\星际猎人\`，仓库在 `E:\战斗模拟器\`。
+> 工具脚本已统一放入仓库 `E:\战斗模拟器\data\client\tools\`。
+> `dump_bull_bid.py` 的 OUTDIR 已改为直接输出到仓库 `data\client\battle_report_test\`（dump 完即可用，无需再拷贝）。
+> 每次按 BID dump 前需修改脚本顶部的 `BID` 和 `OUTDIR`。
+
+工具脚本（在 `E:\战斗模拟器\data\client\tools\`）：
 - `inject_probe3.py` — 基础注入验证（验证通道可用）
 - `batch_dump3.py` + `_dump_logic.py` — 批量dump模块结构
 - `dump_all_blueprint.py` — 批量dump配置表
-- `dump_bull_bid.py` — 按battle_id dump指定战报
+- `dump_bull_bid.py` — 按battle_id dump指定战报（改 BID + OUTDIR 后用）
+- `list_reports.py` — 列出最近战报+摘要（查 BID 用，无路径依赖）
+
+**frida 环境**：本机用 `py`（Python 3.13 Launcher），`py -m pip install frida frida-tools` 已装好。
+**游戏进程名**：`infinite_lagrange_cn.exe`。
 
 ---
 
