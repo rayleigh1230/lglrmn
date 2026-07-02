@@ -91,15 +91,16 @@ test('系统结构值(1010): B类缩放', async () => {
   assert.equal(bp.systemStructureBonus, 0, '无强化时系统结构=0');
 });
 
-test('CV3000 unresolved 减少: 新EFFECT实现后剩余3类', async () => {
+test('CV3000 unresolved 减少: 新EFFECT实现后剩余1类', async () => {
   const store = await getStore();
   const tech =
     '8020104,20,8206,1;8020110,20,8207,1;8020109,2,1132,5,1,1131,5,3,1210,5,4,1211,5,8,8890,1;8020112,19,8601,1,20,8210,1,5,8701,1;8020101,20,8206,1;';
   const bp = resolveBlueprint(store, '80201', tech);
   const unresolvedIds = new Set(bp.unresolved.map((u) => u.effectId));
-  // 12270(自维修)/12263(集火)/2065(战略打击) 仍未实现
-  assert.ok(unresolvedIds.has(12270));
-  assert.ok(unresolvedIds.has(2065));
-  // 10033(抵抗)应已实现，不在unresolved
-  assert.ok(!unresolvedIds.has(10033), '10033抵抗应已实现');
+  // 2065(战略打击)仍未实现；12270(自维修)/12263(集火)已实现
+  assert.ok(unresolvedIds.has(2065), '战略打击仍未实现');
+  assert.ok(!unresolvedIds.has(12270), '自维修应已实现');
+  assert.ok(!unresolvedIds.has(12263), '集火应已实现');
+  assert.equal(bp.hasAutoRepair, true, 'CV3000应有自维修能力');
+  assert.equal(bp.focusFire, true, 'CV3000应启用集火');
 });

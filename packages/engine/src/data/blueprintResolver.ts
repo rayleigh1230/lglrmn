@@ -140,6 +140,27 @@ export interface ResolvedBlueprint {
   /** 系统结构值提升（万分比，子系统HP） */
   systemStructureBonus: number;
 
+  /** 拦截/反导：导弹拦截率（万分比） */
+  interceptRate: number;
+  /** 被拦截几率降低（万分比，投射武器自身） */
+  interceptEvade: number;
+  /** 命中优先级提升（原始值，目标选择权重） */
+  targetPriorityBonus: number;
+  /** 选择目标时间降低（万分比，锁定速度提升） */
+  targetLockTimeReduction: number;
+  /** 攻击持续时间提高（万分比） */
+  attackDurationBonus: number;
+  /** 攻击持续时间降低/打击间隔缩短（万分比） */
+  attackDurationReduction: number;
+  /** 攻击次数增加（额外弹数） */
+  attackCountBonus: number;
+  /** 飞行时间降低（万分比，投射武器） */
+  flightTimeReduction: number;
+  /** 是否启用集火（旗舰策略） */
+  focusFire: boolean;
+  /** 系统自维修标记（是否具备自动维修能力） */
+  hasAutoRepair: boolean;
+
   /** 全部解析出的效果（含已实现与未实现） */
   effects: ResolvedEffect[];
   /** 未实现的 EFFECT（透明记录） */
@@ -306,6 +327,17 @@ export function resolveBlueprint(
   let siegeDamageBonus = 0;
   let antiAirDamageBonus = 0;
   let systemStructureBonus = 0;
+  // 拦截/目标选择/攻击时序类
+  let interceptRate = 0;
+  let interceptEvade = 0;
+  let targetPriorityBonus = 0;
+  let targetLockTimeReduction = 0;
+  let attackDurationBonus = 0;
+  let attackDurationReduction = 0;
+  let attackCountBonus = 0;
+  let flightTimeReduction = 0;
+  let focusFire = false;
+  let hasAutoRepair = false;
 
   for (const tech of modules) {
     const lookup = lookupEffect(store, tech);
@@ -455,6 +487,60 @@ export function resolveBlueprint(
         effects.push(resolved);
         break;
 
+      // ===== 拦截/反导类 =====
+      case 12080: // 获得拦截能力（PARAM=5002: {102}=导弹拦截率2%）
+      case 12081: {
+        // 提升拦截率（PARAM=5025: {102}=25%）
+        // PARAM 多位编码，取 {102}=后2位（与12012/10012同规则）
+        const param = lookup.effect.EFFECT_PARAM;
+        const rate = param != null ? Number(String(param).slice(-2)) : lookup.value;
+        interceptRate += rate * 100 * lookup.value / (lookup.maxParamValue || rate);
+        effects.push(resolved);
+        break;
+      }
+      case 12082: // 被拦截几率降低（B类，万分比）
+        interceptEvade += lookup.value * 100;
+        effects.push(resolved);
+        break;
+
+      // ===== 目标选择类 =====
+      case 12070: // 命中优先级提升（原始权重值）
+        targetPriorityBonus += lookup.value;
+        effects.push(resolved);
+        break;
+      case 12090: // 选择目标时间降低（B类，万分比）
+        targetLockTimeReduction += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 12263: // 默认集火（旗舰）
+        focusFire = true;
+        effects.push(resolved);
+        break;
+
+      // ===== 攻击时序类 =====
+      case 12140: // 攻击持续时间提高（B类，万分比）
+        attackDurationBonus += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 12141: // 攻击持续时间降低/打击间隔缩短（B类，万分比）
+        attackDurationReduction += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 12142: // 攻击次数增加（绝对值，额外弹数）
+        attackCountBonus += lookup.value;
+        effects.push(resolved);
+        break;
+      case 12294: // 飞行时间降低（B类，万分比，投射武器）
+        flightTimeReduction += lookup.value * 100;
+        effects.push(resolved);
+        break;
+
+      // ===== 系统维修类 =====
+      case 12270: // 系统自维修/损坏伤害
+        hasAutoRepair = true;
+        effects.push(resolved);
+        break;
+
       default:
         // 检查是否为"系统内伤害提升"类（无EFFECT_ID，靠DESC识别）
         if (isWeaponDamageEffect(lookup.effect)) {
@@ -510,6 +596,16 @@ export function resolveBlueprint(
     siegeDamageBonus,
     antiAirDamageBonus,
     systemStructureBonus,
+    interceptRate,
+    interceptEvade,
+    targetPriorityBonus,
+    targetLockTimeReduction,
+    attackDurationBonus,
+    attackDurationReduction,
+    attackCountBonus,
+    flightTimeReduction,
+    focusFire,
+    hasAutoRepair,
     effects,
     unresolved,
   };
