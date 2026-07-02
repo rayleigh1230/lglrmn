@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "node --test --import tsx tests/*.test.ts",
+    "test": "node --test --import tsx tests/*.test.ts tests/data/*.test.ts",
     "test:dump": "tsx tests/run-dump.ts"
   },
   "devDependencies": {
