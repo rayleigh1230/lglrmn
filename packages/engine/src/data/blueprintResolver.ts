@@ -2,7 +2,7 @@
  * 蓝图解析器（核心）—— 把战报科技串解析成强化效果，并计算出强化后的数值。
  *
  * 解析链路（docs/11，已由 斗牛级全面板 + CV3000 双重验证）：
- *   战报科技串三元组 (subType, techId, level)
+ *   战报科技串三元组 (optIdx, PREFIX, level)
  *     → techId + level 拼 key 查 cfg_system_effect
  *     → 取 EFFECT_ID + 数值（A/B 两类规则，见下）
  *     → 按 EFFECT_ID 分类聚合
@@ -325,20 +325,15 @@ export interface ResolvedBlueprint {
   unresolved: UnresolvedEffect[];
 }
 
-/** 从 systemEnhance 查 maxLevel（ENHANCE_COST 数组长度） */
+/** 从 systemEnhance 查 maxLevel（ENHANCE_COST 数组长度）。
+ * 用 enhanceId 直接查找（由 parseTechString 计算 = slotId + optIdx补零2位）。
+ */
 function findMaxLevel(
   store: ClientDataStore,
   tech: TechModule
 ): number {
-  // enhance id = shipId(5) + slot(2) + optIdx(2). 但战报只有 slotId(7位=shipId5+slot2)
-  // 需遍历该 slot 下所有 enhance，找 SYSTEM_EFFECT_PREFIX === techId 的记录
-  const slotPrefix = tech.slotId; // 7位: shipId(5)+slot(2)
-  for (const [enhanceId, enhance] of Object.entries(store.systemEnhance)) {
-    if (!enhanceId.startsWith(slotPrefix)) continue;
-    if (enhance.SYSTEM_EFFECT_PREFIX === tech.techId) {
-      return enhance.ENHANCE_COST?.length ?? 5;
-    }
-  }
+  const enhance = store.systemEnhance[tech.enhanceId];
+  if (enhance) return enhance.ENHANCE_COST?.length ?? 5;
   return 5; // 默认5级
 }
 

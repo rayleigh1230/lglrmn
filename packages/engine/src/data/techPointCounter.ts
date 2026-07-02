@@ -33,24 +33,20 @@ export interface TechPointSummary {
 }
 
 /**
- * 按 slotId 前缀查找 ENHANCE_COST。
- * enhance id = shipId(5) + slot(2) + optIdx(2)，遍历该 slot 下所有 enhance 找 PREFIX 匹配。
+ * 用 enhanceId 直接查找 ENHANCE_COST。
+ * enhanceId = slotId(7位) + optIdx(2位)，由 parseTechString 计算得出。
  */
-function findEnhanceCostBySlot(
+function findEnhanceCostById(
   store: ClientDataStore,
   tech: TechModule
 ): { cost: number[]; name: string } | null {
-  const slotPrefix = tech.slotId; // 7位: shipId(5) + slot(2)
-  for (const [enhanceId, enhance] of Object.entries(store.systemEnhance)) {
-    if (!enhanceId.startsWith(slotPrefix)) continue;
-    if (enhance.SYSTEM_EFFECT_PREFIX !== tech.techId) continue;
-    const eff = store.systemEffect[String(tech.techId) + '01'];
-    return {
-      cost: enhance.ENHANCE_COST ?? [],
-      name: eff?.NAME ?? '(无名)',
-    };
-  }
-  return null;
+  const enhance = store.systemEnhance[tech.enhanceId];
+  if (!enhance) return null;
+  const eff = store.systemEffect[String(tech.techId) + '01'];
+  return {
+    cost: enhance.ENHANCE_COST ?? [],
+    name: eff?.NAME ?? '(无名)',
+  };
 }
 
 /**
@@ -70,7 +66,7 @@ export function countTechPoints(
   let totalPoints = 0;
 
   for (const tech of modules) {
-    const found = findEnhanceCostBySlot(store, tech);
+    const found = findEnhanceCostById(store, tech);
     if (!found || found.cost.length === 0) {
       unresolved.push(tech);
       continue;

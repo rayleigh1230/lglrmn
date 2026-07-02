@@ -74,12 +74,11 @@ test('物理伤害下降%(10031): B类缩放', async () => {
 
 test('受指定武器闪避(10012): 直射/导弹分类', async () => {
   const store = await getStore();
-  // PREFIX=20001 PARAM=1030 → {102}=30 直射闪避
-  // 找含20001的船
-  const tech = '4050103,1,2201,4;'; // 斗牛闪避(10010)不是10012
+  // 用真实optIdx: 2201紧急躲避在slot03的optIdx=4
+  const tech = '4050103,4,2201,4;';
   const bp = resolveBlueprint(store, '40501', tech);
-  // 10012和10010不同. 这里验证10010仍正常
-  assert.equal(bp.dodgeBonus, 800, '闪避(10010)仍正常=800万分比');
+  // 2201是10010闪避(不是10012). PARAM=8, maxLevel=4, lv4→8% = 800万分比
+  assert.equal(bp.dodgeBonus, 800, '闪避(10010)=800万分比');
 });
 
 test('系统结构值(1010): B类缩放', async () => {

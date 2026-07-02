@@ -18,19 +18,19 @@ async function getStore(): Promise<ClientDataStore> {
   return _store;
 }
 
-test('斗牛方案技能点统计: 基础15项', async () => {
+test('斗牛方案技能点统计: 真实方案=98点', async () => {
   const store = await getStore();
+  // 真实科技串（从蓝图方案 get_ship_bp_enhance_scheme_record 获取）
   const tech =
-    '4050101,1,4050111,5,2,303,5,3,304,5,4,204,2,5,4050112,5,6,203,4;' +
-    '4050102,1,1207,4,2,1206,4,3,1121,2;' +
-    '4050103,1,2201,4,2,2101,1,3,2105,1,4,2102,1;' +
-    '4050104,1,4102,5,2,4105,5;';
+    '4050105,19,8601,1,20,8210,1;' +
+    '4050104,1,4102,5,2,4105,5;' +
+    '4050101,20,8206,1,1,105,5,2,106,5,3,303,5,4,304,5,5,203,4,6,204,2;' +
+    '4050103,20,8207,1,4,2201,4,1,2101,1,3,2102,1,2,2105,3;' +
+    '4050102,3,1207,4,4,1206,4,1,1121,2;';
   const summary = countTechPoints(store, tech);
-  // 15个强化项都应解析到
-  assert.equal(summary.items.length, 15, '15个强化项');
+  // 真实方案含维修/集火等0消耗项 + 实际强化项
   assert.equal(summary.unresolved.length, 0, '0未解析');
-  // 总消耗96（面板98，差2来自调校项的额外消耗，待确认）
-  assert.equal(summary.totalPoints, 96, '基础15项=96点');
+  assert.equal(summary.totalPoints, 98, '真实方案=98点(面板一致)');
 });
 
 test('ENHANCE_COST 各级不同: 充能装置303 lv1=1,lv2=2', async () => {
