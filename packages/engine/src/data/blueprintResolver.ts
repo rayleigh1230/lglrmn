@@ -33,6 +33,36 @@ import { parseTechString, type TechModule } from './techString.js';
 const PERMILLE = 10000;
 
 /**
+ * 从舰名推断 ship_type（cfg_ship_type 的 key）。
+ * cfg_ship 没有 ship_type 字段，需从舰名推断。
+ * 返回 null 表示无法推断（无人机/靶舰等非主力舰，无版本号加成）。
+ */
+function inferShipType(shipName: string): number | null {
+  if (/护卫舰/.test(shipName) && !/战列/.test(shipName)) return 3;
+  if (/驱逐舰/.test(shipName)) return 4;
+  if (/战列巡洋舰|战巡/.test(shipName)) return 6;
+  if (/航空母舰|航母/.test(shipName)) return 8;
+  if (/战列舰/.test(shipName) && !/巡洋/.test(shipName)) return 9;
+  if (/巡洋舰/.test(shipName) && !/战列/.test(shipName)) return 5;
+  if (/支援舰/.test(shipName)) return 7;
+  return null;
+}
+
+/**
+ * 查 ship_type[9]（SHIP_HP_ADD，每技术值点的结构加成）。
+ * 自动从舰名推断 ship_type，再查 cfg_ship_type。
+ * 返回 0 表示该舰种无版本号加成（超主力舰或无法推断）。
+ */
+function lookupShipHpAdd(store: ClientDataStore, shipId: string): number {
+  const shipRow = store.ship[shipId];
+  if (!shipRow) return 0;
+  const shipType = inferShipType(String(shipRow[0]));
+  if (shipType === null) return 0;
+  const typeRow = store.shipType[String(shipType)];
+  return typeRow?.[9] ?? 0;
+}
+
+/**
  * EFFECT_ID 分类映射（用于归类未单独实现 case 的效果）。
  * 所有 EFFECT_ID 都会被收录到 effects[]，区别只在于是否聚合到具体字段。
  * 未在此映射中的 EFFECT_ID 归为 'other'（仍收录，不进 unresolved）。
@@ -688,12 +718,15 @@ export function resolveBlueprint(
   // 结构值 = base×(1+Σ万分比/10000) + 巅峰绝对值 + 版本号绝对值
   // 用 floor（向下取整）：36040×1.09=39283.6 → 39283（游戏面板行为）
   const peakBonus = options?.peakStructureBonus ?? 0;
-  // 版本号：优先用直接提供的值，否则用 techPoints × shipHpAdd 自动计算
-  const versionBonus =
-    options?.versionStructureBonus ??
-    (options?.techPoints != null && options?.shipHpAdd != null
-      ? options.techPoints * options.shipHpAdd
-      : 0);
+  // 版本号计算优先级：
+  //   1. 直接提供 versionStructureBonus
+  //   2. 提供 techPoints + shipHpAdd → techPoints × shipHpAdd
+  //   3. 提供 techPoints（无 shipHpAdd）→ 自动从 store.shipType 查 SHIP_HP_ADD
+  let versionBonus = options?.versionStructureBonus ?? 0;
+  if (versionBonus === 0 && options?.techPoints != null) {
+    const shipHpAdd = options.shipHpAdd ?? lookupShipHpAdd(store, shipId);
+    versionBonus = options.techPoints * shipHpAdd;
+  }
   const finalStructure = Math.floor(baseStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus + versionBonus;
 
   return {

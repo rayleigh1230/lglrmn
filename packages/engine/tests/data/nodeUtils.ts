@@ -12,6 +12,7 @@ import type {
   RawSystemEffectTable,
   RawSystemEnhanceTable,
   RawEffectDefTable,
+  RawShipTypeRow,
 } from '../../src/data/rawTypes.js';
 
 function read<T>(dir: string, file: string): T {
@@ -25,6 +26,7 @@ function read<T>(dir: string, file: string): T {
 /** 从目录加载全部配置表（Node 便利方法） */
 export function loadClientDataFromDir(dir: string): ClientDataStore {
   const parts: ClientDataParts = {
+    // 核心7张（必需）
     ship: read<RawShipTable>(dir, 'cfg_ship.json'),
     systemEffect: read<RawSystemEffectTable>(dir, 'cfg_system_effect.json'),
     systemEnhance: read<RawSystemEnhanceTable>(dir, 'cfg_system_enhance.json'),
@@ -33,5 +35,19 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
     shipSlot: read(dir, 'cfg_ship_slot.json'),
     shipSystem: read(dir, 'cfg_ship_system.json'),
   };
+  // 扩展表（可选，文件不存在时跳过）
+  for (const [key, file] of [
+    ['shipType', 'cfg_ship_type.json'],
+    ['shipBlueprint', 'cfg_ship_blueprint.json'],
+    ['weaponAction', 'cfg_weapon_action.json'],
+    ['weaponPriority', 'cfg_weapon_priority.json'],
+    ['moduleEffect', 'cfg_module_effect.json'],
+  ] as const) {
+    try {
+      (parts as Record<string, unknown>)[key] = read(dir, file);
+    } catch {
+      // 文件不存在时跳过，保持向后兼容
+    }
+  }
   return createClientData(parts);
 }

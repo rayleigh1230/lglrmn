@@ -109,11 +109,37 @@ export interface ClientDataStore {
   systemEffect: RawSystemEffectTable;
   systemEnhance: RawSystemEnhanceTable;
   effectDef: RawEffectDefTable;
-  // 以下表已加载但里程碑1未使用，后续里程碑按需读取
   weapon: Record<string, Record<string, unknown>>;
   shipSlot: Record<string, unknown[]>;
   shipSystem: Record<string, RawShipSystem>;
+  /** 舰种表（含 SHIP_HP_ADD，版本号计算用） */
+  shipType: Record<string, RawShipTypeRow>;
+  /** 蓝图主表（可强化模块清单） */
+  shipBlueprint: Record<string, unknown[]>;
+  /** 武器开火动作时序 */
+  weaponAction: Record<string, unknown[]>;
+  /** 武器优先级 */
+  weaponPriority: Record<string, unknown[]>;
+  /** 模块效果表 */
+  moduleEffect: Record<string, Record<string, unknown>>;
 }
+
+// ===== cfg_ship_type.json（舰种表）=====
+// 格式：{ ship_type: [name, desc, ...字段, ship_hp_add, ...] }
+// 关键字段 [9] = SHIP_HP_ADD（每技术值点的结构加成，版本号计算用）
+export type RawShipTypeRow = [
+  string, // [0] name 舰种名
+  string, // [1] desc 描述
+  number, // [2] level 等级
+  number, // [3] ?
+  string, // [4] 巅峰等级阈值串
+  number, // [5] ?
+  number, // [6] ?
+  number, // [7] ?
+  number, // [8] ship_system_hp_add
+  number, // [9] ★ship_hp_add（每技术值点的结构加成）
+  number, // [10] ?
+];
 
 // ===== cfg_ship_system.json（舰船子系统/模块定义）=====
 // 格式：{ system_id: {字段} }，system_id = shipId(5) + slot(2)

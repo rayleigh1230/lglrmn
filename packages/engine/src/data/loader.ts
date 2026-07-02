@@ -15,17 +15,25 @@ import type {
   RawSystemEffectTable,
   RawSystemEnhanceTable,
   RawEffectDefTable,
+  RawShipTypeRow,
 } from './rawTypes.js';
 
 /** 配置表各部分的已解析 JSON（调用方负责读取文件并 JSON.parse） */
 export interface ClientDataParts {
+  /** 核心7张表（必需） */
   ship: RawShipTable;
   systemEffect: RawSystemEffectTable;
   systemEnhance: RawSystemEnhanceTable;
   effectDef: RawEffectDefTable;
   weapon?: Record<string, Record<string, unknown>>;
   shipSlot?: Record<string, unknown[]>;
-  shipSystem?: Record<string, Record<string, unknown>>;
+  shipSystem?: Record<string, import('./rawTypes.js').RawShipSystem>;
+  /** 扩展表（可选，按需加载） */
+  shipType?: Record<string, RawShipTypeRow>;
+  shipBlueprint?: Record<string, unknown[]>;
+  weaponAction?: Record<string, unknown[]>;
+  weaponPriority?: Record<string, unknown[]>;
+  moduleEffect?: Record<string, Record<string, unknown>>;
 }
 
 /**
@@ -43,5 +51,10 @@ export function createClientData(parts: ClientDataParts): ClientDataStore {
     weapon: parts.weapon ?? {},
     shipSlot: parts.shipSlot ?? {},
     shipSystem: parts.shipSystem ?? {},
+    shipType: parts.shipType ?? {},
+    shipBlueprint: parts.shipBlueprint ?? {},
+    weaponAction: parts.weaponAction ?? {},
+    weaponPriority: parts.weaponPriority ?? {},
+    moduleEffect: parts.moduleEffect ?? {},
   };
 }

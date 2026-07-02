@@ -44,3 +44,12 @@ export {
   type AssemblyResult,
   type AssemblyError,
 } from './moduleAssembler.js';
+
+export {
+  parseBlock0,
+  parseHpCurve,
+  parseTeamBattleData,
+  parseEnemyBattleData,
+  type ParsedShipConfig,
+  type HpSample,
+} from './battleReportParser.js';
