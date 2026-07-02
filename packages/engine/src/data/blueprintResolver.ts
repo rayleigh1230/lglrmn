@@ -113,6 +113,33 @@ export interface ResolvedBlueprint {
   /** 曲率移动速度提升（万分比，加法叠加） */
   curvatureSpeedBonus: number;
 
+  /** 单体暴击率（万分比，B类缩放后） */
+  critRate: number;
+  /** 单体暴击额外伤害（万分比，如5000=额外50%=总倍率1.5） */
+  critDamage: number;
+  /** 对空暴击率（万分比） */
+  antiAirCritRate: number;
+  /** 对空暴击额外伤害（万分比） */
+  antiAirCritDamage: number;
+  /** 暴击伤害提升（万分比，叠加到暴击额外伤害） */
+  critDamageBonus: number;
+
+  /** 能量伤害抵抗/护盾（万分比，能量减伤百分比） */
+  energyResistance: number;
+  /** 物理伤害下降百分比（万分比，区别于绝对值抵抗） */
+  physicalDamageReduction: number;
+  /** 受指定武器类型闪避提升（按武器类别，万分比） */
+  dodgeByWeaponType: Record<string, number>;
+
+  /** 单发基础攻击力提升（绝对值，+dph） */
+  baseDamageBonus: number;
+  /** 攻城伤害提升（万分比） */
+  siegeDamageBonus: number;
+  /** 对空伤害提升（万分比） */
+  antiAirDamageBonus: number;
+  /** 系统结构值提升（万分比，子系统HP） */
+  systemStructureBonus: number;
+
   /** 全部解析出的效果（含已实现与未实现） */
   effects: ResolvedEffect[];
   /** 未实现的 EFFECT（透明记录） */
@@ -136,15 +163,28 @@ function findMaxLevel(
   return 5; // 默认5级
 }
 
-/** 取 PARAM 的"有效后缀"作为满级值。12012 命中类取后2位，其他取整个值 */
+/** 取 PARAM 的"有效后缀"作为满级值。多位编码类取后2位，其他取整个值 */
 function extractParamValue(effectId: number, param: number | undefined): number {
   if (param === undefined) return 0;
-  // 12012 命中类：PARAM 是多位编码（如3015），取后2位（=15）
-  if (effectId === 12012) {
+  // 12012 命中类 / 10012 武器闪避类：PARAM 多位编码（如3015），取后2位（=15）
+  if (effectId === 12012 || effectId === 10012) {
     const s = String(param);
     return Number(s.slice(-2));
   }
   return param;
+}
+
+/**
+ * 拆分暴击类 PARAM（12030/12029/12031 等）。
+ * 编码规则：PARAM = 暴击概率(%) × 1000 + 额外伤害(%)
+ * 例：30050 → 概率30%，额外伤害50%；40050 → 40%，50%
+ */
+function splitCritParam(param: number | undefined): { critRate: number; critDamage: number } {
+  if (param === undefined) return { critRate: 0, critDamage: 0 };
+  return {
+    critRate: Math.floor(param / 1000), // 暴击概率 %
+    critDamage: param % 1000, // 额外伤害 %
+  };
 }
 
 /** 查找效果并计算按等级缩放后的数值 */
@@ -251,6 +291,22 @@ export function resolveBlueprint(
   let speedBonus = 0;
   let curvatureSpeedBonus = 0;
 
+  // 暴击类
+  let critRate = 0;
+  let critDamage = 0;
+  let antiAirCritRate = 0;
+  let antiAirCritDamage = 0;
+  let critDamageBonus = 0;
+  // 防御类
+  let energyResistance = 0;
+  let physicalDamageReduction = 0;
+  const dodgeByWeaponType: Record<string, number> = {};
+  // 伤害类
+  let baseDamageBonus = 0;
+  let siegeDamageBonus = 0;
+  let antiAirDamageBonus = 0;
+  let systemStructureBonus = 0;
+
   for (const tech of modules) {
     const lookup = lookupEffect(store, tech);
     if (!lookup) {
@@ -329,6 +385,76 @@ export function resolveBlueprint(
         effects.push(resolved);
         break;
 
+      // ===== 暴击类 =====
+      case 12030: {
+        // 单体暴击：PARAM = 概率×1000 + 额外伤害%
+        const raw = lookup.effect.EFFECT_PARAM ?? lookup.value * 1000;
+        const { critRate: r, critDamage: d } = splitCritParam(raw);
+        critRate += r * 100; // % → 万分比
+        if (d > 0) critDamage = Math.max(critDamage, d * 100); // 取最高额外伤害
+        effects.push(resolved);
+        break;
+      }
+      case 12029: {
+        // 对空暴击：PARAM = 概率×1000 + 额外伤害%
+        const raw = lookup.effect.EFFECT_PARAM ?? lookup.value * 1000;
+        const { critRate: r, critDamage: d } = splitCritParam(raw);
+        antiAirCritRate += r * 100;
+        if (d > 0) antiAirCritDamage = Math.max(antiAirCritDamage, d * 100);
+        effects.push(resolved);
+        break;
+      }
+      case 12032: // 暴击伤害提升（B类，万分比）
+        critDamageBonus += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 12033: // 系统受到暴击伤害下降（B类，万分比）—— 防御向，暂归 critDamageBonus 负值
+        effects.push(resolved);
+        break;
+
+      // ===== 防御类 =====
+      case 10021: // 能量伤害抵抗/护盾提高（B类，万分比）。PARAM 可能 undefined，用 lookup.value
+        energyResistance += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 10031: // 物理伤害下降百分比（B类，万分比）
+        physicalDamageReduction += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 10012: {
+        // 受指定武器闪避提升（B类，万分比）。PARAM 多位编码取后2位
+        // 武器类别判断：DESC 含"直射/导弹/鱼雷"等
+        const desc = String(lookup.effect.DESC ?? '');
+        let wType = 'direct';
+        if (/导弹/.test(desc)) wType = 'guided';
+        else if (/鱼雷/.test(desc)) wType = 'guided';
+        else if (/直射/.test(desc)) wType = 'direct';
+        dodgeByWeaponType[wType] = (dodgeByWeaponType[wType] ?? 0) + lookup.value * 100;
+        effects.push(resolved);
+        break;
+      }
+
+      // ===== 伤害类 =====
+      case 12350: // 单发基础攻击力提升（B类，绝对值 +dph）
+        baseDamageBonus += lookup.value;
+        effects.push(resolved);
+        break;
+      case 12060: // 攻城伤害提高（B类，万分比）
+        siegeDamageBonus += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 12062: // 对空伤害提高（B类，万分比）
+        antiAirDamageBonus += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 1010: // 系统结构值提高（B类，万分比，子系统HP）
+        systemStructureBonus += lookup.value * 100;
+        effects.push(resolved);
+        break;
+      case 12251: // 持续攻击伤害提升（特殊机制，万分比）
+        effects.push(resolved);
+        break;
+
       default:
         // 检查是否为"系统内伤害提升"类（无EFFECT_ID，靠DESC识别）
         if (isWeaponDamageEffect(lookup.effect)) {
@@ -372,6 +498,18 @@ export function resolveBlueprint(
     weaponCooldownReduction,
     speedBonus,
     curvatureSpeedBonus,
+    critRate,
+    critDamage,
+    antiAirCritRate,
+    antiAirCritDamage,
+    critDamageBonus,
+    energyResistance,
+    physicalDamageReduction,
+    dodgeByWeaponType,
+    baseDamageBonus,
+    siegeDamageBonus,
+    antiAirDamageBonus,
+    systemStructureBonus,
     effects,
     unresolved,
   };
