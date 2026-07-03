@@ -22,7 +22,7 @@ try {
     // 注意: JS字符串里 \n 要写 \\n 才能让Python看到换行
     var pyCode = [
         "import traceback",
-        "_f = r'D:\\无尽的拉格朗日\\_dump_logic.py'",
+        "_f = r'E:\\战斗模拟器\\data\\client\\tools\\_dump_logic.py'",
         "try:",
         "    with open(_f, encoding='utf-8') as _fh: _src = _fh.read()",
         "    exec(compile(_src, _f, 'exec'), globals())",

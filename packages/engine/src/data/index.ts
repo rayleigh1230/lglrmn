@@ -65,7 +65,29 @@ export {
   computeFirepower,
   getBaseDefense,
   resolveBlueprintPanel,
+  loadWeaponPriority,
   type AssembledWeapon,
   type WeaponCategory,
   type BlueprintPanel,
 } from './blueprintCalc.js';
+
+export {
+  parsePeakEnhanceString,
+  parseTuneString,
+  getPeakSnapshot,
+  computePeakBonus,
+  getPeakLevelByExp,
+  type PeakEnhanceEntry,
+  type PeakSnapshot,
+  type PeakBonus,
+} from './peakLevel.js';
+
+export {
+  resolveTuneSystem,
+  computeTuneBonus,
+  isTuneSlot,
+  TUNE_MAX_LEVEL,
+  type TuneSlot,
+  type ShipTuneSystem,
+  type TuneBonus,
+} from './tuneSystem.js';

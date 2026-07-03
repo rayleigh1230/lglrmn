@@ -1,7 +1,7 @@
 
 import sys, types, os, traceback
 
-OUT_DIR = r"D:\无尽的拉格朗日\dumped"
+OUT_DIR = r"E:\星际猎人\dumped"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 def safe_repr(v, maxlen=200):

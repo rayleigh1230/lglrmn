@@ -7,7 +7,8 @@
  * 小程序: 用 Taro.request 或 require
  */
 import { createClientData, type ClientDataStore, type ClientDataParts } from "@lagrange/engine";
-import type { IconManifest } from "./iconResolver";
+import { loadWeaponPriority } from "@lagrange/engine";
+import { setShipThumbMap, type IconManifest } from "./iconResolver";
 
 // 配置表文件名 → ClientDataParts key 的映射 (与 engine/tests/nodeUtils 一致)
 const TABLE_FILES: Record<keyof ClientDataParts, string> = {
@@ -23,6 +24,10 @@ const TABLE_FILES: Record<keyof ClientDataParts, string> = {
   weaponAction: "cfg_weapon_action.json",
   weaponPriority: "cfg_weapon_priority.json",
   moduleEffect: "cfg_module_effect.json",
+  shipPeakLevel: "cfg_ship_peak_level.json",
+  blueprintPeakLevel: "cfg_blueprint_peak_level.json",
+  peakLevelAuth: "cfg_peak_level_auth.json",
+  systemSkill: "cfg_system_skill.json",
 };
 
 // 额外的非引擎配置文件(舰船白名单, 用户人工筛选)
@@ -90,6 +95,15 @@ export async function loadStore(): Promise<ClientDataStore> {
   }
 
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
+
+  // 加载武器优先级表（火力计算用）
+  try {
+    const wp = await readJson(CONFIG_BASE + "weapon_priority.json");
+    loadWeaponPriority(wp);
+  } catch {
+    console.warn("weapon_priority 未加载");
+  }
+
   return _store;
 }
 
@@ -111,6 +125,13 @@ export async function loadIconManifest(): Promise<IconManifest> {
       stat_icons: {},
       all_icons: [],
     };
+  }
+  // 加载舰船缩略图映射
+  try {
+    const thumbMap = await readJson("icons/ship_thumb_map.json");
+    setShipThumbMap(thumbMap);
+  } catch {
+    console.warn("舰船缩略图映射未加载");
   }
   return _manifest;
 }

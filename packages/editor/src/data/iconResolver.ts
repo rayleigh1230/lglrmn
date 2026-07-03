@@ -1,10 +1,13 @@
 /**
  * 图标解析器: 逻辑名 → 图标URL
  *
- * 三类图标:
- * 1. 强化节点图标: enhance_id → manifest.enhance_id_to_icon[enhanceId]
- * 2. 舰船缩略图: 舰种 → ship_class_icons 回退 (游戏是3D渲染,无静态PNG)
- * 3. 属性图标: stat_icons (hit/dodge/crit等)
+ * 图标分类:
+ * 1. 强化节点图标: enhance_id / PREFIX → system_intensify_new 目录
+ * 2. 舰船缩略图: shipId → ship_thumb_map.json 映射 → ship_thumb/ 目录 (2D侧视图)
+ * 3. 舰种图标: category → ship_class_icons (护卫/驱逐等剪影)
+ * 4. 属性图标: stat_icons (hit/dodge/crit等)
+ * 5. 巅峰图标: peak/ 目录 (巅峰徽章/背景)
+ * 6. 能力图标: ability/ 目录 (火力/防空/攻城等)
  */
 export interface IconManifest {
   version: number;
@@ -18,10 +21,18 @@ export interface IconManifest {
   all_icons: string[];
 }
 
+/** 舰船ID → 2D缩略图文件名映射 (来自 ship_thumb_map.json) */
+let _shipThumbMap: Record<string, string> = {};
+
 let _manifest: IconManifest | null = null;
 
 export function setManifest(m: IconManifest): void {
   _manifest = m;
+}
+
+/** 设置舰船缩略图映射 (从 ship_thumb_map.json 加载) */
+export function setShipThumbMap(map: Record<string, string>): void {
+  _shipThumbMap = map;
 }
 
 const ICON_BASE = "icons/";
@@ -44,8 +55,19 @@ export function prefixIcon(prefix: number | string): string {
   return info?.available ? iconUrl(info.icon) : "";
 }
 
-/** 舰船缩略图: 按 category 匹配舰种图标 */
-export function shipThumbnailIcon(category: string): string {
+/**
+ * ★舰船2D缩略图: shipId → ship_thumb/ 文件
+ * 来自游戏 get_ship_icon(shipId)，命名如 s_frigate_m_001_1.png
+ * 无映射时回退到舰种图标。
+ */
+export function shipThumbnailIcon(shipId: string): string {
+  const fn = _shipThumbMap[shipId];
+  if (fn) return ICON_BASE + "ship_thumb/" + fn;
+  return "";
+}
+
+/** 舰种图标(剪影): 按 category 匹配 */
+export function shipClassIcon(category: string): string {
   const categoryIconMap: Record<string, string> = {
     frigate: "icon_ship_type_frigate.png",
     destroyer: "icon_ship_type_destroyer.png",
@@ -59,9 +81,18 @@ export function shipThumbnailIcon(category: string): string {
   };
   const icon = categoryIconMap[category];
   if (icon && hasIcon(icon)) return iconUrl(icon);
-  // 兜底
   if (hasIcon("icon_ship_type_unknown.png")) return iconUrl("icon_ship_type_unknown.png");
   return "";
+}
+
+/** 巅峰图标 */
+export function peakIcon(name: string): string {
+  return ICON_BASE + "peak/" + name;
+}
+
+/** 能力图标(火力/防空/攻城/支援/战略) */
+export function abilityIcon(name: string): string {
+  return ICON_BASE + "ability/" + name;
 }
 
 /** 属性图标 */

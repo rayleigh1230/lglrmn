@@ -2,7 +2,7 @@
 
 > 这是整个客户端逆向的最核心成果：成功从游戏内存读取并解码了一份完整的战报数据，
 > 它包含服务器对整场战斗的完整计算结果（HP曲线、攻击事件、击毁时刻）。
-> 数据文件：`D:\无尽的拉格朗日\dumped\battle_data_structured.json`
+> 数据文件：`E:\星际猎人\dumped\battle_data_structured.json`
 
 ---
 

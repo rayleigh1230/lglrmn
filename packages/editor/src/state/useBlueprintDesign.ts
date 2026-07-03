@@ -13,7 +13,8 @@ export interface EnhanceLevelState {
 }
 
 export interface BlueprintOptions {
-  peakStructureBonus: number;
+  /** 巅峰等级（0-20），resolver 自动从 cfg_ship_peak_level 聚合结构/移速加成 */
+  peakLevel: number;
   versionStructureBonus: number;
 }
 
@@ -66,7 +67,7 @@ export function techStrToLevels(techStr: string): EnhanceLevelState {
 export function useBlueprintDesign(store: ClientDataStore | null, bpId: string, shipId: string) {
   const [levels, setLevels] = useState<EnhanceLevelState>({});
   const [options, setOptions] = useState<BlueprintOptions>({
-    peakStructureBonus: 0,
+    peakLevel: 0,
     versionStructureBonus: 0,
   });
 
@@ -81,7 +82,7 @@ export function useBlueprintDesign(store: ClientDataStore | null, bpId: string, 
     if (!store || !shipId) return null;
     try {
       return resolveBlueprint(store, shipId, techStr, {
-        peakStructureBonus: options.peakStructureBonus || undefined,
+        peakLevel: options.peakLevel || undefined,
         versionStructureBonus: options.versionStructureBonus || undefined,
       });
     } catch (e) {

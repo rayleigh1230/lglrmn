@@ -22,13 +22,13 @@ python -m pip install frida frida-tools
 
 ### 1.3 工具脚本位置
 
-> **⚠️ 路径适配（2026-07-02）**：
-> 本机环境：游戏客户端在 `D:\无尽的拉格朗日\`，代码仓库在 `F:\战斗模拟器\lglrmn\`。
-> 工具脚本已统一放入仓库 `F:\战斗模拟器\lglrmn\data\client\tools\`。
+> **⚠️ 路径适配（2026-07-03）**：
+> 本机环境：游戏客户端在 `E:\星际猎人\`，代码仓库在 `E:\战斗模拟器\`。
+> 工具脚本已统一放入仓库 `E:\战斗模拟器\data\client\tools\`。
 > `dump_bull_bid.py` 的 OUTDIR 已改为直接输出到仓库 `data\client\battle_report_today2\`（dump 完即可用，无需再拷贝）。
 > 每次按 BID dump 前需修改脚本顶部的 `BID` 和 `OUTDIR`。
 
-工具脚本（在 `F:\战斗模拟器\lglrmn\data\client\tools\`）：
+工具脚本（在 `E:\战斗模拟器\data\client\tools\`）：
 - `inject_probe3.py` — 基础注入验证（验证通道可用）
 - `batch_dump3.py` + `_dump_logic.py` — 批量dump模块结构
 - `dump_all_blueprint.py` — 批量dump配置表
@@ -43,7 +43,7 @@ python -m pip install frida frida-tools
 ## 二、注入流程（每次dump）
 
 ### 2.1 启动游戏
-1. 启动 `D:\无尽的拉格朗日\launch.exe` 或 `infinite_lagrange_cn.exe`
+1. 启动 `E:\星际猎人\launch.exe` 或 `infinite_lagrange_cn.exe`
 2. **登录到主界面**（确保Python解释器已初始化）
 
 ### 2.2 执行dump（需管理员权限）
@@ -53,19 +53,19 @@ frida attach游戏进程需要管理员权限。用以下方式提权：
 ```python
 # _probe_wrapper.py（已存在）
 import subprocess, sys
-OUT = r"D:\无尽的拉格朗日\probe_result.txt"
+OUT = r"E:\星际猎人\probe_result.txt"
 with open(OUT, "w", encoding="utf-8") as f:
-    subprocess.run([sys.executable, r"D:\无尽的拉格朗日\<脚本>.py"],
+    subprocess.run([sys.executable, r"E:\星际猎人\<脚本>.py"],
                    stdout=f, stderr=subprocess.STDOUT, timeout=55)
 ```
 ```bash
 # 命令行执行（触发UAC弹窗，点"是"）
-powershell -Command "Start-Process -FilePath 'pythonw.exe' -ArgumentList 'D:\无尽的拉格朗日\_probe_wrapper.py' -Verb RunAs"
+powershell -Command "Start-Process -FilePath 'pythonw.exe' -ArgumentList 'E:\星际猎人\_probe_wrapper.py' -Verb RunAs"
 ```
 
 ### 2.3 读取结果
 ```bash
-cat "D:\无尽的拉格朗日\probe_result.txt"
+cat "E:\星际猎人\probe_result.txt"
 ```
 
 ---
@@ -76,9 +76,9 @@ cat "D:\无尽的拉格朗日\probe_result.txt"
 ```bash
 # 修改_probe_wrapper.py指向inject_probe3.py
 # 执行UAC提权
-powershell -Command "Start-Process -FilePath 'pythonw.exe' -ArgumentList 'D:\无尽的拉格朗日\_probe_wrapper.py' -Verb RunAs"
+powershell -Command "Start-Process -FilePath 'pythonw.exe' -ArgumentList 'E:\星际猎人\_probe_wrapper.py' -Verb RunAs"
 # 等待15秒后读结果
-cat "D:\无尽的拉格朗日\probe_result.txt"
+cat "E:\星际猎人\probe_result.txt"
 ```
 成功标志：`PyRun_SimpleString rc=0` + 能看到nxio3模块信息
 
@@ -109,16 +109,16 @@ plaintext = zlib.decompress(decoded[4:]).decode('utf-8')
 ```bash
 # 直接执行（不需要打开任何界面，配置表启动时就加载）
 # 修改_probe_wrapper.py指向dump_all_blueprint.py
-powershell -Command "Start-Process -FilePath 'pythonw.exe' -ArgumentList 'D:\无尽的拉格朗日\_probe_wrapper.py' -Verb RunAs"
+powershell -Command "Start-Process -FilePath 'pythonw.exe' -ArgumentList 'E:\星际猎人\_probe_wrapper.py' -Verb RunAs"
 ```
-输出到 `D:\无尽的拉格朗日\dumped\cfg_*.json`（10张表，~14000条记录）
+输出到 `E:\星际猎人\dumped\cfg_*.json`（10张表，~14000条记录）
 
 ### 3.4 Dump模块结构
 ```bash
 # 修改_probe_wrapper.py指向batch_dump3.py
 # 修改_dump_logic.py里的GROUPS字典指定要dump的模块
 ```
-输出到 `D:\无尽的拉格朗日\dumped\*.txt`
+输出到 `E:\星际猎人\dumped\*.txt`
 
 ---
 
@@ -168,7 +168,7 @@ Rel(gil);
 **关键点**：
 1. Python代码里把结果存到全局变量 `_PROBE_OUT`（JSON字符串）
 2. JS侧通过 `PyImport_AddModule("__main__")` + `PyObject_GetAttrString` 读回
-3. 路径中的反斜杠在JS里要写 `\\`（如 `D:\\无尽的拉格朗日\\dumped`）
+3. 路径中的反斜杠在JS里要写 `\\`（如 `E:\\星际猎人\\dumped`）
 4. Python代码不能有JS模板字符串的 `` ` `` 和 `${}` 冲突
 
 ---

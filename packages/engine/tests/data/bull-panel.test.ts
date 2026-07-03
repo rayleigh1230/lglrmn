@@ -64,14 +64,15 @@ test('斗牛级结构强化（仅科技串，不含巅峰/版本号）', async (
 
 test('斗牛级完整结构值 = 45948（科技串+抗冲击调校+巅峰+版本号）', async () => {
   const store = await getStore();
-  // 真实科技串 + 抗冲击8890(调校,需手动加) + 巅峰2745 + 版本号(98×40=3920)
+  // 真实科技串 + 抗冲击8890(调校,需手动加) + 巅峰5级(查cfg_ship_peak_level=2745) + 版本号(98×40=3920)
   const techWithAntiImpact = BULL_TECH_STR + '4050102,5,8890,1;';
   const bp = resolveBlueprint(store, '40501', techWithAntiImpact, {
-    peakStructureBonus: 2745,
+    peakLevel: 5,
     techPoints: 98,
   });
-  // 36040 × 1.09(龙骨4%+抗冲击5%) + 2745 + 3920 = 45948
+  // 36040 × 1.09(龙骨4%+抗冲击5%) + 2745(巅峰5龙骨) + 3920 = 45948
   assert.equal(bp.structureBonusPermille, 900, '龙骨4%+抗冲击5%=9%');
+  assert.equal(bp.peakStructureBonus, 2745, '巅峰5级龙骨结构加成=2745');
   assert.equal(bp.finalStructure, 45948, '完整结构值=45948(误差0)');
 });
 

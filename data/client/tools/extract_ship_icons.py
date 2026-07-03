@@ -1,7 +1,7 @@
 """提取舰种图标(icon_ship_type_*) + 探测舰船2D卡片图命名规则"""
 import frida, time, json, os
 
-OUT_DIR = r"F:\战斗模拟器\lglrmn\data\client\icons"
+OUT_DIR = r"E:\战斗模拟器\data\client\icons"
 OUT_DIR_FORWARD = OUT_DIR.replace("\\", "/")
 
 JS = r"""

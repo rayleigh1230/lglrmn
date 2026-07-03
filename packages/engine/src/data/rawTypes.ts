@@ -92,6 +92,17 @@ export interface RawSystemEnhance {
   ENHANCE_LIMIT_TAG?: number;
   /** 默认等级 */
   ENHANCE_DEFAULT_LEVEL?: number;
+  /** 效果类型（2=普通强化，3/5=巅峰附带调校）。仅 optIdx=31-43 的调校槽有值 */
+  EFFECT_TYPE?: number;
+  // ===== 调校槽（optIdx=31-43）专用字段 =====
+  /** 调校目标：被调校的强化项 optIdx（1-10） */
+  ADJUST_ENHANCE_INDEX?: number;
+  /** 调校各级成功率（10级，如 (100,100,100,90,80,70,60,50,25,15)） */
+  ADJUST_PROB?: number[];
+  /** 调校所需武器技术稀有度 */
+  ADJUST_RARITY?: number;
+  /** 调校武器技术类型限制（如 "6,3"） */
+  ADJUST_WEAPON_TECH_TYPE_LIMIT?: string;
   [k: string]: unknown;
 }
 
@@ -122,6 +133,14 @@ export interface ClientDataStore {
   weaponPriority: Record<string, unknown[]>;
   /** 模块效果表 */
   moduleEffect: Record<string, Record<string, unknown>>;
+  /** 舰船巅峰等级表: key = shipId(5) + peakLv(2), value = [强化串, 70号调校解锁串] */
+  shipPeakLevel?: Record<string, [string, string]>;
+  /** 巅峰等级经验阈值表: key = 巅峰等级(1-19), value = [等级, 累计经验] */
+  blueprintPeakLevel?: Record<string, [number, number]>;
+  /** 巅峰等级授权表: key = 蓝图ID+路线, 含开启条件道具+任务ID */
+  peakLevelAuth?: Record<string, unknown[]>;
+  /** 系统技能表(调校候选): 调校三步链可能藏此表 */
+  systemSkill?: Record<string, Record<string, unknown>>;
 }
 
 // ===== cfg_ship_type.json（舰种表）=====

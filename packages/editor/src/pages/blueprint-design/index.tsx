@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { View, Text } from "@tarojs/components";
+import { useMemo, useState } from "react";
+import { View, Text, Image } from "@tarojs/components";
 import Taro, { useRouter } from "@tarojs/taro";
 import { useEditorData } from "../../state/useEditorData";
 import {
@@ -8,6 +8,7 @@ import {
   getShipSystems,
   CATEGORY_COLOR,
 } from "../../data/blueprintSelector";
+import { shipThumbnailIcon, peakIcon, prefixIcon, iconUrl } from "../../data/iconResolver";
 import "./index.css";
 
 export default function BlueprintDesign() {
@@ -15,10 +16,17 @@ export default function BlueprintDesign() {
   const bpId = (router.params.bpId || "") as string;
   const { store, loading, error } = useEditorData();
 
+  // 巅峰等级（本地状态，0-20，+/- 按钮调节）
+  const [peakLevel, setPeakLevel] = useState(0);
+  // 启用的可选模块（超主力舰模块选择）
+  const [enabledSlots, setEnabledSlots] = useState<string[]>([]);
+  // 下拉框展开状态（哪个GROUP展开）
+  const [dropdownOpen, setDropdownOpen] = useState("");
+
   const panel = useMemo(() => {
     if (!store) return null;
-    return getShipPanel(store, bpId);
-  }, [store, bpId]);
+    return getShipPanel(store, bpId, peakLevel, enabledSlots);
+  }, [store, bpId, peakLevel, enabledSlots]);
 
   const variants = useMemo(() => {
     if (!store) return [];
@@ -27,12 +35,81 @@ export default function BlueprintDesign() {
 
   const systems = useMemo(() => {
     if (!store || !panel) return [];
-    return getShipSystems(store, panel.shipId);
-  }, [store, panel]);
+    return getShipSystems(store, panel.shipId, enabledSlots);
+  }, [store, panel, enabledSlots]);
 
-  const onBack = () => Taro.navigateBack();
+  // 按GROUP统一分组(含固定+可选)，同组2+成员的可切换
+  const moduleGroups = useMemo(() => {
+    const letterMap: Record<number, string> = { 101: "M", 102: "A", 201: "B", 202: "C", 203: "D", 204: "E" };
+    const groups: Record<string, { key: string; letter: string; options: typeof systems }> = {};
+    for (const sys of systems) {
+      if (sys.group === null) continue;
+      const key = String(sys.group);
+      if (!groups[key]) {
+        groups[key] = { key, letter: letterMap[sys.group] ?? "", options: [] };
+      }
+      groups[key].options.push(sys);
+    }
+    // 只保留有2+成员(需切换)的组
+    return Object.values(groups).filter((g) => g.options.length > 1).sort((a, b) => a.letter.localeCompare(b.letter));
+  }, [systems]);
+
+  // 统一槽位列表: 单成员系统用fixed卡片, 多成员组用group弹出
+  const moduleSlots = useMemo(() => {
+    type Slot = { type: "fixed"; system: typeof systems[0] } | { type: "group"; group: typeof moduleGroups[0] };
+    const slots: Slot[] = [];
+    const usedGroupKeys = new Set<string>();
+    const multiGroupKeys = new Set(moduleGroups.map((g) => g.key));
+    for (const sys of systems) {
+      const gk = sys.group !== null ? String(sys.group) : null;
+      if (gk && multiGroupKeys.has(gk)) {
+        // 多成员组: 只在首次遇到时加入
+        if (!usedGroupKeys.has(gk)) {
+          usedGroupKeys.add(gk);
+          const grp = moduleGroups.find((g) => g.key === gk);
+          if (grp) slots.push({ type: "group", group: grp });
+        }
+      } else {
+        // 单成员: 固定卡片
+        slots.push({ type: "fixed", system: sys });
+      }
+    }
+    return slots;
+  }, [systems, moduleGroups]);
+
+  // 切换可选模块：同 GROUP 互斥（选一个自动取消同组其他）
+  const toggleModule = (sys: { systemId: string; group: number | null; isAdditional: boolean }) => {
+    if (!sys.isAdditional) return;
+    setEnabledSlots((prev) => {
+      const enabledSet = new Set(prev);
+      if (enabledSet.has(sys.systemId)) {
+        // 已启用 → 取消
+        enabledSet.delete(sys.systemId);
+      } else {
+        // 未启用 → 启用，同 GROUP 互斥（取消同组其他）
+        if (sys.group !== null) {
+          for (const s of systems) {
+            if (s.group === sys.group && s.isAdditional && s.systemId !== sys.systemId) {
+              enabledSet.delete(s.systemId);
+            }
+          }
+        }
+        enabledSet.add(sys.systemId);
+      }
+      return Array.from(enabledSet);
+    });
+  };
+
+  const onBack = () => {
+    Taro.navigateBack({
+      fail: () => {
+        // 无历史记录时(如直接URL打开)，跳回舰船列表
+        Taro.reLaunch({ url: "/pages/ship-list/index" });
+      },
+    });
+  };
   const onVariantClick = (id: string) => {
-    Taro.redirectTo({ url: `/pages/blueprint-design/index?bpId=${id}` });
+    Taro.navigateTo({ url: `/pages/blueprint-design/index?bpId=${id}` });
   };
 
   if (loading) {
@@ -61,17 +138,34 @@ export default function BlueprintDesign() {
       </View>
 
       <View className="bp-scroll">
-        {/* 第一排: 舰船名 + 型号名 */}
+        {/* 第一排: 舰船缩略图 + 舰船名 + 型号名 */}
         <View className="bp-header">
-          <Text className="bp-header__ship">{panel.shipName}</Text>
-          <Text className="bp-header__sub">{panel.subTypeName}</Text>
+          {(() => {
+            const thumb = shipThumbnailIcon(panel.shipId);
+            return thumb ? <Image className="bp-header__thumb" src={thumb} mode="aspectFit" /> : null;
+          })()}
+          <View className="bp-header__text">
+            <Text className="bp-header__ship">{panel.shipName}</Text>
+            <Text className="bp-header__sub">{panel.subTypeName}</Text>
+          </View>
         </View>
 
         {/* 第二排: 巅峰等级 / 型号数 / 技术值版本 */}
         <View className="bp-row2">
           <View className="bp-badge bp-badge--peak">
+            <Image className="bp-badge__peakicon" src={peakIcon("icon_peak_m.png")} mode="aspectFit" />
             <Text className="bp-badge__label">巅峰等级</Text>
-            <Text className="bp-badge__value">0</Text>
+            <View className="bp-badge__row">
+              <Text
+                className="bp-badge__btn"
+                onClick={() => setPeakLevel((v) => Math.max(0, v - 1))}
+              >−</Text>
+              <Text className="bp-badge__value">{peakLevel}</Text>
+              <Text
+                className="bp-badge__btn"
+                onClick={() => setPeakLevel((v) => Math.min(20, v + 1))}
+              >+</Text>
+            </View>
           </View>
           <View className="bp-badge bp-badge--variant">
             <Text className="bp-badge__label">型号</Text>
@@ -137,7 +231,7 @@ export default function BlueprintDesign() {
           <View className="bp-stat">
             <Text className="bp-stat__label">护盾值</Text>
             <Text className="bp-stat__value">
-              {panel.panel.shield > 0 ? Math.round(panel.panel.shield * 100) + "%" : "—"}
+              {panel.panel.shield > 0 ? panel.panel.shield + "%" : "—"}
             </Text>
           </View>
           <View className="bp-stat">
@@ -147,39 +241,99 @@ export default function BlueprintDesign() {
           <View className="bp-stat">
             <Text className="bp-stat__label">曲率速度</Text>
             <Text className="bp-stat__value">
-              {panel.panel.curvatureSpeedBonus > 0
-                ? "+" + (panel.panel.curvatureSpeedBonus / 100).toFixed(1) + "%"
+              {panel.panel.curvatureSpeed > 0
+                ? panel.panel.curvatureSpeed.toLocaleString()
                 : "—"}
             </Text>
           </View>
+          {panel.panel.repairEfficiency > 0 && (
+            <View className="bp-stat">
+              <Text className="bp-stat__label">维修效率</Text>
+              <Text className="bp-stat__value">
+                +{(panel.panel.repairEfficiency / 100).toFixed(1)}%
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* 系统加点状态 */}
+        {/* 系统模块: 图标网格(固定系统 + 可选模块选中态) */}
         <View className="bp-section">
-          <Text className="bp-section__title">系统强化</Text>
-          <View className="bp-systems">
-            {systems.map((sys) => (
-              <View key={sys.systemId} className="bp-sys">
-                <Text className="bp-sys__name">{sys.name}</Text>
-                <View className="bp-sys__slots">
-                  {Array.from({ length: Math.max(sys.enhanceLimit, 1) }).map((_, i) => (
-                    <View
-                      key={i}
-                      className={`bp-sys__slot ${
-                        i < sys.enhanceLimit ? "bp-sys__slot--empty" : ""
-                      }`}
-                    />
-                  ))}
-                  {sys.enhanceLimit === 0 && (
-                    <Text className="bp-sys__noslots">无强化</Text>
+          <Text className="bp-section__title">系统模块</Text>
+          <View className="bp-sysgrid">
+            {moduleSlots.map((slot) => {
+              // 固定系统: 直接显示
+              if (slot.type === "fixed") {
+                const sys = slot.system;
+                const icon = sys.prefix ? prefixIcon(sys.prefix) : "";
+                return (
+                  <View key={sys.systemId} className="bp-syscard">
+                    {sys.moduleId && <Text className="bp-syscard__tag">{sys.moduleId}</Text>}
+                    {icon ? (
+                      <Image className="bp-syscard__icon" src={icon} mode="aspectFit" />
+                    ) : (
+                      <Image className="bp-syscard__icon bp-syscard__icon--empty" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
+                    )}
+                    <View className="bp-syscard__slots">
+                      {Array.from({ length: Math.max(sys.enhanceLimit, 0) }).map((_, i) => (
+                        <View key={i} className="bp-syscard__slot" />
+                      ))}
+                      {sys.enhanceLimit === 0 && <Text className="bp-syscard__noslots">—</Text>}
+                    </View>
+                  </View>
+                );
+              }
+              // 可选模块组: 显示选中模块图标, 点击在图标上方竖排展开
+              const group = slot.group;
+              const selected = group.options.find((o) => o.enabled);
+              const isOpen = dropdownOpen === group.key;
+              return (
+                <View key={group.key} className="bp-syscard-wrap">
+                  {/* 展开的选项(在图标上方竖排) */}
+                  {isOpen && (
+                    <View className="bp-syspop">
+                      {group.options.map((opt) => {
+                        const optIcon = opt.prefix ? prefixIcon(opt.prefix) : "";
+                        return (
+                          <View
+                            key={opt.systemId}
+                            className={`bp-syspop__item ${opt.enabled ? "bp-syspop__item--active" : ""}`}
+                            onClick={() => { toggleModule(opt); setDropdownOpen(""); }}
+                          >
+                            {optIcon ? (
+                              <Image className="bp-syspop__icon" src={optIcon} mode="aspectFit" />
+                            ) : (
+                              <Image className="bp-syspop__icon" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
+                            )}
+                            <Text className="bp-syspop__name">{opt.name}</Text>
+                          </View>
+                        );
+                      })}
+                    </View>
                   )}
+                  {/* 当前选中模块图标(和固定系统同样式) */}
+                  <View
+                    className={`bp-syscard ${isOpen ? "bp-syscard--popup" : ""}`}
+                    onClick={() => setDropdownOpen(isOpen ? "" : group.key)}
+                  >
+                    <Text className="bp-syscard__tag">{group.letter}</Text>
+                    {selected && selected.prefix ? (
+                      <Image className="bp-syscard__icon" src={prefixIcon(selected.prefix)} mode="aspectFit" />
+                    ) : (
+                      <Image className="bp-syscard__icon bp-syscard__icon--empty" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
+                    )}
+                    <View className="bp-syscard__slots">
+                      {selected ? Array.from({ length: Math.max(selected.enhanceLimit, 0) }).map((_, i) => (
+                        <View key={i} className="bp-syscard__slot" />
+                      )) : <Text className="bp-syscard__noslots">+</Text>}
+                    </View>
+                  </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 
-        <View style={{ height: "100px" }} />
+        <View style={{ height: "20px" }} />
       </View>
 
       {/* 底部型号切换栏 */}

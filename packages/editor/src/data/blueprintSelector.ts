@@ -6,7 +6,7 @@
  *   只有白名单内的 bpId 才显示，分类(舰型)也以白名单为准，不再靠关键词推断。
  */
 import type { ClientDataStore } from "@lagrange/engine";
-import { resolveAssembly, resolveBlueprintPanel } from "@lagrange/engine";
+import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint } from "@lagrange/engine";
 import type { BlueprintPanel } from "@lagrange/engine";
 
 // ===== 舰型分类(顺序即底部图标栏顺序) =====
@@ -174,8 +174,11 @@ export interface ShipPanelData {
   panel: BlueprintPanel;
 }
 
-/** 取舰船面板数据（含火力/属性，走蓝图计算层） */
-export function getShipPanel(store: ClientDataStore, bpId: string): ShipPanelData | null {
+/** 取舰船面板数据（含火力/属性，走蓝图计算层）
+ *  @param peakLevel 巅峰等级（0-20），提供后聚合巅峰加成（结构/移速）
+ *  @param enabledSlots 启用的可选模块 systemId 列表（影响武器装配/属性计算）
+ */
+export function getShipPanel(store: ClientDataStore, bpId: string, peakLevel: number = 0, enabledSlots: string[] = []): ShipPanelData | null {
   const whitelist = (store as any).shipWhitelist ?? _whitelist;
   const entry = whitelist?.[bpId];
   if (!entry) return null;
@@ -186,8 +189,11 @@ export function getShipPanel(store: ClientDataStore, bpId: string): ShipPanelDat
   const subType = String(bpRow?.[5] ?? "");
   const shipName = subType ? fullName.replace(new RegExp("-" + subType + "$"), "") : fullName;
 
-  // 调用蓝图计算层（无强化状态，传 null 算基础面板）
-  const panel = resolveBlueprintPanel(store, entry.shipId, shipName, null);
+  // 调用蓝图计算层：巅峰等级 > 0 时聚合巅峰加成（结构/移速），否则基础面板
+  const blueprint = peakLevel > 0
+    ? resolveBlueprint(store, entry.shipId, "", { peakLevel })
+    : null;
+  const panel = resolveBlueprintPanel(store, entry.shipId, shipName, blueprint, enabledSlots);
 
   return {
     bpId,
@@ -227,32 +233,106 @@ export function getVariants(store: ClientDataStore, bpId: string): ShipVariant[]
 }
 
 export interface ShipSystemInfo {
-  systemId: string;
-  name: string;          // 系统名(中排指挥系统/装甲系统等)
-  label: string;         // 系统类型(火炮/装甲/动力/能源/指挥)
-  enhanceLimit: number;  // 强化项上限
-  isMain: boolean;       // 是否主系统
+  systemId: string;       // 7位系统ID
+  name: string;           // 系统名
+  label: string;          // 系统类型(火炮/装甲/动力/能源/指挥)
+  enhanceLimit: number;   // 强化项上限
+  isMain: boolean;        // 是否主系统
+  group: number | null;   // GROUP (101=主武器M, 102=副武器A, 201=特种B, 202=附加C, 103-106=固定)
+  isAdditional: boolean;  // 是否可选模块(ADDITIONAL_SYS=1, 超主力舰可选装配)
+  moduleId: string;       // 模块标识符(M1/A1/B1等, 固定系统为空)
+  prefix: number;         // SYSTEM_EFFECT_PREFIX(取图标用, 0=无强化/无图标)
+  enabled: boolean;       // ★是否当前启用(固定系统恒true, 可选模块由enabledSlots决定)
 }
 
-/** 取舰船的所有子系统(用于加点状态展示) */
-export function getShipSystems(store: ClientDataStore, shipId: string): ShipSystemInfo[] {
+/** GROUP → 标识字母映射 (超主力舰模块组) */
+function groupToLetter(group: number | null): string {
+  if (group === null) return "";
+  // 101=M(主武器), 102=A(副武器), 201=B(特种), 202=C(附加装甲)
+  const map: Record<number, string> = { 101: "M", 102: "A", 201: "B", 202: "C", 203: "D", 204: "E" };
+  return map[group] ?? "";
+}
+
+/** 取舰船的所有子系统(用于系统模块展示)
+ *  @param enabledSlots 启用的可选模块 systemId 列表（固定系统恒启用，可选模块按此清单）
+ */
+export function getShipSystems(store: ClientDataStore, shipId: string, enabledSlots: string[] = []): ShipSystemInfo[] {
   const sys = store.shipSystem as Record<string, any> | undefined;
+  const enhance = store.systemEnhance as Record<string, any> | undefined;
   if (!sys) return [];
-  const result: ShipSystemInfo[] = [];
+
+  // 先按 GROUP 分组，确定组内序号
+  const byGroup: Record<string, ShipSystemInfo[]> = {};
+  const allSystems: ShipSystemInfo[] = [];
+  const enabledSet = new Set(enabledSlots);
+
   for (const k in sys) {
     if (!k.startsWith(shipId)) continue;
     const s = sys[k];
-    result.push({
+    const group = s.GROUP != null ? Number(s.GROUP) : null;
+    const isAdditional = Number(s.ADDITIONAL_SYS ?? 0) === 1;
+
+    // 取 PREFIX（optIdx=01 的 enhance 记录）
+    let prefix = 0;
+    if (enhance) {
+      const enhKey = k + "01";
+      const enh = enhance[enhKey];
+      if (enh) prefix = Number(enh.SYSTEM_EFFECT_PREFIX ?? 0);
+    }
+
+    // enabled: 固定系统恒启用，可选模块按 enabledSlots
+    const enabled = !isAdditional || enabledSet.has(k);
+
+    const info: ShipSystemInfo = {
       systemId: k,
       name: String(s.NAME ?? ""),
       label: String(s.SYSTEM_LABEL ?? ""),
       enhanceLimit: Number(s.ENHANCEMENTS_LIMIT ?? 0),
       isMain: Boolean(s.MAIN_SYSTEM),
-    });
+      group,
+      isAdditional,
+      moduleId: "",
+      prefix,
+      enabled,
+    };
+
+    // 按 GROUP 分组(固定系统 group=103-106 各自成组)
+    const gKey = group != null ? String(group) : k;
+    if (!byGroup[gKey]) byGroup[gKey] = [];
+    byGroup[gKey].push(info);
+    allSystems.push(info);
   }
-  // 主系统排前面, 同类型按id排序
-  return result.sort((a, b) => {
-    if (a.isMain !== b.isMain) return a.isMain ? -1 : 1;
+
+  // 为每个系统生成模块标识符(组内序号)
+  for (const gKey in byGroup) {
+    const group = Number(gKey);
+    const items = byGroup[gKey].sort((a, b) => a.systemId.localeCompare(b.systemId));
+    const letter = groupToLetter(group);
+    if (letter) {
+      // 超主力模块组: M1/M2/M3, A1/A2...
+      items.forEach((item, i) => {
+        item.moduleId = letter + (i + 1);
+      });
+    }
+    // 固定系统(103-106)无标识符
+  }
+
+  // 排序: 主武器(101) → 副武器(102) → 特种(201) → 附加(202) → 固定(103-106)
+  const groupOrder = (g: number | null) => {
+    if (g === 101) return 0;
+    if (g === 102) return 1;
+    if (g === 201) return 2;
+    if (g === 202) return 3;
+    if (g === 103) return 4;
+    if (g === 104) return 5;
+    if (g === 105) return 6;
+    if (g === 106) return 7;
+    return 99;
+  };
+  return allSystems.sort((a, b) => {
+    const ga = groupOrder(a.group);
+    const gb = groupOrder(b.group);
+    if (ga !== gb) return ga - gb;
     return a.systemId.localeCompare(b.systemId);
   });
 }

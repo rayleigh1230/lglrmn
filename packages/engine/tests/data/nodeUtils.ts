@@ -42,6 +42,10 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
     ['weaponAction', 'cfg_weapon_action.json'],
     ['weaponPriority', 'cfg_weapon_priority.json'],
     ['moduleEffect', 'cfg_module_effect.json'],
+    ['shipPeakLevel', 'cfg_ship_peak_level.json'],
+    ['blueprintPeakLevel', 'cfg_blueprint_peak_level.json'],
+    ['peakLevelAuth', 'cfg_peak_level_auth.json'],
+    ['systemSkill', 'cfg_system_skill.json'],
   ] as const) {
     try {
       (parts as Record<string, unknown>)[key] = read(dir, file);

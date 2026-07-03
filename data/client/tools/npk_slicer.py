@@ -15,7 +15,7 @@ import struct
 import os
 import sys
 
-NPK_PATH = r"D:\无尽的拉格朗日\script.npk"
+NPK_PATH = r"E:\星际猎人\script.npk"
 
 # 战斗/命中/伤害相关的目标模块路径 (优先解密这些)
 TARGET_MODULES = [

@@ -34,6 +34,11 @@ export interface ClientDataParts {
   weaponAction?: Record<string, unknown[]>;
   weaponPriority?: Record<string, unknown[]>;
   moduleEffect?: Record<string, Record<string, unknown>>;
+  /** 扩展表: 巅峰等级/调校系统(可选) */
+  shipPeakLevel?: Record<string, [string, string]>;
+  blueprintPeakLevel?: Record<string, [number, number]>;
+  peakLevelAuth?: Record<string, unknown[]>;
+  systemSkill?: Record<string, Record<string, unknown>>;
 }
 
 /**
@@ -56,5 +61,9 @@ export function createClientData(parts: ClientDataParts): ClientDataStore {
     weaponAction: parts.weaponAction ?? {},
     weaponPriority: parts.weaponPriority ?? {},
     moduleEffect: parts.moduleEffect ?? {},
+    shipPeakLevel: parts.shipPeakLevel,
+    blueprintPeakLevel: parts.blueprintPeakLevel,
+    peakLevelAuth: parts.peakLevelAuth,
+    systemSkill: parts.systemSkill,
   };
 }

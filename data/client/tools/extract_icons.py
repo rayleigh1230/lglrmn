@@ -13,7 +13,7 @@
 """
 import frida, time, json, os
 
-OUT_DIR = r"F:\战斗模拟器\lglrmn\data\client\icons"
+OUT_DIR = r"E:\战斗模拟器\data\client\icons"
 
 # OUT_DIR 注入: 转成正斜杠避免转义地狱, 用占位符末尾替换
 OUT_DIR_FORWARD = OUT_DIR.replace('\\', '/')

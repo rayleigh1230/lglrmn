@@ -28,6 +28,7 @@
 import type { ClientDataStore, RawSystemEffect } from './rawTypes.js';
 import { SHIP } from './rawTypes.js';
 import { parseTechString, type TechModule } from './techString.js';
+import { computePeakBonus } from './peakLevel.js';
 
 /** 万分比基数（A类 PARAM / PERMILLE = 百分比） */
 const PERMILLE = 10000;
@@ -199,12 +200,21 @@ const EFFECT_CATEGORY: Record<number, string> = {
  *   主力舰（护卫20/驱逐40/巡洋60）有值，超主力舰（战巡/航母/战列）=0 不走此机制。
  *   若提供 techPoints + shipHpAdd，resolver 自动计算；也可直接提供 versionStructureBonus。
  *
- * 巅峰等级加成：公式尚未完全定位（≈ floor(版本号×0.7×巅峰等级/5)），
- * 暂由调用方直接提供 peakStructureBonus 绝对值。
+ * ★巅峰等级加成（2026-07-03 突破，见 peakLevel.ts）：
+ *   提供巅峰等级后，resolver 从 cfg_ship_peak_level 查强化快照，
+ *   查船级专属 effect 表 cfg_system_effect[slotId+"01"].EFFECT_PARAM_LEVEL 取各级数值：
+ *     - EFFECT_ID=12 龙骨结构增强（绝对值，每级都有）
+ *     - EFFECT_ID=14 引擎出力（常规移速，特定巅峰等级）
+ *     - EFFECT_ID=16 曲率引擎（曲率移速，特定巅峰等级）
+ *   例：ST59(shipId 60301)巅峰16级 = +52680结构（查603010101第16行）。
+ *   调校系统（70号槽）属独立系统，本次不实装。
  */
 export interface BlueprintOptions {
-  /** 巅峰等级结构加成（绝对值，如斗牛巅峰5 = 2745） */
-  peakStructureBonus?: number;
+  /**
+   * 巅峰等级（1-20）。提供后 resolver 自动从 cfg_ship_peak_level 聚合
+   * 结构绝对值加成和移速加成。无需手动算 peakStructureBonus。
+   */
+  peakLevel?: number;
   /** 版本号结构加成（绝对值，优先级最高，直接使用） */
   versionStructureBonus?: number;
   /** 技术值点数（用于自动计算版本号，需配合 shipHpAdd） */
@@ -247,10 +257,19 @@ export interface UnresolvedEffect {
 export interface ResolvedBlueprint {
   shipId: string;
   baseStructure: number;
-  /** 强化后结构值 = base×(1+Σ结构万分比/10000) + 巅峰/版本号绝对值加成 */
+  /** 强化后结构值 = base×(1+Σ结构万分比/10000) + 巅峰结构绝对值 + 版本号绝对值 */
   finalStructure: number;
   /** 结构强化的万分比合计（不含巅峰/版本号绝对值） */
   structureBonusPermille: number;
+
+  /** ★巅峰等级（0=无巅峰，1-20）。来自 BlueprintOptions.peakLevel */
+  peakLevel: number;
+  /** ★巅峰结构加成（绝对值，来自龙骨结构增强 EFFECT_ID=12，每级都有） */
+  peakStructureBonus: number;
+  /** ★巅峰常规移速加成（万分比，来自引擎出力 EFFECT_ID=14，特定巅峰等级） */
+  peakSpeedBonus: number;
+  /** ★巅峰曲率移速加成（万分比，来自曲率引擎 EFFECT_ID=16，特定巅峰等级） */
+  peakCurvatureSpeedBonus: number;
 
   /** 物理抵抗加成（绝对值，叠加到基础抵抗） */
   resistanceBonus: number;
@@ -318,6 +337,11 @@ export interface ResolvedBlueprint {
   focusFire: boolean;
   /** 系统自维修标记（是否具备自动维修能力） */
   hasAutoRepair: boolean;
+
+  /** ★维修效率提升（万分比，来自 EFFECT_ID=12050/12249） */
+  repairEfficiencyBonus: number;
+  /** ★损坏后自动维修触发（EFFECT_ID=12250，区别于效率提升） */
+  hasDamageRepair: boolean;
 
   /** 全部解析出的效果（含已实现与未实现） */
   effects: ResolvedEffect[];
@@ -491,7 +515,9 @@ export function resolveBlueprint(
   let flightTimeReduction = 0;
   let focusFire = false;
   let hasAutoRepair = false;
-
+  // 维修类
+  let repairEfficiencyBonus = 0; // 维修效率提升（万分比，12050/12249）
+  let hasDamageRepair = false; // 损坏后自动维修触发（12250）
   for (const tech of modules) {
     const lookup = lookupEffect(store, tech);
     if (!lookup) {
@@ -694,6 +720,19 @@ export function resolveBlueprint(
         hasAutoRepair = true;
         effects.push(resolved);
         break;
+      case 12050: // 系统维修效果提升（A类，PARAM_LEVEL查表，值为百分比）
+        // PARAM_LEVEL 如 "1,2;2,4;...;5,10"，value 已按 level 查表（如 lv3=6）
+        repairEfficiencyBonus += lookup.value * 100; // % → 万分比
+        effects.push(resolved);
+        break;
+      case 12249: // 系统自维修强化（B类，PARAM=25，提升维修效率25%）
+        repairEfficiencyBonus += lookup.value * 100; // % → 万分比
+        effects.push(resolved);
+        break;
+      case 12250: // 系统损毁后自动维修（触发型机制，非效率提升）
+        hasDamageRepair = true;
+        effects.push(resolved);
+        break;
 
       default:
         // 检查是否为"系统内伤害提升"类（无EFFECT_ID，靠DESC识别）
@@ -710,9 +749,15 @@ export function resolveBlueprint(
     }
   }
 
-  // 结构值 = base×(1+Σ万分比/10000) + 巅峰绝对值 + 版本号绝对值
+  // ★巅峰等级加成（从 cfg_ship_peak_level 聚合，EFFECT_ID=12/14/16）
+  const peakLevel = options?.peakLevel ?? 0;
+  const peakBonus = computePeakBonus(store, shipId, peakLevel);
+  // 巅峰移速加成叠加到普通移速加成（均为万分比）
+  speedBonus += peakBonus.speedBonus;
+  curvatureSpeedBonus += peakBonus.curvatureSpeedBonus;
+
+  // 结构值 = base×(1+Σ万分比/10000) + 巅峰结构绝对值 + 版本号绝对值
   // 用 floor（向下取整）：36040×1.09=39283.6 → 39283（游戏面板行为）
-  const peakBonus = options?.peakStructureBonus ?? 0;
   // 版本号计算优先级：
   //   1. 直接提供 versionStructureBonus
   //   2. 提供 techPoints + shipHpAdd → techPoints × shipHpAdd
@@ -722,13 +767,17 @@ export function resolveBlueprint(
     const shipHpAdd = options.shipHpAdd ?? lookupShipHpAdd(store, shipId);
     versionBonus = options.techPoints * shipHpAdd;
   }
-  const finalStructure = Math.floor(baseStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus + versionBonus;
+  const finalStructure = Math.floor(baseStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus.structureAbsolute + versionBonus;
 
   return {
     shipId,
     baseStructure,
     finalStructure,
     structureBonusPermille,
+    peakLevel,
+    peakStructureBonus: peakBonus.structureAbsolute,
+    peakSpeedBonus: peakBonus.speedBonus,
+    peakCurvatureSpeedBonus: peakBonus.curvatureSpeedBonus,
     resistanceBonus,
     hitBonusByTargetClass,
     hitBonus,
@@ -759,6 +808,8 @@ export function resolveBlueprint(
     flightTimeReduction,
     focusFire,
     hasAutoRepair,
+    repairEfficiencyBonus,
+    hasDamageRepair,
     effects,
     unresolved,
   };
