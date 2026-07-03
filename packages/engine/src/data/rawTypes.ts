@@ -126,6 +126,7 @@ export interface ClientDataStore {
 
 // ===== cfg_ship_type.json（舰种表）=====
 // 格式：{ ship_type: [name, desc, ...字段, ship_hp_add, ...] }
+// 关键字段 [8] = 抵抗基础值（护卫/驱逐/巡洋=10，战巡/航母/战列=5）
 // 关键字段 [9] = SHIP_HP_ADD（每技术值点的结构加成，版本号计算用）
 export type RawShipTypeRow = [
   string, // [0] name 舰种名
@@ -136,7 +137,7 @@ export type RawShipTypeRow = [
   number, // [5] ?
   number, // [6] ?
   number, // [7] ?
-  number, // [8] ship_system_hp_add
+  number, // [8] ★抵抗基础值（护卫10/战巡5）
   number, // [9] ★ship_hp_add（每技术值点的结构加成）
   number, // [10] ?
 ];

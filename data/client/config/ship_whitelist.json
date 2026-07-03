@@ -1,0 +1,1354 @@
+{
+  "10201": {
+    "category": "战机",
+    "shipId": "10201",
+    "name": "SC002型-量子侦察机-通用型",
+    "role": "通用型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "10701": {
+    "category": "战机",
+    "shipId": "10701",
+    "name": "砂龙-大气层拦截机-两栖型",
+    "role": "两栖型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "10801": {
+    "category": "战机",
+    "shipId": "10801",
+    "name": "牛蛙型-两栖轰炸机-攻城型",
+    "role": "攻城型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "10901": {
+    "category": "战机",
+    "shipId": "10901",
+    "name": "林鸮A100型-联合攻击机-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "11201": {
+    "category": "战机",
+    "shipId": "11201",
+    "name": "追随者型-战斗攻击机-特种型",
+    "role": "特种型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "11301": {
+    "category": "战机",
+    "shipId": "11301",
+    "name": "海氏追随者型-脉冲战斗机-特种型",
+    "role": "特种型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "11401": {
+    "category": "战机",
+    "shipId": "11401",
+    "name": "平衡安德森SC020-侦察机-干扰型",
+    "role": "干扰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "11501": {
+    "category": "战机",
+    "shipId": "11501",
+    "name": "维塔斯A021-重型攻击机-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "11601": {
+    "category": "战机",
+    "shipId": "11601",
+    "name": "维塔斯-B010-轰炸机-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "11701": {
+    "category": "战机",
+    "shipId": "11701",
+    "name": "B192新大地-重型攻击机-多功能型",
+    "role": "多功能型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "11801": {
+    "category": "战机",
+    "shipId": "11801",
+    "name": "孢子A404-轻型战斗机-对空型",
+    "role": "对空型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "11901": {
+    "category": "战机",
+    "shipId": "11901",
+    "name": "刺鳐-鱼雷轰炸机-隐身型",
+    "role": "隐身型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12001": {
+    "category": "战机",
+    "shipId": "12001",
+    "name": "佩刀Aer410-强击攻击机-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12401": {
+    "category": "战机",
+    "shipId": "12401",
+    "name": "米斯特拉-战斗攻击机-对空型",
+    "role": "对空型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12501": {
+    "category": "战机",
+    "shipId": "12501",
+    "name": "AT021-脉冲攻击机-脉冲型",
+    "role": "脉冲型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12502": {
+    "category": "战机",
+    "shipId": "12502",
+    "name": "AT021-脉冲攻击机-干扰型",
+    "role": "干扰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12503": {
+    "category": "战机",
+    "shipId": "12503",
+    "name": "AT021-脉冲攻击机-多功能型",
+    "role": "多功能型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12601": {
+    "category": "战机",
+    "shipId": "12601",
+    "name": "BR050-标准轰炸机-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12602": {
+    "category": "战机",
+    "shipId": "12602",
+    "name": "BR050-标准轰炸机-防御型",
+    "role": "防御型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12603": {
+    "category": "战机",
+    "shipId": "12603",
+    "name": "BR050-标准轰炸机-鱼雷型",
+    "role": "鱼雷型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12801": {
+    "category": "战机",
+    "shipId": "12801",
+    "name": "雷火V022-战斗机-防空型",
+    "role": "防空型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12802": {
+    "category": "战机",
+    "shipId": "12802",
+    "name": "雷火V022-战斗机-特种型",
+    "role": "特种型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "12803": {
+    "category": "战机",
+    "shipId": "12803",
+    "name": "雷火V022-战斗机-干扰型",
+    "role": "干扰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "15701": {
+    "category": "战机",
+    "shipId": "15701",
+    "name": "天璇级-轻型战斗机-干扰型",
+    "role": "干扰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "15702": {
+    "category": "战机",
+    "shipId": "15702",
+    "name": "天璇级-轻型战斗机-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "20301": {
+    "category": "护航艇",
+    "shipId": "20301",
+    "name": "鳐-装甲护航艇-高速型",
+    "role": "高速型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "20302": {
+    "category": "护航艇",
+    "shipId": "20302",
+    "name": "鳐-装甲护航艇-特种型",
+    "role": "特种型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "20401": {
+    "category": "护航艇",
+    "shipId": "20401",
+    "name": "CV-II003型-轻型护航艇-多功能型",
+    "role": "多功能型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "20701": {
+    "category": "护航艇",
+    "shipId": "20701",
+    "name": "RB7-13型-导弹艇-攻击型",
+    "role": "攻击型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "20702": {
+    "category": "护航艇",
+    "shipId": "20702",
+    "name": "RB7-13型-导弹艇-突防型",
+    "role": "突防型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "20801": {
+    "category": "护航艇",
+    "shipId": "20801",
+    "name": "蜂巢守卫者-重型鱼雷艇-多功能型",
+    "role": "多功能型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "20901": {
+    "category": "护航艇",
+    "shipId": "20901",
+    "name": "星云追逐者-重型护航艇-弹炮型",
+    "role": "弹炮型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "20902": {
+    "category": "护航艇",
+    "shipId": "20902",
+    "name": "星云追逐者-重型护航艇-脉冲型",
+    "role": "脉冲型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21001": {
+    "category": "护航艇",
+    "shipId": "21001",
+    "name": "虚灵-隐身导弹艇-攻击型",
+    "role": "攻击型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21101": {
+    "category": "护航艇",
+    "shipId": "21101",
+    "name": "CV-M011型-重型导弹艇-导弹型",
+    "role": "导弹型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21102": {
+    "category": "护航艇",
+    "shipId": "21102",
+    "name": "CV-M011型-重型导弹艇-火炮型",
+    "role": "火炮型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21103": {
+    "category": "护航艇",
+    "shipId": "21103",
+    "name": "CV-M011型-重型导弹艇-高速型",
+    "role": "高速型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21301": {
+    "category": "护航艇",
+    "shipId": "21301",
+    "name": "CV-T800型-脉冲炮艇-对空型",
+    "role": "对空型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21401": {
+    "category": "护航艇",
+    "shipId": "21401",
+    "name": "S-列维9号-重型鱼雷艇-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "往返式"
+  },
+  "21501": {
+    "category": "护航艇",
+    "shipId": "21501",
+    "name": "海尔波普-支援护航艇-多功能型",
+    "role": "多功能型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21502": {
+    "category": "护航艇",
+    "shipId": "21502",
+    "name": "海尔波普-支援护航艇-对接型",
+    "role": "对接型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "21601": {
+    "category": "护航艇",
+    "shipId": "21601",
+    "name": "坦普尔1号-信息护航艇-干扰型",
+    "role": "干扰型",
+    "rowIdx": 0,
+    "rowLabel": "信息战"
+  },
+  "21602": {
+    "category": "护航艇",
+    "shipId": "21602",
+    "name": "坦普尔1号-信息护航艇-预警型",
+    "role": "预警型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "22101": {
+    "category": "护航艇",
+    "shipId": "22101",
+    "name": "索姆河之影-装甲飞行坦克-重炮型",
+    "role": "重炮型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "22201": {
+    "category": "护航艇",
+    "shipId": "22201",
+    "name": "天玑-重型护航艇-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "22202": {
+    "category": "护航艇",
+    "shipId": "22202",
+    "name": "天玑-重型护航艇-攻击型",
+    "role": "攻击型",
+    "rowIdx": 0,
+    "rowLabel": "独立式"
+  },
+  "30101": {
+    "category": "护卫舰",
+    "shipId": "30101",
+    "name": "FG300型-多用途护卫舰-多功能型",
+    "role": "多功能型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30102": {
+    "category": "护卫舰",
+    "shipId": "30102",
+    "name": "FG300型-多用途护卫舰-装甲型",
+    "role": "装甲型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "30103": {
+    "category": "护卫舰",
+    "shipId": "30103",
+    "name": "FG300型-多用途护卫舰-侦察型",
+    "role": "侦察型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30201": {
+    "category": "护卫舰",
+    "shipId": "30201",
+    "name": "静海级-导弹护卫舰-综合型",
+    "role": "综合型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30202": {
+    "category": "护卫舰",
+    "shipId": "30202",
+    "name": "静海级-导弹护卫舰-脉冲型",
+    "role": "脉冲型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30203": {
+    "category": "护卫舰",
+    "shipId": "30203",
+    "name": "静海级-导弹护卫舰-防空型",
+    "role": "防空型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30301": {
+    "category": "护卫舰",
+    "shipId": "30301",
+    "name": "云海级-轻型登陆舰-突击型",
+    "role": "突击型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "30302": {
+    "category": "护卫舰",
+    "shipId": "30302",
+    "name": "云海级-轻型登陆舰-防空型",
+    "role": "防空型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30401": {
+    "category": "护卫舰",
+    "shipId": "30401",
+    "name": "刺水母级-战术护卫舰-特种型",
+    "role": "特种型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "30402": {
+    "category": "护卫舰",
+    "shipId": "30402",
+    "name": "刺水母级-战术护卫舰-防空型",
+    "role": "防空型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "30403": {
+    "category": "护卫舰",
+    "shipId": "30403",
+    "name": "刺水母级-战术护卫舰-登陆型",
+    "role": "登陆型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "30501": {
+    "category": "护卫舰",
+    "shipId": "30501",
+    "name": "红宝石级-重型护卫舰-轨道炮型",
+    "role": "轨道炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30502": {
+    "category": "护卫舰",
+    "shipId": "30502",
+    "name": "红宝石级-重型护卫舰-离子炮型",
+    "role": "离子炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30503": {
+    "category": "护卫舰",
+    "shipId": "30503",
+    "name": "红宝石级-重型护卫舰-防护型",
+    "role": "防护型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "30601": {
+    "category": "护卫舰",
+    "shipId": "30601",
+    "name": "诺玛330-轻型武装调查船-量产型",
+    "role": "量产型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30701": {
+    "category": "护卫舰",
+    "shipId": "30701",
+    "name": "诺玛M470级-重型登陆舰-攻城型",
+    "role": "攻城型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "30702": {
+    "category": "护卫舰",
+    "shipId": "30702",
+    "name": "诺玛M470级-重型登陆舰-支援型",
+    "role": "支援型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "30703": {
+    "category": "护卫舰",
+    "shipId": "30703",
+    "name": "诺玛M470级-重型登陆舰-防空型",
+    "role": "防空型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "30801": {
+    "category": "护卫舰",
+    "shipId": "30801",
+    "name": "卡利莱恩级-护卫舰-侦察型",
+    "role": "侦察型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "30802": {
+    "category": "护卫舰",
+    "shipId": "30802",
+    "name": "卡利莱恩级-护卫舰-重炮型",
+    "role": "重炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "30803": {
+    "category": "护卫舰",
+    "shipId": "30803",
+    "name": "卡利莱恩级-护卫舰-特种型",
+    "role": "特种型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "31201": {
+    "category": "护卫舰",
+    "shipId": "31201",
+    "name": "澄海级-重型护卫舰-对舰型",
+    "role": "对舰型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "31202": {
+    "category": "护卫舰",
+    "shipId": "31202",
+    "name": "澄海级-重型护卫舰-导弹型",
+    "role": "导弹型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "31203": {
+    "category": "护卫舰",
+    "shipId": "31203",
+    "name": "澄海级-重型护卫舰-防空型",
+    "role": "防空型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "31301": {
+    "category": "护卫舰",
+    "shipId": "31301",
+    "name": "雨海级-突击护卫舰-轨道炮型",
+    "role": "轨道炮型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "31302": {
+    "category": "护卫舰",
+    "shipId": "31302",
+    "name": "雨海级-突击护卫舰-脉冲型",
+    "role": "脉冲型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "31601": {
+    "category": "护卫舰",
+    "shipId": "31601",
+    "name": "雷里亚特级-快速鱼雷护卫舰-对舰型",
+    "role": "对舰型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "31602": {
+    "category": "护卫舰",
+    "shipId": "31602",
+    "name": "雷里亚特级-快速鱼雷护卫舰-鱼雷型",
+    "role": "鱼雷型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "31603": {
+    "category": "护卫舰",
+    "shipId": "31603",
+    "name": "雷里亚特级-快速鱼雷护卫舰-隐身型",
+    "role": "隐身型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "31801": {
+    "category": "护卫舰",
+    "shipId": "31801",
+    "name": "狼蜥级-护卫舰-防御型",
+    "role": "防御型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "31802": {
+    "category": "护卫舰",
+    "shipId": "31802",
+    "name": "狼蜥级-护卫舰-攻击型",
+    "role": "攻击型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "31803": {
+    "category": "护卫舰",
+    "shipId": "31803",
+    "name": "狼蜥级-护卫舰-特种型",
+    "role": "特种型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "31901": {
+    "category": "护卫舰",
+    "shipId": "31901",
+    "name": "锆石级-护卫舰-突击型",
+    "role": "突击型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "31902": {
+    "category": "护卫舰",
+    "shipId": "31902",
+    "name": "锆石级-护卫舰-特种型",
+    "role": "特种型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "32301": {
+    "category": "护卫舰",
+    "shipId": "32301",
+    "name": "瑶光级-护卫舰-通用型",
+    "role": "通用型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "32302": {
+    "category": "护卫舰",
+    "shipId": "32302",
+    "name": "瑶光级-护卫舰-特种型",
+    "role": "特种型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40101": {
+    "category": "驱逐舰",
+    "shipId": "40101",
+    "name": "AC721-重型运载驱逐舰-通用型",
+    "role": "通用型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "40102": {
+    "category": "驱逐舰",
+    "shipId": "40102",
+    "name": "AC721-重型运载驱逐舰-导弹型",
+    "role": "导弹型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40103": {
+    "category": "驱逐舰",
+    "shipId": "40103",
+    "name": "AC721-重型运载驱逐舰-离子炮型",
+    "role": "离子炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "40104": {
+    "category": "驱逐舰",
+    "shipId": "40104",
+    "name": "AC721-重型运载驱逐舰-载机型",
+    "role": "载机型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40105": {
+    "category": "驱逐舰",
+    "shipId": "40105",
+    "name": "AC721-重型运载驱逐舰-英雄舰",
+    "role": "英雄舰",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "40201": {
+    "category": "驱逐舰",
+    "shipId": "40201",
+    "name": "阋神星级-机动突击驱逐舰-火炮型",
+    "role": "火炮型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "40202": {
+    "category": "驱逐舰",
+    "shipId": "40202",
+    "name": "阋神星级-机动突击驱逐舰-重炮型",
+    "role": "重炮型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "40203": {
+    "category": "驱逐舰",
+    "shipId": "40203",
+    "name": "阋神星级-机动突击驱逐舰-装甲型",
+    "role": "装甲型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "40401": {
+    "category": "驱逐舰",
+    "shipId": "40401",
+    "name": "谷神星级-战术驱逐舰-载机型",
+    "role": "载机型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40402": {
+    "category": "驱逐舰",
+    "shipId": "40402",
+    "name": "谷神星级-战术驱逐舰-支援型",
+    "role": "支援型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40403": {
+    "category": "驱逐舰",
+    "shipId": "40403",
+    "name": "谷神星级-战术驱逐舰-战术型",
+    "role": "战术型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40501": {
+    "category": "驱逐舰",
+    "shipId": "40501",
+    "name": "斗牛级-脉冲炮驱逐舰-攻击型",
+    "role": "攻击型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "40502": {
+    "category": "驱逐舰",
+    "shipId": "40502",
+    "name": "斗牛级-脉冲炮驱逐舰-突击型",
+    "role": "突击型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "40503": {
+    "category": "驱逐舰",
+    "shipId": "40503",
+    "name": "斗牛级-脉冲炮驱逐舰-防护型",
+    "role": "防护型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "40701": {
+    "category": "驱逐舰",
+    "shipId": "40701",
+    "name": "苔原级-战术驱逐舰-支援型",
+    "role": "支援型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40702": {
+    "category": "驱逐舰",
+    "shipId": "40702",
+    "name": "苔原级-战术驱逐舰-载机型",
+    "role": "载机型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40801": {
+    "category": "驱逐舰",
+    "shipId": "40801",
+    "name": "枪骑兵级-轻型导弹驱逐舰-对舰型",
+    "role": "对舰型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "40802": {
+    "category": "驱逐舰",
+    "shipId": "40802",
+    "name": "枪骑兵级-轻型导弹驱逐舰-综合型",
+    "role": "综合型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "40803": {
+    "category": "驱逐舰",
+    "shipId": "40803",
+    "name": "枪骑兵级-轻型导弹驱逐舰-防空型",
+    "role": "防空型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "41001": {
+    "category": "驱逐舰",
+    "shipId": "41001",
+    "name": "卫士-驱逐舰-支援型",
+    "role": "支援型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "41002": {
+    "category": "驱逐舰",
+    "shipId": "41002",
+    "name": "卫士-驱逐舰-两栖型",
+    "role": "两栖型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "41003": {
+    "category": "驱逐舰",
+    "shipId": "41003",
+    "name": "卫士-驱逐舰-脉冲型",
+    "role": "脉冲型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "41101": {
+    "category": "驱逐舰",
+    "shipId": "41101",
+    "name": "创神星级-轨道炮驱逐舰-轨道炮型",
+    "role": "轨道炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "41102": {
+    "category": "驱逐舰",
+    "shipId": "41102",
+    "name": "创神星级-轨道炮驱逐舰-鱼雷型",
+    "role": "鱼雷型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "41201": {
+    "category": "驱逐舰",
+    "shipId": "41201",
+    "name": "亚达伯拉级-重型火炮驱逐舰-通用型",
+    "role": "通用型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "41202": {
+    "category": "驱逐舰",
+    "shipId": "41202",
+    "name": "亚达伯拉级-重型火炮驱逐舰-装甲型",
+    "role": "装甲型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "41203": {
+    "category": "驱逐舰",
+    "shipId": "41203",
+    "name": "亚达伯拉级-重型火炮驱逐舰-防空型",
+    "role": "防空型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "41301": {
+    "category": "驱逐舰",
+    "shipId": "41301",
+    "name": "先登级-两栖突击舰-登陆型",
+    "role": "登陆型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "41302": {
+    "category": "驱逐舰",
+    "shipId": "41302",
+    "name": "先登级-两栖突击舰-载机型",
+    "role": "载机型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "41401": {
+    "category": "驱逐舰",
+    "shipId": "41401",
+    "name": "塔拉萨萤石级-电子驱逐舰-防空型",
+    "role": "防空型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "41402": {
+    "category": "驱逐舰",
+    "shipId": "41402",
+    "name": "塔拉萨萤石级-电子驱逐舰-干扰型",
+    "role": "干扰型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "42001": {
+    "category": "驱逐舰",
+    "shipId": "42001",
+    "name": "开阳级-机动驱逐舰-通用型",
+    "role": "通用型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "42002": {
+    "category": "驱逐舰",
+    "shipId": "42002",
+    "name": "开阳级-机动驱逐舰-对舰型",
+    "role": "对舰型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "50101": {
+    "category": "巡洋舰",
+    "shipId": "50101",
+    "name": "KCCPV2.0-轻型攻击巡洋舰-综合型",
+    "role": "综合型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "50102": {
+    "category": "巡洋舰",
+    "shipId": "50102",
+    "name": "KCCPV2.0-轻型攻击巡洋舰-脉冲型",
+    "role": "脉冲型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50103": {
+    "category": "巡洋舰",
+    "shipId": "50103",
+    "name": "KCCPV2.0-轻型攻击巡洋舰-轨道炮型",
+    "role": "轨道炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50104": {
+    "category": "巡洋舰",
+    "shipId": "50104",
+    "name": "KCCPV2.0-轻型攻击巡洋舰-载机型",
+    "role": "载机型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "50201": {
+    "category": "巡洋舰",
+    "shipId": "50201",
+    "name": "CAS066级-通用巡洋舰-综合型",
+    "role": "综合型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "50202": {
+    "category": "巡洋舰",
+    "shipId": "50202",
+    "name": "CAS066级-通用巡洋舰-炮击型",
+    "role": "炮击型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50203": {
+    "category": "巡洋舰",
+    "shipId": "50203",
+    "name": "CAS066级-通用巡洋舰-载机型",
+    "role": "载机型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50204": {
+    "category": "巡洋舰",
+    "shipId": "50204",
+    "name": "CAS066级-通用巡洋舰-支援型",
+    "role": "支援型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50301": {
+    "category": "巡洋舰",
+    "shipId": "50301",
+    "name": "艾奥级-高速巡洋舰-离子炮型",
+    "role": "离子炮型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "50302": {
+    "category": "巡洋舰",
+    "shipId": "50302",
+    "name": "艾奥级-高速巡洋舰-对舰型",
+    "role": "对舰型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "50303": {
+    "category": "巡洋舰",
+    "shipId": "50303",
+    "name": "艾奥级-高速巡洋舰-攻城型",
+    "role": "攻城型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "50401": {
+    "category": "巡洋舰",
+    "shipId": "50401",
+    "name": "卡利斯托-重型袭击舰-鱼雷型",
+    "role": "鱼雷型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "50402": {
+    "category": "巡洋舰",
+    "shipId": "50402",
+    "name": "卡利斯托-重型袭击舰-对舰型",
+    "role": "对舰型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "50403": {
+    "category": "巡洋舰",
+    "shipId": "50403",
+    "name": "卡利斯托-重型袭击舰-支援型",
+    "role": "支援型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "50501": {
+    "category": "巡洋舰",
+    "shipId": "50501",
+    "name": "光锥级-综合导弹巡洋舰-通用型",
+    "role": "通用型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50502": {
+    "category": "巡洋舰",
+    "shipId": "50502",
+    "name": "光锥级-综合导弹巡洋舰-防空型",
+    "role": "防空型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50503": {
+    "category": "巡洋舰",
+    "shipId": "50503",
+    "name": "光锥级-综合导弹巡洋舰-突击型",
+    "role": "突击型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "50601": {
+    "category": "巡洋舰",
+    "shipId": "50601",
+    "name": "奇美拉级-重型巡洋舰-弹炮型",
+    "role": "弹炮型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "50602": {
+    "category": "巡洋舰",
+    "shipId": "50602",
+    "name": "奇美拉级-重型巡洋舰-重炮型",
+    "role": "重炮型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "50603": {
+    "category": "巡洋舰",
+    "shipId": "50603",
+    "name": "奇美拉级-重型巡洋舰-防护型",
+    "role": "防护型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "51001": {
+    "category": "巡洋舰",
+    "shipId": "51001",
+    "name": "狩猎者级-载机巡洋舰-通用型",
+    "role": "通用型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "51002": {
+    "category": "巡洋舰",
+    "shipId": "51002",
+    "name": "狩猎者级-载机巡洋舰-战术型",
+    "role": "战术型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "51003": {
+    "category": "巡洋舰",
+    "shipId": "51003",
+    "name": "狩猎者级-载机巡洋舰-防空型",
+    "role": "防空型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "51101": {
+    "category": "巡洋舰",
+    "shipId": "51101",
+    "name": "猎兵级-重型载机巡洋舰-支援型",
+    "role": "支援型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "51102": {
+    "category": "巡洋舰",
+    "shipId": "51102",
+    "name": "猎兵级-重型载机巡洋舰-对舰型",
+    "role": "对舰型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "51201": {
+    "category": "巡洋舰",
+    "shipId": "51201",
+    "name": "康纳马拉混沌级-轻型高速巡洋舰-轨道炮型",
+    "role": "轨道炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "51202": {
+    "category": "巡洋舰",
+    "shipId": "51202",
+    "name": "康纳马拉混沌级-轻型高速巡洋舰-等离子体型",
+    "role": "等离子体型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "51301": {
+    "category": "巡洋舰",
+    "shipId": "51301",
+    "name": "游骑兵级-综合作战巡洋舰-综合型",
+    "role": "综合型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "51302": {
+    "category": "巡洋舰",
+    "shipId": "51302",
+    "name": "游骑兵级-综合作战巡洋舰-离子炮型",
+    "role": "离子炮型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "51303": {
+    "category": "巡洋舰",
+    "shipId": "51303",
+    "name": "游骑兵级-综合作战巡洋舰-民用型",
+    "role": "民用型",
+    "rowIdx": 1,
+    "rowLabel": "无"
+  },
+  "51401": {
+    "category": "巡洋舰",
+    "shipId": "51401",
+    "name": "棕熊级-综合巡洋舰-综合型",
+    "role": "综合型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "51402": {
+    "category": "巡洋舰",
+    "shipId": "51402",
+    "name": "棕熊级-综合巡洋舰-防空型",
+    "role": "防空型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "51403": {
+    "category": "巡洋舰",
+    "shipId": "51403",
+    "name": "棕熊级-综合巡洋舰-突防型",
+    "role": "突防型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "52001": {
+    "category": "巡洋舰",
+    "shipId": "52001",
+    "name": "玉衡级-支援巡洋舰-综合型",
+    "role": "综合型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "52002": {
+    "category": "巡洋舰",
+    "shipId": "52002",
+    "name": "玉衡级-支援巡洋舰-防御型",
+    "role": "防御型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "52003": {
+    "category": "巡洋舰",
+    "shipId": "52003",
+    "name": "玉衡级-支援巡洋舰-支援型",
+    "role": "支援型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "52101": {
+    "category": "巡洋舰",
+    "shipId": "52101",
+    "name": "白垩级-无人机巡洋舰-干扰型",
+    "role": "干扰型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "52102": {
+    "category": "巡洋舰",
+    "shipId": "52102",
+    "name": "白垩级-无人机巡洋舰-防空型",
+    "role": "防空型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "60201": {
+    "category": "战列巡洋舰",
+    "shipId": "60201",
+    "name": "永恒风暴级-攻击战列巡洋舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "60301": {
+    "category": "战列巡洋舰",
+    "shipId": "60301",
+    "name": "ST59级-防御战列巡洋舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "60401": {
+    "category": "战列巡洋舰",
+    "shipId": "60401",
+    "name": "新君士坦丁大帝级-综合战列巡洋舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "60501": {
+    "category": "战列巡洋舰",
+    "shipId": "60501",
+    "name": "乌拉诺斯之矛级-重型战列巡洋舰-定制型",
+    "role": "定制型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "60601": {
+    "category": "战列巡洋舰",
+    "shipId": "60601",
+    "name": "雷火之星-综合武库舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "60701": {
+    "category": "战列巡洋舰",
+    "shipId": "60701",
+    "name": "普鲁图斯之盾级-防护战列巡洋舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "60801": {
+    "category": "战列巡洋舰",
+    "shipId": "60801",
+    "name": "安东塔斯持剑者级-指挥舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "61301": {
+    "category": "战列巡洋舰",
+    "shipId": "61301",
+    "name": "天权级-战列巡洋舰-定制型",
+    "role": "定制型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  },
+  "70301": {
+    "category": "支援舰",
+    "shipId": "70301",
+    "name": "FSV830-战术支援舰-定制型",
+    "role": "定制型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "70501": {
+    "category": "支援舰",
+    "shipId": "70501",
+    "name": "埃迪卡拉级-重型火力支援舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "80101": {
+    "category": "航母",
+    "shipId": "80101",
+    "name": "太阳鲸-武装战略航空母舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "80201": {
+    "category": "航母",
+    "shipId": "80201",
+    "name": "CV3000级-快速航空母舰-定制型",
+    "role": "定制型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "80301": {
+    "category": "航母",
+    "shipId": "80301",
+    "name": "南十字星元帅级-武装航空母舰-定制型",
+    "role": "定制型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "80401": {
+    "category": "航母",
+    "shipId": "80401",
+    "name": "永恒苍穹级-无人机航空母舰-定制型",
+    "role": "定制型",
+    "rowIdx": 2,
+    "rowLabel": "后排"
+  },
+  "80801": {
+    "category": "航母",
+    "shipId": "80801",
+    "name": "天枢级-支援航空母舰-定制型",
+    "role": "定制型",
+    "rowIdx": 1,
+    "rowLabel": "中排"
+  },
+  "97101": {
+    "category": "战列舰",
+    "shipId": "97101",
+    "name": "止战级-攻坚战列舰-定制型",
+    "role": "定制型",
+    "rowIdx": 0,
+    "rowLabel": "前排"
+  }
+}

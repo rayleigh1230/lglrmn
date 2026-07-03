@@ -1,262 +1,198 @@
-import { useState, useMemo } from "react";
-import { View, Text, ScrollView, Input } from "@tarojs/components";
+import { useMemo } from "react";
+import { View, Text } from "@tarojs/components";
 import Taro, { useRouter } from "@tarojs/taro";
 import { useEditorData } from "../../state/useEditorData";
-import { useBlueprintDesign } from "../../state/useBlueprintDesign";
 import {
-  getShipStats,
-  getBlueprintSubsystems,
-  getEnhanceTreeGroups,
-  systemTypeName,
+  getShipPanel,
+  getVariants,
+  getShipSystems,
+  CATEGORY_COLOR,
 } from "../../data/blueprintSelector";
-import ShipThumb from "../../components/ShipThumb";
-import StatBar from "../../components/StatBar";
-import EnhanceNode from "../../components/EnhanceNode";
 import "./index.css";
-
-interface EnhanceNodeData {
-  enhanceId: string;
-  name: string;
-  level: number;
-  maxLevel: number;
-  cost: number[];
-  currentCost: number;
-  systemType: number | undefined;
-  systemLabel: string;
-}
 
 export default function BlueprintDesign() {
   const router = useRouter();
   const bpId = (router.params.bpId || "") as string;
-  const shipIdParam = (router.params.shipId || bpId) as string;
   const { store, loading, error } = useEditorData();
 
-  const { levels, techStr, blueprint, techPoints, options, setLevel, setOptions, resetLevels } =
-    useBlueprintDesign(store, bpId, shipIdParam);
-
-  // 当前选中的子系统标签 (按 SYSTEM_TYPE 分组)
-  const [activeTab, setActiveTab] = useState<string>("all");
-
-  // 舰船属性
-  const shipStats = useMemo(() => {
+  const panel = useMemo(() => {
     if (!store) return null;
-    return getShipStats(store, shipIdParam);
-  }, [store, shipIdParam]);
-
-  // 蓝图子系统列表
-  const subsystems = useMemo(() => {
-    if (!store) return [];
-    return getBlueprintSubsystems(store, bpId);
+    return getShipPanel(store, bpId);
   }, [store, bpId]);
 
-  // 强化树节点 (从 store.systemEnhance 按 enhance tree groups 过滤)
-  const enhanceNodes = useMemo<EnhanceNodeData[]>(() => {
-    if (!store || !store.systemEnhance || !store.systemEffect) return [];
-    const groups = getEnhanceTreeGroups(store, bpId);
-    if (groups.length === 0) return [];
+  const variants = useMemo(() => {
+    if (!store) return [];
+    return getVariants(store, bpId);
+  }, [store, bpId]);
 
-    const nodes: EnhanceNodeData[] = [];
-    // 遍历 systemEnhance, 找 enhance_id 前3位(=group) 在 groups 里的
-    for (const enhanceId in store.systemEnhance) {
-      const group = enhanceId.slice(0, 3);
-      if (!groups.includes(group)) continue;
-      const rec = store.systemEnhance[enhanceId] as any;
-      const prefix = rec.SYSTEM_EFFECT_PREFIX;
-      if (prefix === undefined || prefix === null) continue;
+  const systems = useMemo(() => {
+    if (!store || !panel) return [];
+    return getShipSystems(store, panel.shipId);
+  }, [store, panel]);
 
-      // 图标+名称: effect[prefix+"01"]
-      const effectKey = `${prefix}01`;
-      const effect = store.systemEffect[effectKey] as any;
-      const name = effect?.NAME || "未命名强化";
-      const cost: number[] = rec.ENHANCE_COST || [];
-      const maxLevel = cost.length || 5;
-      const level = levels[enhanceId] || 0;
-      const currentCost = cost.slice(0, level).reduce((a: number, b: number) => a + b, 0);
-
-      // 找对应子系统(按 enhanceId 前7位=slotId)
-      const slotId = enhanceId.slice(0, 7);
-      const sys = store.shipSystem?.[slotId] as any;
-      const systemType = sys?.SYSTEM_TYPE;
-
-      nodes.push({
-        enhanceId,
-        name,
-        level,
-        maxLevel,
-        cost,
-        currentCost,
-        systemType,
-        systemLabel: systemTypeName(systemType),
-      });
-    }
-    return nodes.sort((a, b) => a.systemLabel.localeCompare(b.systemLabel, "zh") || a.name.localeCompare(b.name, "zh"));
-  }, [store, bpId, levels]);
-
-  // 按子系统标签过滤
-  const tabs = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const n of enhanceNodes) {
-      const label = n.systemLabel;
-      map.set(label, (map.get(label) || 0) + 1);
-    }
-    return [{ key: "all", label: "全部", count: enhanceNodes.length },
-      ...Array.from(map.entries()).map(([k, v]) => ({ key: k, label: k, count: v }))];
-  }, [enhanceNodes]);
-
-  const filteredNodes = useMemo(() => {
-    if (activeTab === "all") return enhanceNodes;
-    return enhanceNodes.filter((n) => n.systemLabel === activeTab);
-  }, [enhanceNodes, activeTab]);
+  const onBack = () => Taro.navigateBack();
+  const onVariantClick = (id: string) => {
+    Taro.redirectTo({ url: `/pages/blueprint-design/index?bpId=${id}` });
+  };
 
   if (loading) {
     return <View className="bp-loading"><Text>加载中...</Text></View>;
   }
   if (error) {
-    return <View className="bp-error"><Text className="text-danger">{error}</Text></View>;
+    return <View className="bp-loading"><Text className="text-danger">{error}</Text></View>;
   }
-  if (!store || !shipStats) {
-    return <View className="bp-error"><Text>舰船数据未找到: {shipIdParam}</Text></View>;
+  if (!panel) {
+    return <View className="bp-loading"><Text>舰船数据未找到: {bpId}</Text></View>;
   }
 
-  // 属性展示
-  const bp = blueprint;
-  const usedPoints = techPoints?.totalPoints || 0;
+  const catColor = CATEGORY_COLOR[panel.category] || "#4fc3f7";
 
   return (
-    <View className="bp-design">
-      {/* 顶部: 舰船信息条 */}
-      <View className="bp-design__header">
-        <ShipThumb
-          shipTypeTier={3}
-          shipType={shipStats.shipType}
-          size="medium"
-          fallbackText={shipStats.shortName.slice(0, 2)}
-        />
-        <View className="bp-design__header-info">
-          <Text className="bp-design__ship-name">{shipStats.fullName}</Text>
-          <View className="bp-design__header-meta">
-            <Text className="text-gold">结构 {shipStats.structure.toLocaleString()}</Text>
-            <Text className="text-muted">速度 {shipStats.speed}</Text>
-          </View>
-          <View className="bp-design__points">
-            <Text className="text-primary">技能点 {usedPoints}</Text>
-            {bp && (
-              <Text className="text-success">
-                结构 → {bp.finalStructure.toLocaleString()}
-              </Text>
-            )}
-          </View>
+    <View className="bp">
+      {/* 顶部栏: 返回 + 指挥值 */}
+      <View className="bp-topbar">
+        <View className="bp-back" onClick={onBack}>
+          <Text className="bp-back__icon">‹</Text>
+        </View>
+        <View className="bp-command">
+          <Text className="bp-command__label">指挥值</Text>
+          <Text className="bp-command__value">{panel.command}</Text>
         </View>
       </View>
 
-      {/* 子系统标签栏 */}
-      <ScrollView className="bp-design__tabs" scrollX>
-        {tabs.map((t) => (
+      <View className="bp-scroll">
+        {/* 第一排: 舰船名 + 型号名 */}
+        <View className="bp-header">
+          <Text className="bp-header__ship">{panel.shipName}</Text>
+          <Text className="bp-header__sub">{panel.subTypeName}</Text>
+        </View>
+
+        {/* 第二排: 巅峰等级 / 型号数 / 技术值版本 */}
+        <View className="bp-row2">
+          <View className="bp-badge bp-badge--peak">
+            <Text className="bp-badge__label">巅峰等级</Text>
+            <Text className="bp-badge__value">0</Text>
+          </View>
+          <View className="bp-badge bp-badge--variant">
+            <Text className="bp-badge__label">型号</Text>
+            <Text className="bp-badge__value">{variants.length}</Text>
+          </View>
+          <View className="bp-badge bp-badge--tech">
+            <Text className="bp-badge__label">技术值</Text>
+            <Text className="bp-badge__value">1.00</Text>
+          </View>
+        </View>
+
+        {/* 第三排: 火力总合 + 能力评级 */}
+        <View className="bp-row3">
+          {/* 左: 火力总合 */}
+          <View className="bp-firepower">
+            <Text className="bp-firepower__title">火力</Text>
+            <View className="bp-firepower__list">
+              <Text className="bp-firepower__item">
+                <Text className="bp-firepower__type">对舰</Text>
+                <Text className="bp-firepower__num">{panel.panel.firepower.antiShip || "—"}</Text>
+              </Text>
+              <Text className="bp-firepower__item">
+                <Text className="bp-firepower__type">防空</Text>
+                <Text className="bp-firepower__num">{panel.panel.firepower.antiAir || "—"}</Text>
+              </Text>
+              <Text className="bp-firepower__item">
+                <Text className="bp-firepower__type">攻城</Text>
+                <Text className="bp-firepower__num">{panel.panel.firepower.siege || "—"}</Text>
+              </Text>
+            </View>
+          </View>
+          {/* 右: 能力评级 */}
+          <View className="bp-assess">
+            <Text className="bp-assess__title">定位</Text>
+            <View className="bp-assess__list">
+              {[
+                { name: "对舰", grade: "—" },
+                { name: "对空", grade: "—" },
+                { name: "攻城", grade: "—" },
+                { name: "支援", grade: "—" },
+                { name: "生存", grade: "—" },
+                { name: "战略", grade: "—" },
+              ].map((item) => (
+                <Text key={item.name} className="bp-assess__item">
+                  <Text className="bp-assess__name">{item.name}</Text>
+                  <Text className="bp-assess__grade">{item.grade}</Text>
+                </Text>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* 第四排: 基础属性 */}
+        <View className="bp-stats">
+          <View className="bp-stat">
+            <Text className="bp-stat__label">结构值</Text>
+            <Text className="bp-stat__value">{panel.panel.finalStructure.toLocaleString()}</Text>
+          </View>
+          <View className="bp-stat">
+            <Text className="bp-stat__label">抵抗值</Text>
+            <Text className="bp-stat__value">{panel.panel.resistance}</Text>
+          </View>
+          <View className="bp-stat">
+            <Text className="bp-stat__label">护盾值</Text>
+            <Text className="bp-stat__value">
+              {panel.panel.shield > 0 ? Math.round(panel.panel.shield * 100) + "%" : "—"}
+            </Text>
+          </View>
+          <View className="bp-stat">
+            <Text className="bp-stat__label">普通移速</Text>
+            <Text className="bp-stat__value">{panel.panel.speed}</Text>
+          </View>
+          <View className="bp-stat">
+            <Text className="bp-stat__label">曲率速度</Text>
+            <Text className="bp-stat__value">
+              {panel.panel.curvatureSpeedBonus > 0
+                ? "+" + (panel.panel.curvatureSpeedBonus / 100).toFixed(1) + "%"
+                : "—"}
+            </Text>
+          </View>
+        </View>
+
+        {/* 系统加点状态 */}
+        <View className="bp-section">
+          <Text className="bp-section__title">系统强化</Text>
+          <View className="bp-systems">
+            {systems.map((sys) => (
+              <View key={sys.systemId} className="bp-sys">
+                <Text className="bp-sys__name">{sys.name}</Text>
+                <View className="bp-sys__slots">
+                  {Array.from({ length: Math.max(sys.enhanceLimit, 1) }).map((_, i) => (
+                    <View
+                      key={i}
+                      className={`bp-sys__slot ${
+                        i < sys.enhanceLimit ? "bp-sys__slot--empty" : ""
+                      }`}
+                    />
+                  ))}
+                  {sys.enhanceLimit === 0 && (
+                    <Text className="bp-sys__noslots">无强化</Text>
+                  )}
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={{ height: "100px" }} />
+      </View>
+
+      {/* 底部型号切换栏 */}
+      <View className="bp-variants">
+        {variants.map((v) => (
           <View
-            key={t.key}
-            className={`bp-design__tab ${activeTab === t.key ? "bp-design__tab--active" : ""}`}
-            onClick={() => setActiveTab(t.key)}
+            key={v.bpId}
+            className={`bp-variant ${v.isCurrent ? "bp-variant--active" : ""}`}
+            onClick={() => onVariantClick(v.bpId)}
           >
-            <Text>{t.label}</Text>
-            <Text className="bp-design__tab-count">{t.count}</Text>
+            <Text className="bp-variant__name">{v.subTypeName}</Text>
           </View>
         ))}
-      </ScrollView>
-
-      {/* 强化树 */}
-      <ScrollView className="bp-design__tree" scrollY>
-        <View className="bp-design__tree-list">
-          {filteredNodes.map((node) => (
-            <EnhanceNode
-              key={node.enhanceId}
-              enhanceId={node.enhanceId}
-              name={node.name}
-              level={node.level}
-              maxLevel={node.maxLevel}
-              cost={node.cost}
-              currentCost={node.currentCost}
-              onLevelChange={(lvl) => setLevel(node.enhanceId, lvl)}
-            />
-          ))}
-          {filteredNodes.length === 0 && (
-            <View className="bp-design__tree-empty">
-              <Text className="text-muted">无强化项</Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
-
-      {/* 属性面板 */}
-      <View className="bp-design__stats-panel">
-        <View className="bp-design__stats-header">
-          <Text className="bp-design__stats-title">属性面板</Text>
-        </View>
-        <ScrollView className="bp-design__stats-scroll" scrollY>
-          {bp ? (
-            <View className="bp-design__stats-list">
-              <StatBar
-                label="结构"
-                value={bp.finalStructure}
-                base={bp.baseStructure}
-                highlight
-              />
-              <StatBar
-                label="结构加成"
-                value={bp.structureBonusPermille}
-                permille
-              />
-              <StatBar label="抵抗" value={bp.resistanceBonus} suffix="点" />
-              <StatBar label="命中" value={bp.hitBonus} permille />
-              <StatBar label="闪避" value={bp.dodgeBonus} permille />
-              <StatBar label="暴击率" value={bp.critRate} permille />
-              <StatBar label="暴击伤害" value={bp.critDamage} permille />
-              <StatBar label="航速" value={bp.speedBonus} permille />
-              <StatBar label="曲率速度" value={bp.curvatureSpeedBonus} permille />
-              <StatBar label="基础伤害" value={bp.baseDamageBonus} suffix="点" />
-              <StatBar label="攻城伤害" value={bp.siegeDamageBonus} permille />
-              <StatBar label="对空伤害" value={bp.antiAirDamageBonus} permille />
-              <StatBar label="能量抗性" value={bp.energyResistance} permille />
-              <StatBar label="系统结构" value={bp.systemStructureBonus} permille />
-              <StatBar label="锁定时间" value={bp.targetLockTimeReduction} permille />
-              <StatBar label="拦截率" value={bp.interceptRate} permille />
-            </View>
-          ) : (
-            <Text className="text-muted">无属性数据</Text>
-          )}
-        </ScrollView>
-      </View>
-
-      {/* 底部: 外部参数 + 科技串 */}
-      <View className="bp-design__footer">
-        <View className="bp-design__footer-row">
-          <Text className="bp-design__footer-label">巅峰加成</Text>
-          <Input
-            className="bp-design__footer-input"
-            type="number"
-            value={String(options.peakStructureBonus)}
-            onInput={(e) =>
-              setOptions({ ...options, peakStructureBonus: Number(e.detail.value) || 0 })
-            }
-          />
-          <Text className="bp-design__footer-label">版本加成</Text>
-          <Input
-            className="bp-design__footer-input"
-            type="number"
-            value={String(options.versionStructureBonus)}
-            onInput={(e) =>
-              setOptions({ ...options, versionStructureBonus: Number(e.detail.value) || 0 })
-            }
-          />
-        </View>
-        <View className="bp-design__tech-str">
-          <Text className="bp-design__tech-str-label">科技串:</Text>
-          <Text className="bp-design__tech-str-value">{techStr || "(空)"}</Text>
-        </View>
-        <View className="bp-design__footer-actions">
-          <View className="btn" onClick={resetLevels}>
-            <Text>重置</Text>
-          </View>
-        </View>
       </View>
     </View>
   );

@@ -44,16 +44,24 @@ export function prefixIcon(prefix: number | string): string {
   return info?.available ? iconUrl(info.icon) : "";
 }
 
-/** 舰船缩略图: 按舰种回退到通用图标 */
-export function shipThumbnailIcon(shipClass: string): string {
-  // shipClass 取自 cfg_ship[3] 或 cfg_ship_blueprint[6]
-  // 舰种映射 → 通用图标
-  const classMap: Record<string, string> = {
-    // cfg_ship[3] ship_type id (1-11) 对应通用图标
-    // 精确映射见 manifest.ship_class_icons
+/** 舰船缩略图: 按 category 匹配舰种图标 */
+export function shipThumbnailIcon(category: string): string {
+  const categoryIconMap: Record<string, string> = {
+    frigate: "icon_ship_type_frigate.png",
+    destroyer: "icon_ship_type_destroyer.png",
+    cruiser: "icon_ship_type_cruiser.png",
+    battlecruiser: "icon_ship_type_battle_cruiser.png",
+    battleship: "icon_ship_type_battle_ship.png",
+    carrier: "icon_ship_type_carrier.png",
+    support: "icon_ship_type_support_ship.png",
+    fighter: "icon_ship_type_fighter.png",
+    escort: "icon_ship_type_boat.png",
   };
-  const icon = classMap[shipClass] || _manifest?.ship_class_icons?.[shipClass];
-  return icon ? iconUrl(icon) : iconUrl(_manifest?.ship_class_icons?.mainship || "icon_ship_big.png");
+  const icon = categoryIconMap[category];
+  if (icon && hasIcon(icon)) return iconUrl(icon);
+  // 兜底
+  if (hasIcon("icon_ship_type_unknown.png")) return iconUrl("icon_ship_type_unknown.png");
+  return "";
 }
 
 /** 属性图标 */

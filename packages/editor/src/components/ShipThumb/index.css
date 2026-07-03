@@ -7,18 +7,19 @@
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+  flex-shrink: 0;
 }
-.ship-thumb--small { width: 80px; height: 80px; }
-.ship-thumb--medium { width: 120px; height: 120px; }
+.ship-thumb--small { width: 72px; height: 72px; }
+.ship-thumb--medium { width: 96px; height: 96px; }
 .ship-thumb--large { width: 180px; height: 180px; }
 
 .ship-thumb__img {
-  width: 80%;
-  height: 80%;
+  width: 72%;
+  height: 72%;
 }
 
 .ship-thumb__placeholder {
-  font-size: 32px;
+  font-size: 28px;
   color: #4fc3f7;
   font-weight: bold;
   letter-spacing: 2px;

@@ -5,8 +5,8 @@
 """
 import json, os
 
-ICONS_DIR = r"E:\战斗模拟器\data\client\icons"
-CONFIG_DIR = r"E:\战斗模拟器\data\client\config"
+ICONS_DIR = r"F:\战斗模拟器\lglrmn\data\client\icons"
+CONFIG_DIR = r"F:\战斗模拟器\lglrmn\data\client\config"
 MANIFEST_PATH = os.path.join(ICONS_DIR, "manifest.json")
 
 

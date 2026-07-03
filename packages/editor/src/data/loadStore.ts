@@ -25,6 +25,11 @@ const TABLE_FILES: Record<keyof ClientDataParts, string> = {
   moduleEffect: "cfg_module_effect.json",
 };
 
+// 额外的非引擎配置文件(舰船白名单, 用户人工筛选)
+const EXTRA_FILES = {
+  shipWhitelist: "ship_whitelist.json",
+};
+
 // 必需表 (缺失抛错)
 const REQUIRED: (keyof ClientDataParts)[] = ["ship", "systemEffect", "systemEnhance", "effectDef"];
 
@@ -76,6 +81,14 @@ export async function loadStore(): Promise<ClientDataStore> {
   }
 
   _store = createClientData(parts as ClientDataParts);
+
+  // 加载舰船白名单(用户人工筛选的分类数据)
+  try {
+    (_store as any).shipWhitelist = await readJson(CONFIG_BASE + EXTRA_FILES.shipWhitelist);
+  } catch {
+    console.warn("舰船白名单未加载");
+  }
+
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
   return _store;
 }

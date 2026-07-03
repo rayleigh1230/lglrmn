@@ -9,7 +9,7 @@
 """
 import frida, time, json, os
 
-OUT_DIR = r"E:\战斗模拟器\data\client\icons"
+OUT_DIR = r"F:\战斗模拟器\lglrmn\data\client\icons"
 OUT_DIR_FORWARD = OUT_DIR.replace('\\', '/')
 
 JS = r"""

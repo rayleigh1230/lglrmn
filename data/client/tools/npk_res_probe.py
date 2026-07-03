@@ -14,7 +14,7 @@ import os
 import sys
 import collections
 
-GAME_DIR = r"E:\星际猎人"
+GAME_DIR = r"D:\无尽的拉格朗日"
 
 # 已知的明文魔数
 def detect_magic(head: bytes) -> str:

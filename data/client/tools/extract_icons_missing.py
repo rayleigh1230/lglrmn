@@ -4,7 +4,7 @@
 """
 import frida, time, json, os
 
-OUT_DIR = r"E:\战斗模拟器\data\client\icons"
+OUT_DIR = r"F:\战斗模拟器\lglrmn\data\client\icons"
 OUT_DIR_FORWARD = OUT_DIR.replace('\\', '/')
 
 JS = r"""
@@ -84,7 +84,7 @@ send(JSON.stringify(log));
 """
 
 # 读缺失PREFIX
-manifest = json.load(open(os.path.join(ICONS_DIR_FIX := r"E:\战斗模拟器\data\client\icons", "manifest.json"), encoding='utf-8'))
+manifest = json.load(open(os.path.join(ICONS_DIR_FIX := r"F:\战斗模拟器\lglrmn\data\client\icons", "manifest.json"), encoding='utf-8'))
 missing = [k for k, v in manifest['prefix_to_icon'].items() if not v['available']]
 print(f"待补提PREFIX: {len(missing)} 个")
 

@@ -59,3 +59,13 @@ export {
   type TechPointCost,
   type TechPointSummary,
 } from './techPointCounter.js';
+
+export {
+  resolveShipWeapons,
+  computeFirepower,
+  getBaseDefense,
+  resolveBlueprintPanel,
+  type AssembledWeapon,
+  type WeaponCategory,
+  type BlueprintPanel,
+} from './blueprintCalc.js';
