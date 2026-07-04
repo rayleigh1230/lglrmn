@@ -95,3 +95,14 @@
   color: #8a7430;
   white-space: nowrap;
 }
+/* 分类标签（预警/伤害/频率/命中，图标上方） */
+.et-label {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: #8a96b0;
+  white-space: nowrap;
+  line-height: 1;
+}

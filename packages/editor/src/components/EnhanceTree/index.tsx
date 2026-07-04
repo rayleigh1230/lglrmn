@@ -77,6 +77,10 @@ export default function EnhanceTree({ columns, choiceGroups, onSelectNode, onOpe
                         {node.slot.effect?.name?.slice(0, 1) || "?"}
                       </View>
                     )}
+                    {/* 分类标签（预警/伤害/频率/命中 等，直接显示在图标上方） */}
+                    {node.slot.effect?.label && (
+                      <Text className="et-label">{node.slot.effect.label}</Text>
+                    )}
                     {node.currentLevel > 0 && (
                       <Text className="et-lv">{node.currentLevel}</Text>
                     )}
