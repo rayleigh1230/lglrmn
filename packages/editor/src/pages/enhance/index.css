@@ -1,7 +1,7 @@
 .en-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   background: #0a0e1a;
 }
 .en-loading {
@@ -13,6 +13,7 @@
   color: #cfd6e6;
 }
 .en-topbar {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -29,8 +30,11 @@
   color: #e0e6f0;
   font-weight: 600;
 }
+
+/* 中间可滚动区：科技树 + 调校 */
 .en-body {
   flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
@@ -42,4 +46,12 @@
   padding: 40px 20px;
   color: #6b7891;
   font-size: 22px;
+}
+
+/* 底部系统导航条：固定最下方 */
+.en-nav-fixed {
+  flex-shrink: 0;
+  background: #0d1220;
+  border-top: 1px solid #1e2942;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

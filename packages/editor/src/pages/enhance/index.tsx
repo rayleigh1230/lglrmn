@@ -181,8 +181,10 @@ export default function EnhancePage() {
           acquired={new Set(acquired.keys())}
           onClick={() => {}}
         />
+      </View>
 
-        {/* 区域③ 系统导航 */}
+      {/* 区域③ 系统导航：固定最下方 */}
+      <View className="en-nav-fixed">
         <SystemNav
           items={navResult.items}
           onSelect={setCurrentSlotId}

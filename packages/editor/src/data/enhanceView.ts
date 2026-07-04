@@ -87,14 +87,42 @@ export function resolveEnhanceTreeVM(
   const slotInfo = sys.slotInfos[slotId];
   const { columns: rawColumns } = resolveEnhanceTree(store, shipId, slotId);
 
-  // 提取二选一桶：同 (slotId, treeColumn) 内 nodeFlag≠0 节点 ≥2 个
+  // 收集该槽所有节点（扁平），用于算拓扑深度
+  const allSlots: EnhanceSlot[] = [];
+  for (const slots of Object.values(rawColumns)) allSlots.push(...slots);
+  const slotById = new Map(allSlots.map((s) => [s.enhanceId, s]));
+
+  // ★计算拓扑深度（根=0，其他=max(前置深度)+1）作为视觉列号
+  //   原始 treeColumn 是数据分组ID，不是视觉位置；用拓扑深度保证"从左到右解锁"
+  const depthCache = new Map<string, number>();
+  const computeDepth = (slot: EnhanceSlot, seen: Set<string>): number => {
+    if (depthCache.has(slot.enhanceId)) return depthCache.get(slot.enhanceId)!;
+    if (seen.has(slot.enhanceId)) return 0; // 防环
+    if (slot.prerequisites.length === 0) {
+      depthCache.set(slot.enhanceId, 0);
+      return 0;
+    }
+    const nextSeen = new Set(seen);
+    nextSeen.add(slot.enhanceId);
+    let maxParent = -1;
+    for (const pId of slot.prerequisites) {
+      const p = slotById.get(pId);
+      if (p) maxParent = Math.max(maxParent, computeDepth(p, nextSeen));
+    }
+    const d = maxParent + 1;
+    depthCache.set(slot.enhanceId, d);
+    return d;
+  };
+  for (const s of allSlots) computeDepth(s, new Set());
+
+  // 提取二选一桶：同 (slotId, nodeFlag组) 的 nodeFlag≠0 节点 ≥2 个
+  //   注意：用拓扑深度分组而非原始 treeColumn（10/13 二选一都在深度0）
   const choiceBuckets: Record<string, EnhanceSlot[]> = {};
-  for (const slots of Object.values(rawColumns)) {
-    for (const s of slots) {
-      if (s.nodeFlag !== 0) {
-        const key = `${s.slotId}_${s.treeColumn}`;
-        (choiceBuckets[key] = choiceBuckets[key] || []).push(s);
-      }
+  for (const s of allSlots) {
+    if (s.nodeFlag !== 0) {
+      const d = depthCache.get(s.enhanceId)!;
+      const key = `${s.slotId}_d${d}`; // 按深度分组
+      (choiceBuckets[key] = choiceBuckets[key] || []).push(s);
     }
   }
   const choiceGroups: Record<string, ChoiceGroup> = {};
@@ -104,50 +132,49 @@ export function resolveEnhanceTreeVM(
       choiceGroups[key] = {
         key,
         slotId: opts[0].slotId,
-        treeColumn: opts[0].treeColumn,
+        treeColumn: depthCache.get(opts[0].enhanceId)!,
         options: opts,
         selectedEnhanceId: selected?.enhanceId,
       };
     }
   }
 
-  // 构建 UI 节点
+  // 按拓扑深度分列构建 UI 节点
   const acquiredSet = new Set(acquired.keys());
   const columns: Record<number, EnhanceNodeVM[]> = {};
-  for (const [colStr, slots] of Object.entries(rawColumns)) {
-    const col = Number(colStr);
-    columns[col] = [];
-    for (const s of slots) {
-      const choiceKey = `${s.slotId}_${s.treeColumn}`;
-      const isChoice = !!choiceGroups[choiceKey] && s.nodeFlag !== 0;
-      const level = acquired.get(s.enhanceId) ?? 0;
+  for (const s of allSlots) {
+    const d = depthCache.get(s.enhanceId)!;
+    const choiceKey = `${s.slotId}_d${d}`;
+    const isChoice = !!choiceGroups[choiceKey] && s.nodeFlag !== 0;
+    const level = acquired.get(s.enhanceId) ?? 0;
 
-      let state: NodeState;
-      const grp = isChoice ? choiceGroups[choiceKey] : undefined;
-      if (isChoice && !grp!.selectedEnhanceId) {
-        // 二选一未选：合并图标
-        state = "choice";
-      } else if (isChoice && grp!.selectedEnhanceId && grp!.selectedEnhanceId !== s.enhanceId) {
-        // 二选一已选另一项：本项永久灰锁
-        state = "locked";
-      } else if (level > 0) {
-        state = "acquired";
-      } else if (slotInfo) {
-        const avail = isEnhanceAvailable(s, slotInfo, acquiredSet);
-        state = avail.available ? "available" : "locked";
-      } else {
-        state = "locked";
-      }
-      if (s.enhanceId === selectedEnhanceId) state = "selected";
-
-      columns[col].push({
-        slot: s,
-        state,
-        currentLevel: level,
-        isChoice,
-        choiceGroupId: isChoice ? choiceKey : undefined,
-      });
+    let state: NodeState;
+    const grp = isChoice ? choiceGroups[choiceKey] : undefined;
+    if (isChoice && !grp!.selectedEnhanceId) {
+      state = "choice";
+    } else if (isChoice && grp!.selectedEnhanceId && grp!.selectedEnhanceId !== s.enhanceId) {
+      state = "locked";
+    } else if (level > 0) {
+      state = "acquired";
+    } else if (slotInfo) {
+      const avail = isEnhanceAvailable(s, slotInfo, acquiredSet);
+      state = avail.available ? "available" : "locked";
+    } else {
+      state = "locked";
     }
+    if (s.enhanceId === selectedEnhanceId) state = "selected";
+
+    (columns[d] = columns[d] || []).push({
+      slot: s,
+      state,
+      currentLevel: level,
+      isChoice,
+      choiceGroupId: isChoice ? choiceKey : undefined,
+    });
+  }
+  // 各列内按 optIdx 升序
+  for (const col in columns) {
+    columns[col].sort((a, b) => a.slot.optIdx - b.slot.optIdx);
   }
   return { columns, choiceGroups };
 }

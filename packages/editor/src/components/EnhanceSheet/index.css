@@ -6,6 +6,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  /* 浮窗落在系统导航条上方（导航条约 90px 高 + 安全区） */
+  padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
 }
 .es-sheet {
   width: 100%;
