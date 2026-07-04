@@ -25,6 +25,9 @@ data/client/icons/_extracted_files.json
 packages/editor/.swc/
 
 
+# Brainstorm visual companion (transient mockups)
+.superpowers/
+
 # Editor / OS
 .vscode/
 .idea/
