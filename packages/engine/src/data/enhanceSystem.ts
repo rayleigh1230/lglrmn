@@ -382,10 +382,10 @@ export interface EnhanceAvailability {
 /**
  * ★判断强化项是否可用（容器语义 + 科技树前置双重门控）。
  *
- * 可用条件（全部满足）：
+ * 可用条件：
  *   1. 所属系统槽已装配模块（hasModule=true，空槽强化项不生效）
  *   2. 所属系统槽当前启用（isActive=true，切换组只激活选中成员）
- *   3. 所有前置强化项已获得（prerequisites 全在 acquiredEnhanceIds 中）
+ *   3. 任一前置强化项已获得（OR 逻辑：prerequisites 中至少一个在 acquiredEnhanceIds 中；空前置=根节点恒满足）
  *
  * @param slot 强化项
  * @param slotInfo 所属系统槽元信息
@@ -406,10 +406,13 @@ export function isEnhanceAvailable(
   if (slotInfo.isSwitchable && !slotInfo.isActive) {
     reasons.push(`系统 ${slotInfo.systemName || slot.slotId} 未启用（切换组未选中）`);
   }
-  // 门控3：科技树前置——所有前置必须已获得
-  const unmet = slot.prerequisites.filter((p) => !acquiredEnhanceIds.has(p));
-  if (unmet.length > 0) {
-    reasons.push(`前置未解锁：${unmet.join(', ')}`);
+  // 门控3：科技树前置——任一前置已获得即可解锁（OR 逻辑，非全部满足）
+  //   根节点（无前置）恒满足；有前置时只要获得其中一个就能解锁
+  if (slot.prerequisites.length > 0) {
+    const anyMet = slot.prerequisites.some((p) => acquiredEnhanceIds.has(p));
+    if (!anyMet) {
+      reasons.push(`前置未解锁：${slot.prerequisites.join(', ')}（需任一）`);
+    }
   }
 
   return { available: reasons.length === 0, reasons };
