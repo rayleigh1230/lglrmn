@@ -92,8 +92,8 @@ export function resolveEnhanceTreeVM(
   for (const slots of Object.values(rawColumns)) allSlots.push(...slots);
   const slotById = new Map(allSlots.map((s) => [s.enhanceId, s]));
 
-  // 提取二选一桶：同 (slotId, treeColumn) 内 nodeFlag≠0 节点 ≥2 个
-  //   treeColumn 是游戏原始列号(视觉X坐标)，二选一对在同一列并排
+  // ★提取二选一桶：同 (slotId, treeColumn) 内 nodeFlag≠0 节点 ≥2 个
+  //   注意：treeColumn 实际是【行号 ui_level】(frida 实证)，二选一对同 ui_level
   const choiceBuckets: Record<string, EnhanceSlot[]> = {};
   for (const s of allSlots) {
     if (s.nodeFlag !== 0) {
@@ -109,50 +109,85 @@ export function resolveEnhanceTreeVM(
         key,
         slotId: opts[0].slotId,
         treeColumn: opts[0].treeColumn,
-        options: opts,
+        options: opts.sort((a, b) => a.nodeFlag - b.nodeFlag), // flag1 在前（主显示位）
         selectedEnhanceId: selected?.enhanceId,
       };
     }
   }
 
-  // 按原始 treeColumn 分列（游戏视觉X坐标）
-  const acquiredSet = new Set(acquired.keys());
-  const colBuckets: Record<number, EnhanceSlot[]> = {};
-  for (const s of allSlots) {
-    (colBuckets[s.treeColumn] = colBuckets[s.treeColumn] || []).push(s);
+  // ★计算列号 = 从根节点 BFS 的跳数（frida 实证 tree_index）
+  //   根(parent=0)的子=列0, 再下一跳=列1... 不是 treeColumn!
+  const bfsCol = new Map<string, number>();
+  const roots = allSlots.filter((s) => s.prerequisites.length === 0);
+  const queue: Array<{ slot: EnhanceSlot; col: number }> = [];
+  // 根节点本身没有"列"（它们是各链起点）；根的子节点=列0
+  // 但 frida dump 显示根的子节点在列0，所以：根→列0
+  for (const r of roots) {
+    bfsCol.set(r.enhanceId, 0);
+    queue.push({ slot: r, col: 0 });
+  }
+  while (queue.length > 0) {
+    const { slot, col } = queue.shift()!;
+    // 找所有以 slot 为前置之一的节点
+    for (const s of allSlots) {
+      if (bfsCol.has(s.enhanceId)) continue;
+      if (s.prerequisites.includes(slot.enhanceId)) {
+        const newCol = col + 1;
+        bfsCol.set(s.enhanceId, newCol);
+        queue.push({ slot: s, col: newCol });
+      }
+    }
   }
 
-  // 列内排序：按"同列内的依赖链顺序"（同列前置在上，形成竖向链）
-  //   根/无同列前置的排最上；二选一对(flag≠0)排在其依赖链起点附近
+  const acquiredSet = new Set(acquired.keys());
+
+  // 决定哪些节点在 UI 上显示（二选一：未选时只显示 flag 最小的主选项，合并为一个图标位）
+  const hiddenByChoice = new Set<string>();
+  for (const grp of Object.values(choiceGroups)) {
+    if (!grp.selectedEnhanceId) {
+      // 未选：隐藏除主选项(flag最小)外的所有选项
+      const mainOpt = grp.options[0]; // 已按 nodeFlag 升序，flag1 在前
+      for (const opt of grp.options) {
+        if (opt.enhanceId !== mainOpt.enhanceId) hiddenByChoice.add(opt.enhanceId);
+      }
+    } else {
+      // 已选：隐藏未选中的选项
+      for (const opt of grp.options) {
+        if (opt.enhanceId !== grp.selectedEnhanceId) hiddenByChoice.add(opt.enhanceId);
+      }
+    }
+  }
+
+  // 按 BFS 列号分组，列内按 treeColumn(=ui_level 行号)升序排（行号小的在上）
+  const colBuckets: Record<number, EnhanceSlot[]> = {};
+  for (const s of allSlots) {
+    if (hiddenByChoice.has(s.enhanceId)) continue;
+    const col = bfsCol.get(s.enhanceId) ?? 0;
+    (colBuckets[col] = colBuckets[col] || []).push(s);
+  }
+
   const columns: Record<number, EnhanceNodeVM[]> = {};
   for (const [colStr, slots] of Object.entries(colBuckets)) {
     const col = Number(colStr);
-    const byId = new Map(slots.map((s) => [s.enhanceId, s]));
-    const ordered: EnhanceSlot[] = [];
-    const placed = new Set<string>();
-    const place = (s: EnhanceSlot) => {
-      if (placed.has(s.enhanceId)) return;
-      // 先递归放置同列内的前置（同列链：父在上）
-      for (const pId of s.prerequisites) {
-        const p = byId.get(pId);
-        if (p && !placed.has(pId)) place(p);
-      }
-      placed.add(s.enhanceId);
-      ordered.push(s);
-    };
-    for (const s of slots) place(s);
+    // 列内按 treeColumn(ui_level 行号)升序，同 ui_level 按 optIdx
+    slots.sort((a, b) => a.treeColumn - b.treeColumn || a.optIdx - b.optIdx);
 
-    columns[col] = ordered.map((s) => {
+    columns[col] = slots.map((s) => {
       const choiceKey = `${s.slotId}_${s.treeColumn}`;
-      const isChoice = !!choiceGroups[choiceKey] && s.nodeFlag !== 0;
+      const grp = choiceGroups[choiceKey];
+      const isChoice = !!grp && s.nodeFlag !== 0 && grp.options[0].enhanceId === s.enhanceId;
       const level = acquired.get(s.enhanceId) ?? 0;
 
       let state: NodeState;
-      const grp = isChoice ? choiceGroups[choiceKey] : undefined;
-      if (isChoice && !grp!.selectedEnhanceId) {
-        state = "choice";
-      } else if (isChoice && grp!.selectedEnhanceId && grp!.selectedEnhanceId !== s.enhanceId) {
-        state = "locked";
+      if (isChoice && grp) {
+        // 二选一主显示位
+        if (grp.selectedEnhanceId) {
+          state = grp.selectedEnhanceId === s.enhanceId
+            ? (level > 0 ? "acquired" : "available")
+            : "locked";
+        } else {
+          state = "choice";
+        }
       } else if (level > 0) {
         state = "acquired";
       } else if (slotInfo) {
