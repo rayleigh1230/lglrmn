@@ -22,7 +22,7 @@ import type { ClientDataStore, RawSystemEffect } from './rawTypes.js';
 
 /** 普通强化项 optIdx 范围（其余 optIdx 由调校/巅峰/维修模块处理） */
 const NORMAL_OPTIDX_MIN = 1;
-const NORMAL_OPTIDX_MAX = 19; // 含 11/12/13 解锁型，排除 20(维修)/31-43(调校)/70(巅峰)
+const NORMAL_OPTIDX_MAX = 18; // 排除 19(旗舰技能如舰队集火,cost=[0])/20(维修)/31-43(调校)/70(巅峰)
 
 /** 单个强化槽（optIdx 1-19 的某一项） */
 export interface EnhanceSlot {
@@ -118,13 +118,19 @@ export function resolveEnhanceSystem(
   for (const enhanceId in systemEnhance) {
     if (!enhanceId.startsWith(shipId) || enhanceId.length !== 9) continue;
     const optIdx = parseInt(enhanceId.slice(7, 9), 10);
-    // 只取普通强化 optIdx 1-19（排除 20 维修 / 31-43 调校 / 70 巅峰）
+    // 只取普通强化 optIdx 1-18（排除 19旗舰/20维修/31-43调校/70巅峰）
     if (optIdx < NORMAL_OPTIDX_MIN || optIdx > NORMAL_OPTIDX_MAX) continue;
 
     const rec = systemEnhance[enhanceId];
+    // ★排除 cost=[0] 或无 cost 的项（旗舰技能如炮弹改良/系统调校等解锁型，不消耗技能点）
+    //   cost=[0] 的项 maxLevel 应为 0（[0].length===1 不能当 1 级）
+    const costArr = rec.ENHANCE_COST;
+    const isZeroCost = !costArr || costArr.length === 0 || (costArr.length === 1 && costArr[0] === 0);
+    if (isZeroCost) continue;
+
     const slotId = enhanceId.slice(0, 7);
     const effectPrefix = Number(rec.SYSTEM_EFFECT_PREFIX);
-    const maxLevel = rec.ENHANCE_COST?.length ?? 0;
+    const maxLevel = costArr.length;
     const isUnlockable = rec.UNLOCK_TYPE === 2 || rec.UNLOCK_COST_RARITY != null;
 
     // ★查科技树前置（cfg_system_enhance_tree）
