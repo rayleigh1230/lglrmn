@@ -5,6 +5,7 @@ import { useEditorData } from "../../state/useEditorData";
 import {
   resolveEnhanceSystem,
   isEnhanceAvailable,
+  type EnhanceSlot,
 } from "@lagrange/engine";
 import {
   resolveEnhanceTreeVM,
@@ -89,12 +90,25 @@ export default function EnhancePage() {
     }
 
     // node 模式
+    // 先从 treeVM 找（含状态）；找不到（被二选一 hiddenByChoice 隐藏的 flag2 选项）则回退到 sys 原始 slot
     const allSlots = treeVM ? Object.values(treeVM.columns).flat() : [];
     const nodeVM = allSlots.find((n) => n.slot.enhanceId === sheet.enhanceId);
-    if (!nodeVM) return null;
-    const slot = nodeVM.slot;
-    const cur = nodeVM.currentLevel;
-    const isChoice = nodeVM.isChoice;
+    let slot: EnhanceSlot;
+    let cur: number;
+    let isChoice: boolean;
+    if (nodeVM) {
+      slot = nodeVM.slot;
+      cur = nodeVM.currentLevel;
+      isChoice = nodeVM.isChoice;
+    } else {
+      // 回退：从 sys.bySlot 直接查原始 EnhanceSlot（绕过 hiddenByChoice，用于二选一 flag2）
+      const rawSlot = Object.values(sys.bySlot).flat().find((s) => s.enhanceId === sheet.enhanceId);
+      if (!rawSlot) return null;
+      slot = rawSlot;
+      cur = acquired.get(sheet.enhanceId) ?? 0;
+      const choiceKey = `${rawSlot.slotId}_${rawSlot.treeColumn}`;
+      isChoice = !!treeVM?.choiceGroups[choiceKey] && rawSlot.nodeFlag !== 0;
+    }
     const maxLevel = isChoice ? 1 : slot.maxLevel;
     const isMaxed = cur >= maxLevel;
     const avail = isEnhanceAvailable(slot, slotInfo, new Set(acquired.keys()));
