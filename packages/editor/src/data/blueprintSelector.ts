@@ -6,7 +6,7 @@
  *   只有白名单内的 bpId 才显示，分类(舰型)也以白名单为准，不再靠关键词推断。
  */
 import type { ClientDataStore } from "@lagrange/engine";
-import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint } from "@lagrange/engine";
+import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense } from "@lagrange/engine";
 import type { BlueprintPanel } from "@lagrange/engine";
 
 // ===== 舰型分类(顺序即底部图标栏顺序) =====
@@ -190,8 +190,16 @@ export function getShipPanel(store: ClientDataStore, bpId: string, peakLevel: nu
   const shipName = subType ? fullName.replace(new RegExp("-" + subType + "$"), "") : fullName;
 
   // 调用蓝图计算层：巅峰等级 > 0 时聚合巅峰加成（结构/移速），否则基础面板
-  const blueprint = peakLevel > 0
-    ? resolveBlueprint(store, entry.shipId, "", { peakLevel })
+  // ★模块结构加成(Layer1)：从装甲模块 EID=10 万分比 × baseStructure 算出，传给 resolver
+  //   使强化系数作用于完整骨架（base + moduleBonus），与客户端 hp_max 口径一致。
+  //   当有模块结构加成时（即使无巅峰），也需走 resolver 把 moduleBonus 纳入 finalStructure。
+  const baseStructure = Number(shipRow[4] ?? 0);
+  const defense = getBaseDefense(store, entry.shipId, enabledSlots);
+  const moduleStructureBonus = Math.floor((baseStructure * defense.structurePermille) / 10000);
+  const needsResolver = peakLevel > 0 || moduleStructureBonus > 0;
+
+  const blueprint = needsResolver
+    ? resolveBlueprint(store, entry.shipId, "", { peakLevel, moduleStructureBonus })
     : null;
   const panel = resolveBlueprintPanel(store, entry.shipId, shipName, blueprint, enabledSlots);
 

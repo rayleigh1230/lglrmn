@@ -46,6 +46,7 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
     ['blueprintPeakLevel', 'cfg_blueprint_peak_level.json'],
     ['peakLevelAuth', 'cfg_peak_level_auth.json'],
     ['systemSkill', 'cfg_system_skill.json'],
+    ['systemEnhanceTree', 'cfg_system_enhance_tree.json'],
   ] as const) {
     try {
       (parts as Record<string, unknown>)[key] = read(dir, file);

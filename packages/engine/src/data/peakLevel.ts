@@ -37,22 +37,44 @@ export interface PeakEnhanceEntry {
 export interface PeakSnapshot {
   /** 巅峰等级(1-20),0 表示无巅峰 */
   peakLevel: number;
-  /** 强化串解析结果(字段0,巅峰系统) */
+  /** 强化串解析结果(字段0,普通强化项等级给定) */
   enhances: PeakEnhanceEntry[];
-  /** 原始调校解锁串(字段1,调校系统,本次不解析) */
-  tuneStringRaw: string;
+  /** ★巅峰强化奖励串(字段1,巅峰专属强化项等级给定,optIdx=70/71) */
+  rewardEntries: PeakRewardEntry[];
+}
+
+/** 巅峰强化奖励条目(field[1] 解析结果) */
+export interface PeakRewardEntry {
+  /** 9位 enhanceId(slotId 7位 + optIdx 2位=70/71) */
+  enhanceId: string;
+  /** 该巅峰专属强化项的给定等级 */
+  level: number;
 }
 
 /** 巅峰强化数值(按 EFFECT_ID 分发后的聚合结果) */
 export interface PeakBonus {
-  /** 结构加成绝对值(EFFECT_ID=12,龙骨结构增强,每级都有) */
+  /** 结构加成绝对值(EFFECT_ID=12,龙骨结构增强,每级都有) —— field[0] */
   structureAbsolute: number;
-  /** 常规移速加成万分比(EFFECT_ID=14,引擎出力) */
+  /** 常规移速加成万分比(EFFECT_ID=14,引擎出力) —— field[0] */
   speedBonus: number;
-  /** 曲率移速加成万分比(EFFECT_ID=16,曲率引擎) */
+  /** 曲率移速加成万分比(EFFECT_ID=16,曲率引擎) —— field[0] */
   curvatureSpeedBonus: number;
+  /** ★巅峰强化奖励加成 —— field[1]，独立的巅峰专属强化项（特定巅峰等级解锁） */
+  reward: PeakRewardBonus;
   /** 实际解析到的加成明细(调试用) */
   details: Array<{ slotId: string; level: number; effectId: number; name: string; value: number }>;
+}
+
+/** 巅峰强化奖励(field[1])按 EFFECT_ID 分发后的聚合结果 */
+export interface PeakRewardBonus {
+  /** 结构加成万分比(EFFECT_ID=10,巅峰结构增强) */
+  structurePermille: number;
+  /** 伤害加成万分比(EFFECT_ID=12350,巅峰武器单发) */
+  damagePermille: number;
+  /** 维修效率加成万分比(EFFECT_ID=12050,强化维修光束) */
+  repairPermille: number;
+  /** 奖励明细(调试用) */
+  details: Array<{ enhanceId: string; level: number; effectId: number; name: string; value: number }>;
 }
 
 /**
@@ -77,17 +99,41 @@ export function parsePeakEnhanceString(str: string): PeakEnhanceEntry[] {
 }
 
 /**
- * 调校解锁串解析(字段1,占位) —— 调校系统已独立实装,见 tuneSystem.ts。
+ * 解析巅峰强化奖励串(字段1): "enhanceId,level;enhanceId,level;..."
  *
- * 字段1格式: "slotId70,level;..."(70号槽,随巅峰等级到3级)。
- * 真正的调校系统(optIdx=31-43, 10级)在 cfg_system_enhance 里,
- * 由 resolveTuneSystem() 解析,不走此函数。
+ * ★ 机制(2026-07-04 铁证验证,斗牛40501为锚点):
+ * 字段1 是巅峰专属强化项的等级给定，与字段0(普通强化项)平行但独立。
+ * enhanceId 是9位 = slotId(7位) + optIdx(2位,=70或71)。
+ * 解析链:
+ *   1. enhanceId 查 cfg_system_enhance[enhanceId].SYSTEM_EFFECT_PREFIX = effect prefix
+ *   2. prefix 直接当 effect prefix 查 cfg_system_effect[prefix+"01"] = 巅峰专属强化项
+ *      (NAME 含"巅峰",如"巅峰结构增强"/"巅峰武器单发",与普通强化项不同但同 EFFECT_ID)
+ *   3. level 查该 effect 的 EFFECT_PARAM_LEVEL 第 level 行取值
  *
- * 70号槽是巅峰附带的少量调校(EFFECT_TYPE=3/5),与主调校系统不同。
+ * 涵盖多类: 结构(EID=10)/伤害(EID=12350)/暴击(EID=12030)/维修(EID=12050)等。
+ * 特定巅峰等级才解锁(斗牛:巅峰5解锁slot02奖励,巅峰10解锁slot01奖励)。
  */
-export function parseTuneString(_str: string): PeakEnhanceEntry[] {
-  void _str;
-  return [];
+export function parsePeakRewardString(str: string): PeakRewardEntry[] {
+  if (!str) return [];
+  const result: PeakRewardEntry[] = [];
+  const segments = str.split(';').filter((s) => s.trim().length > 0);
+  for (const seg of segments) {
+    const parts = seg.split(',').map((p) => p.trim());
+    if (parts.length < 2) continue;
+    const enhanceId = parts[0];
+    const level = Number(parts[1]);
+    if (!enhanceId || Number.isNaN(level)) continue;
+    result.push({ enhanceId, level });
+  }
+  return result;
+}
+
+/**
+ * @deprecated 旧名,等价于 parsePeakRewardString。field[1] 实为巅峰强化奖励(非调校),
+ * 真正的调校系统(optIdx=31-43)在 tuneSystem.ts。保留此函数仅为向后兼容。
+ */
+export function parseTuneString(str: string): PeakEnhanceEntry[] {
+  return parsePeakRewardString(str).map((r) => ({ slotId: r.enhanceId, level: r.level }));
 }
 
 /**
@@ -104,20 +150,20 @@ export function getPeakSnapshot(
   peakLevel: number
 ): PeakSnapshot {
   if (peakLevel <= 0 || !store.shipPeakLevel) {
-    return { peakLevel: 0, enhances: [], tuneStringRaw: '' };
+    return { peakLevel: 0, enhances: [], rewardEntries: [] };
   }
   // key = shipId(5) + peakLv(补零2位)
   const key = shipId + String(peakLevel).padStart(2, '0');
   const row = store.shipPeakLevel[key];
   if (!row) {
-    return { peakLevel: 0, enhances: [], tuneStringRaw: '' };
+    return { peakLevel: 0, enhances: [], rewardEntries: [] };
   }
   const enhanceStr = row[0] ?? '';
-  const tuneStr = row[1] ?? '';
+  const rewardStr = row[1] ?? '';
   return {
     peakLevel,
     enhances: parsePeakEnhanceString(enhanceStr),
-    tuneStringRaw: tuneStr,
+    rewardEntries: parsePeakRewardString(rewardStr),
   };
 }
 
@@ -184,6 +230,7 @@ export function computePeakBonus(
     structureAbsolute: 0,
     speedBonus: 0,
     curvatureSpeedBonus: 0,
+    reward: { structurePermille: 0, damagePermille: 0, repairPermille: 0, details: [] },
     details: [],
   };
   if (peakLevel <= 0) return result;
@@ -219,6 +266,54 @@ export function computePeakBonus(
         break;
     }
   }
+
+  // ★field[1]: 巅峰强化奖励(独立的巅峰专属强化项,optIdx=70/71)
+  // 解析链: enhanceId -> systemEnhance[enhanceId].SYSTEM_EFFECT_PREFIX(=effect prefix)
+  //         -> systemEffect[prefix+"01"] = 巅峰专属强化项 -> PARAM_LEVEL 第 level 行
+  const systemEnhance = store.systemEnhance;
+  const systemEffect = store.systemEffect;
+  for (const entry of snapshot.rewardEntries) {
+    if (entry.level <= 0) continue;
+    const enhRec = systemEnhance?.[entry.enhanceId];
+    if (!enhRec) continue;
+    const prefix = Number(enhRec.SYSTEM_EFFECT_PREFIX);
+    if (!prefix) continue;
+    const effKey = String(prefix) + '01';
+    const eff = systemEffect?.[effKey] as RawSystemEffect | undefined;
+    if (!eff) continue;
+    const effectId = Number(eff.EFFECT_ID ?? -1);
+    const name = String(eff.NAME ?? '');
+    // 取 PARAM_LEVEL 第 level 行(巅峰奖励强化项都是 A类,有等级表)
+    const pl = eff.EFFECT_PARAM_LEVEL;
+    if (!pl) continue;
+    const value = lookupParamLevel(pl, entry.level);
+    if (value == null) continue;
+
+    result.reward.details.push({
+      enhanceId: entry.enhanceId,
+      level: entry.level,
+      effectId,
+      name,
+      value,
+    });
+
+    // 按 EFFECT_ID 分发到 reward 子结构
+    switch (effectId) {
+      case 10: // 巅峰结构增强(万分比)
+        result.reward.structurePermille += value;
+        break;
+      case 12350: // 巅峰武器单发(伤害,万分比)
+        result.reward.damagePermille += value;
+        break;
+      case 12050: // 强化维修光束(维修效率,万分比)
+        result.reward.repairPermille += value;
+        break;
+      default:
+        // 其他类型(暴击12030等)记录在 details 但暂不聚合到具体字段
+        break;
+    }
+  }
+
   return result;
 }
 

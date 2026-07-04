@@ -39,6 +39,8 @@ export interface ClientDataParts {
   blueprintPeakLevel?: Record<string, [number, number]>;
   peakLevelAuth?: Record<string, unknown[]>;
   systemSkill?: Record<string, Record<string, unknown>>;
+  /** ★强化项科技树前置依赖(可选) */
+  systemEnhanceTree?: Record<string, [string, number]>;
 }
 
 /**
@@ -65,5 +67,6 @@ export function createClientData(parts: ClientDataParts): ClientDataStore {
     blueprintPeakLevel: parts.blueprintPeakLevel,
     peakLevelAuth: parts.peakLevelAuth,
     systemSkill: parts.systemSkill,
+    systemEnhanceTree: parts.systemEnhanceTree,
   };
 }

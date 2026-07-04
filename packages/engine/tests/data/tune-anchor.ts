@@ -36,7 +36,7 @@ console.log('[斗牛 / 40501]');
 const tune = resolveTuneSystem(store, '40501');
 console.log(`  调校槽数量: ${tune.tuneSlots.length}`);
 for (const slot of tune.tuneSlots) {
-  console.log(`  ${slot.enhanceId}(opt${slot.optIdx}): target=${slot.targetOptIdx} PREFIX=${slot.effectPrefix} ` +
+  console.log(`  ${slot.enhanceId}(opt${slot.optIdx}): target=${slot.targetOptIdx} targetEnh=${slot.targetEnhanceId} PREFIX=${slot.effectPrefix} ` +
     `prob=${slot.adjustProb.length}级 rarity=${slot.rarity} effect=${slot.effect?.name}(EID=${slot.effect?.effectId})`);
 }
 
@@ -56,6 +56,16 @@ assert(slot38?.effect?.effectId === 13005, `opt38效果EID=13005(优势输出) �
 const slot31 = tune.tuneSlots.find(s => s.optIdx === 31);
 assert(!!slot31, '存在 optIdx=31 调校槽');
 assert(slot31?.effect?.effectId === 10, `opt31效果EID=10(龙骨结构) 实际=${slot31?.effect?.effectId}`);
+
+// 验证 targetEnhanceId 子系统 scope（同 slot，optIdx=ADJUST_ENHANCE_INDEX）
+const slot38Target = slot38?.targetEnhanceId;
+assert(!!slot38Target, `opt38 targetEnhanceId 存在`);
+if (slot38Target) {
+  // 405010138 slot=01, ADJUST_ENHANCE_INDEX=8 → target=405010108
+  assert(slot38Target.startsWith('40501'), `opt38 targetEnhanceId 同 shipId 前缀`);
+  assert(slot38Target === '4050101' + String(slot38!.targetOptIdx).padStart(2, '0'),
+    `opt38 targetEnhanceId=同slot+pad2(targetOptIdx)`);
+}
 
 // isTuneSlot 工具函数
 assert(isTuneSlot('405010138') === true, 'isTuneSlot(405010138)=true');

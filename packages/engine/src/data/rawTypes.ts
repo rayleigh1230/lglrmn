@@ -22,8 +22,8 @@ export type RawShipRow = [
   number, // [8]  unknown_f8
   string, // [9]  cost_str 建造成本
   number, // [10] build_cost_total
-  number, // [11] slot_row_count ★槽位行数
-  number, // [12] slot_row_count2（恒等于[11]）
+  number, // [11] ★ship_type 舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列，对照白名单169艘全验证）
+  number, // [12] ship_type2（恒等于[11]）
   number, // [13] unknown_f13
   number, // [14] reserved
   number, // [15] reserved
@@ -46,7 +46,7 @@ export const SHIP = {
   SHIP_CLASS: 3,
   STRUCTURE: 4,
   SPEED: 5,
-  SLOT_ROW_COUNT: 11,
+  SHIP_TYPE: 11, // ★舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列）
   SIZE_CLASS: 21,
   MODEL_CODE: 23,
 } as const;
@@ -141,12 +141,15 @@ export interface ClientDataStore {
   peakLevelAuth?: Record<string, unknown[]>;
   /** 系统技能表(调校候选): 调校三步链可能藏此表 */
   systemSkill?: Record<string, Record<string, unknown>>;
+  /** ★强化项科技树前置依赖: key=enhanceId(9位), value=["parents;treeId", flag] */
+  systemEnhanceTree?: Record<string, [string, number]>;
 }
 
 // ===== cfg_ship_type.json（舰种表）=====
 // 格式：{ ship_type: [name, desc, ...字段, ship_hp_add, ...] }
 // 关键字段 [8] = 抵抗基础值（护卫/驱逐/巡洋=10，战巡/航母/战列=5）
-// 关键字段 [9] = SHIP_HP_ADD（每技术值点的结构加成，版本号计算用）
+// 关键字段 [9] = ship_hp_add（普通舰每科技点结构加成：驱逐=40/护卫=20/巡洋=60；超主力舰=0无版本号加成）
+// 关键字段 [10] = 超主力舰专属值=50（用途待定，非结构加成——实测超主力舰无版本号结构加成）
 export type RawShipTypeRow = [
   string, // [0] name 舰种名
   string, // [1] desc 描述
@@ -157,8 +160,8 @@ export type RawShipTypeRow = [
   number, // [6] ?
   number, // [7] ?
   number, // [8] ★抵抗基础值（护卫10/战巡5）
-  number, // [9] ★ship_hp_add（每技术值点的结构加成）
-  number, // [10] ?
+  number, // [9] ★ship_hp_add（普通舰每科技点结构加成，超主力舰=0）
+  number, // [10] 超主力舰专属值=50（用途待定，非结构加成）
 ];
 
 // ===== cfg_ship_system.json（舰船子系统/模块定义）=====

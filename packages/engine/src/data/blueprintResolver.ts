@@ -29,38 +29,77 @@ import type { ClientDataStore, RawSystemEffect } from './rawTypes.js';
 import { SHIP } from './rawTypes.js';
 import { parseTechString, type TechModule } from './techString.js';
 import { computePeakBonus } from './peakLevel.js';
+import { computeTuneBonus } from './tuneSystem.js';
 
 /** 万分比基数（A类 PARAM / PERMILLE = 百分比） */
 const PERMILLE = 10000;
 
-/**
- * 从舰名推断 ship_type（cfg_ship_type 的 key）。
- * cfg_ship 没有 ship_type 字段，需从舰名推断。
- * 返回 null 表示无法推断（无人机/靶舰等非主力舰，无版本号加成）。
- */
-function inferShipType(shipName: string): number | null {
-  if (/护卫舰/.test(shipName) && !/战列/.test(shipName)) return 3;
-  if (/驱逐舰/.test(shipName)) return 4;
-  if (/战列巡洋舰|战巡/.test(shipName)) return 6;
-  if (/航空母舰|航母/.test(shipName)) return 8;
-  if (/战列舰/.test(shipName) && !/巡洋/.test(shipName)) return 9;
-  if (/巡洋舰/.test(shipName) && !/战列/.test(shipName)) return 5;
-  if (/支援舰/.test(shipName)) return 7;
-  return null;
-}
+/** 超主力舰 ship_type 集合（战巡6/支援7/航母8/战列9），舰种由 cfg_ship[11] 判定 */
+const SUPER_CAPITAL_TYPES = new Set([6, 7, 8, 9]);
 
 /**
- * 查 ship_type[9]（SHIP_HP_ADD，每技术值点的结构加成）。
- * 自动从舰名推断 ship_type，再查 cfg_ship_type。
- * 返回 0 表示该舰种无版本号加成（超主力舰或无法推断）。
+ * 查每科技点的结构加成系数（版本号计算用）。
+ * 普通舰（护卫3/驱逐4/巡洋5）用 cfg_ship_type[9]（驱逐=40）。
+ * ★超主力舰（战巡6/支援7/航母8/战列9）无版本号结构加成——cfg_ship_type[9]=0，
+ *   实测印证：CV3000(航母) finalStructure=278340×1.33=370192，无版本号加成。
+ *   （cfg_ship_type[10]=50 不是结构加成用途，暂不用）
+ * 舰种由 cfg_ship[11]（SHIP_TYPE）确定，不靠舰名匹配。
+ * 返回 0 表示该舰种无版本号加成。
  */
 function lookupShipHpAdd(store: ClientDataStore, shipId: string): number {
   const shipRow = store.ship[shipId];
   if (!shipRow) return 0;
-  const shipType = inferShipType(String(shipRow[0]));
-  if (shipType === null) return 0;
+  const shipType = Number(shipRow[11] ?? 0);
+  if (!shipType) return 0;
   const typeRow = store.shipType[String(shipType)];
-  return typeRow?.[9] ?? 0;
+  if (!typeRow) return 0;
+  return typeRow[9] ?? 0;
+}
+
+/**
+ * ★推测超主力舰装配模块的科技点（启发式，非精确）。
+ *
+ * ★重要：配置表无法可靠判定"初始为空"的系统槽（CV3000 反例：护航艇系统有
+ * POINT_REQUIRED 但初始可能就有模块）。"初始为空"是运行时状态（玩家装配动作），
+ * 应由调用方传入确切的 installPoints，而非用此函数自动推断。
+ *
+ * 此函数仅作启发式推测：ADDITIONAL_SYS=1 且 MAIN_SYSTEM≠1 的系统视为"可选附加系统"，
+ * 若装配了模块则按切换组聚合 +10点。仅超主力舰生效。
+ *
+ * @returns 推测的装配科技点（可能不准，建议调用方传入 installPoints 覆盖）
+ */
+export function countInstallTechPoints(store: ClientDataStore, shipId: string): number {
+  const shipRow = store.ship[shipId];
+  if (!shipRow) return 0;
+  const shipType = Number(shipRow[11] ?? 0);
+  if (!SUPER_CAPITAL_TYPES.has(shipType)) return 0; // 仅超主力舰
+
+  const shipSystem = store.shipSystem as Record<string, Record<string, unknown>> | undefined;
+  const shipSlot = store.shipSlot as Record<string, unknown[]> | undefined;
+  if (!shipSystem || !shipSlot) return 0;
+
+  // 启发式：ADDITIONAL_SYS=1 且 MAIN_SYSTEM≠1 = 可选附加系统（推测为初始空）
+  // 按切换组聚合（同组只算一次）
+  const optionalGroupsWithInstall = new Set<string>();
+  for (const slotId in shipSystem) {
+    if (!slotId.startsWith(shipId) || slotId.length !== 7) continue;
+    const sys = shipSystem[slotId];
+    const isOptional = Number(sys.ADDITIONAL_SYS ?? 0) === 1 && Number(sys.MAIN_SYSTEM ?? 0) !== 1;
+    if (!isOptional) continue;
+    const group = String(sys.GROUP ?? slotId);
+    // 该槽是否装配了模块（cfg_ship_slot cat=0）
+    let installed = false;
+    for (const slotKey in shipSlot) {
+      if (!slotKey.startsWith(slotId)) continue;
+      const row = shipSlot[slotKey];
+      if (Number(row[0]) !== 0) continue;
+      const modId = String(row[2]);
+      if (modId && modId !== '0') { installed = true; break; }
+    }
+    if (installed) optionalGroupsWithInstall.add(group);
+  }
+
+  return optionalGroupsWithInstall.size * 10;
 }
 
 /**
@@ -221,6 +260,31 @@ export interface BlueprintOptions {
   techPoints?: number;
   /** 每技术值点的结构加成（cfg_ship_type[shipType][9]，如驱逐舰=40） */
   shipHpAdd?: number;
+  /**
+   * ★模块结构加成（Layer1，绝对值）。
+   * 来自装甲模块 cfg_module_effect 的 EID=10 万分比 × baseStructure。
+   * 强化系数(permille)作用于 baseStructure + moduleStructureBonus（完整骨架）。
+   * 默认 0（向后兼容：不提供则强化只作用于出厂基础值）。
+   */
+  moduleStructureBonus?: number;
+  /**
+   * ★调校槽等级映射 { enhanceId: level(0-10) }。
+   * 提供后 resolver 聚合调校加成（结构/伤害/命中/拦截/维修），按 EFFECT_ID 分发。
+   * 调校生效需对应目标强化项已点等级（见 enhanceLevels）。
+   */
+  tuneLevels?: Record<string, number>;
+  /**
+   * ★普通强化项等级映射 { enhanceId: level }。
+   * 用于调校前提门控（调校生效需其 targetEnhanceId 已点等级）。
+   * 不提供时调校门控降级为不检查。
+   */
+  enhanceLevels?: Record<string, number>;
+  /**
+   * ★装配模块科技点（超主力舰初始空系统首次装配 +10/组）。
+   * 由调用方传入确切的玩家装配记录（运行时状态）。
+   * 不提供时用 countInstallTechPoints 启发式推测（可能不准）。
+   */
+  installPoints?: number;
 }
 
 /** 一个解析后的效果（已取出 EFFECT_ID 与按等级缩放后的数值） */
@@ -257,7 +321,9 @@ export interface UnresolvedEffect {
 export interface ResolvedBlueprint {
   shipId: string;
   baseStructure: number;
-  /** 强化后结构值 = base×(1+Σ结构万分比/10000) + 巅峰结构绝对值 + 版本号绝对值 */
+  /** ★模块结构加成绝对值（Layer1，EID=10 万分比 × base） */
+  moduleStructureBonus: number;
+  /** 强化后结构值 = (base+moduleBonus)×(1+Σ结构万分比/10000) + 巅峰结构绝对值 + 版本号绝对值 */
   finalStructure: number;
   /** 结构强化的万分比合计（不含巅峰/版本号绝对值） */
   structureBonusPermille: number;
@@ -266,6 +332,8 @@ export interface ResolvedBlueprint {
   peakLevel: number;
   /** ★巅峰结构加成（绝对值，来自龙骨结构增强 EFFECT_ID=12，每级都有） */
   peakStructureBonus: number;
+  /** ★巅峰强化奖励的结构加成（万分比，来自 field[1] EFFECT_ID=10，暂不自动叠加到 finalStructure，待实测确认） */
+  peakRewardStructurePermille: number;
   /** ★巅峰常规移速加成（万分比，来自引擎出力 EFFECT_ID=14，特定巅峰等级） */
   peakSpeedBonus: number;
   /** ★巅峰曲率移速加成（万分比，来自曲率引擎 EFFECT_ID=16，特定巅峰等级） */
@@ -749,33 +817,78 @@ export function resolveBlueprint(
     }
   }
 
-  // ★巅峰等级加成（从 cfg_ship_peak_level 聚合，EFFECT_ID=12/14/16）
+  // ★巅峰等级加成（从 cfg_ship_peak_level 聚合）
+  //   field[0]: EFFECT_ID=12/14/16 (结构绝对值 + 移速万分比) —— 普通强化项等级给定
+  //   field[1]: EFFECT_ID=10/12350/12050 等 (巅峰专属强化项) —— 独立加成，与 field[0] 叠加
+  //
+  // ★架构定位：resolveBlueprint 是"蓝图态→聚合数值"的转换器（客户端聚合职责）。
+  //   面板结构值 = 各来源（模块基础 + 强化 + 调校 + 巅峰 + 版本号）聚合后的总值。
+  //   field[1] 的结构万分比(EID=10)是合法来源，应叠加到强化系数。
   const peakLevel = options?.peakLevel ?? 0;
   const peakBonus = computePeakBonus(store, shipId, peakLevel);
   // 巅峰移速加成叠加到普通移速加成（均为万分比）
   speedBonus += peakBonus.speedBonus;
   curvatureSpeedBonus += peakBonus.curvatureSpeedBonus;
+  // ★巅峰强化奖励的结构万分比(EID=10)叠加到强化系数——作用于 skeleton
+  structureBonusPermille += peakBonus.reward.structurePermille;
+  const peakRewardStructurePermille = peakBonus.reward.structurePermille;
 
-  // 结构值 = base×(1+Σ万分比/10000) + 巅峰结构绝对值 + 版本号绝对值
-  // 用 floor（向下取整）：36040×1.09=39283.6 → 39283（游戏面板行为）
-  // 版本号计算优先级：
-  //   1. 直接提供 versionStructureBonus
-  //   2. 提供 techPoints + shipHpAdd → techPoints × shipHpAdd
-  //   3. 提供 techPoints（无 shipHpAdd）→ 自动从 store.shipType 查 SHIP_HP_ADD
-  let versionBonus = options?.versionStructureBonus ?? 0;
-  if (versionBonus === 0 && options?.techPoints != null) {
-    const shipHpAdd = options.shipHpAdd ?? lookupShipHpAdd(store, shipId);
-    versionBonus = options.techPoints * shipHpAdd;
+  // ★调校系统加成（tuneSystem，optIdx=31-43）
+  //   前提门控：调校生效需目标强化项已点等级（enhanceLevels）
+  //   效果按 EFFECT_ID 分发：结构/伤害/命中/拦截/维修
+  const tuneLevels = options?.tuneLevels;
+  const tuneBonus = tuneLevels && Object.keys(tuneLevels).length > 0
+    ? computeTuneBonus(store, shipId, tuneLevels, options?.enhanceLevels)
+    : null;
+  if (tuneBonus) {
+    // 调校结构万分比(EID=10)叠加到强化系数——作用于 skeleton
+    structureBonusPermille += tuneBonus.structureBonusPermille;
+    // 其他加成叠加到对应字段
+    baseDamageBonus += tuneBonus.damageBonusPermille; // 伤害万分比近似为+dph（简化）
+    hitBonus += tuneBonus.hitBonusPermille;
+    interceptRate += tuneBonus.interceptRate;
+    repairEfficiencyBonus += tuneBonus.repairBonusPermille;
   }
-  const finalStructure = Math.floor(baseStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus.structureAbsolute + versionBonus;
+
+  // ★分层结构计算：
+  //   Layer0 baseStructure（cfg_ship[4]，出厂值，绝对不改）
+  //   Layer1 moduleStructureBonus（装甲模块 EID=10 万分比 × base，调用方传入）
+  //   skeleton = Layer0 + Layer1（强化系数作用基准——强化作用于完整骨架）
+  //   Layer2 强化/巅峰/技术值 → finalStructure
+  const moduleStructureBonus = options?.moduleStructureBonus ?? 0;
+  const skeletonStructure = baseStructure + moduleStructureBonus;
+
+  // finalStructure = floor(skeleton × (1+Σ万分比/10000)) + 巅峰结构绝对值 + 版本号绝对值
+  // 用 floor（向下取整）：36040×1.09=39283.6 → 39283（游戏面板行为）
+  // ★版本号计算（总科技点 × 每点结构加成）：
+  //   总科技点 = 强化项消耗点(techPoints) + 装配点(countInstallTechPoints)
+  //   - 强化项消耗：所有强化项 ENHANCE_COST 累计（不区分效果是否生效）
+  //   - 装配点：超主力舰每个有装配的切换组 +10（普通舰=0）
+  //   每点结构加成：普通舰 cfg_ship_type[9]，超主力舰 [10]=50
+  //   优先级：直接提供 versionStructureBonus > 自动计算
+  let versionBonus = options?.versionStructureBonus ?? 0;
+  if (versionBonus === 0) {
+    const enhancePoints = options?.techPoints ?? 0;
+    // 装配点：调用方传入确切值（运行时状态，配置表无法可靠判定）。
+    // 不传时默认0（不自动推测，避免误算）。需要时调用 countInstallTechPoints 显式获取推测值。
+    const installPoints = options?.installPoints ?? 0;
+    const totalTechPoints = enhancePoints + installPoints;
+    if (totalTechPoints > 0) {
+      const shipHpAdd = options?.shipHpAdd ?? lookupShipHpAdd(store, shipId);
+      versionBonus = totalTechPoints * shipHpAdd;
+    }
+  }
+  const finalStructure = Math.floor(skeletonStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus.structureAbsolute + versionBonus;
 
   return {
     shipId,
     baseStructure,
+    moduleStructureBonus,
     finalStructure,
     structureBonusPermille,
     peakLevel,
     peakStructureBonus: peakBonus.structureAbsolute,
+    peakRewardStructurePermille,
     peakSpeedBonus: peakBonus.speedBonus,
     peakCurvatureSpeedBonus: peakBonus.curvatureSpeedBonus,
     resistanceBonus,

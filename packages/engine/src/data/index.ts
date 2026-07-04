@@ -31,6 +31,7 @@ export { parseTechString, type TechModule } from './techString.js';
 
 export {
   resolveBlueprint,
+  countInstallTechPoints,
   type ResolvedEffect,
   type UnresolvedEffect,
   type ResolvedBlueprint,
@@ -91,3 +92,10 @@ export {
   type ShipTuneSystem,
   type TuneBonus,
 } from './tuneSystem.js';
+
+export {
+  resolveEnhanceSystem,
+  getEnhanceValue,
+  type EnhanceSlot,
+  type ShipEnhanceSystem,
+} from './enhanceSystem.js';

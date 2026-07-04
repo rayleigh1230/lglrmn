@@ -62,18 +62,22 @@ test('斗牛级结构强化（仅科技串，不含巅峰/版本号）', async (
   assert.equal(bp.finalStructure, 37481);
 });
 
-test('斗牛级完整结构值 = 45948（科技串+抗冲击调校+巅峰+版本号）', async () => {
+test('斗牛级完整结构值 = 46669（科技串+抗冲击调校+巅峰+版本号）', async () => {
   const store = await getStore();
-  // 真实科技串 + 抗冲击8890(调校,需手动加) + 巅峰5级(查cfg_ship_peak_level=2745) + 版本号(98×40=3920)
+  // 真实科技串 + 抗冲击8890(调校,需手动加) + 巅峰5级 + 版本号(98×40=3920)
+  // ★巅峰5 field[0]: 龙骨结构增强(slot01) L5=2745(绝对值,EID=12)
+  // ★巅峰5 field[1]: 巅峰结构增强(405010270) L2=200(万分比=2%,EID=10)
+  // 聚合: 36040 × 1.11(龙骨4%+抗冲击5%+巅峰奖励2%) + 2745 + 3920 = 46669
   const techWithAntiImpact = BULL_TECH_STR + '4050102,5,8890,1;';
   const bp = resolveBlueprint(store, '40501', techWithAntiImpact, {
     peakLevel: 5,
     techPoints: 98,
   });
-  // 36040 × 1.09(龙骨4%+抗冲击5%) + 2745(巅峰5龙骨) + 3920 = 45948
-  assert.equal(bp.structureBonusPermille, 900, '龙骨4%+抗冲击5%=9%');
-  assert.equal(bp.peakStructureBonus, 2745, '巅峰5级龙骨结构加成=2745');
-  assert.equal(bp.finalStructure, 45948, '完整结构值=45948(误差0)');
+  // structureBonusPermille = 900(龙骨4%+抗冲击5%) + 200(巅峰奖励field[1] 2%) = 1100
+  assert.equal(bp.structureBonusPermille, 1100, '龙骨4%+抗冲击5%+巅峰奖励2%=11%');
+  assert.equal(bp.peakStructureBonus, 2745, '巅峰5级龙骨结构加成=2745(field[0])');
+  assert.equal(bp.peakRewardStructurePermille, 200, '巅峰5级奖励结构加成=200(field[1])');
+  assert.equal(bp.finalStructure, 46669, '完整结构值=46669(含field[1]巅峰奖励)');
 });
 
 test('斗牛级抵抗 = 36（基础20 + 淬火8 + 刚性8）', async () => {

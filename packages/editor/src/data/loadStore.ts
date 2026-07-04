@@ -28,6 +28,7 @@ const TABLE_FILES: Record<keyof ClientDataParts, string> = {
   blueprintPeakLevel: "cfg_blueprint_peak_level.json",
   peakLevelAuth: "cfg_peak_level_auth.json",
   systemSkill: "cfg_system_skill.json",
+  systemEnhanceTree: "cfg_system_enhance_tree.json",
 };
 
 // 额外的非引擎配置文件(舰船白名单, 用户人工筛选)
