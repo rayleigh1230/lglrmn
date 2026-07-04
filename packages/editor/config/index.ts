@@ -31,6 +31,16 @@ export default defineConfig(async (merge) => {
           from: "../../data/client/icons/manifest.json",
           to: "dist/icons/manifest.json"
         },
+        // ship_thumb_map.json 单独复制 (icons/ 的 *.json 被 ignore 排除)
+        {
+          from: "../../data/client/icons/ship_thumb_map.json",
+          to: "dist/icons/ship_thumb_map.json"
+        },
+        // company_map.json 单独复制 (shipId → 公司徽章映射)
+        {
+          from: "../../data/client/icons/company_map.json",
+          to: "dist/icons/company_map.json"
+        },
         // 配置表: 复制到 dist/config (供 loadStore 用 fetch 读取)
         {
           from: "../../data/client/config/",
@@ -40,12 +50,17 @@ export default defineConfig(async (merge) => {
       options: {}
     },
     framework: "react",
-    compiler: "webpack5",
+    // prebundle 必须挂在 compiler 对象上才会被 getPrebundleOptions 读取。
+    // 顶层 prebundle 字段不被 Taro 读取 (webpack5-runner/Combination.js: getPrebundleOptions)。
+    // prebundle 与 webpack 5.78 的 webpack-virtual-modules@0.5.0 不兼容
+    // (virtual-modules 调用 _writeVirtualFile，该方法在 5.78 的 InputFileSystem 上不存在)。
+    compiler: {
+      type: "webpack5",
+      prebundle: { enable: false }
+    },
     cache: {
       enable: false
     },
-    // 禁用 prebundle (与 webpack 5.78 的 virtual-modules 不兼容)
-    prebundle: { enable: false },
     mini: {
       postcss: {
         pxtransform: { enable: true, config: {} },

@@ -74,7 +74,7 @@ function analyze(pts: HPPoint[], label: string): Analysis {
   };
 }
 
-const baseDir = 'F:/战斗模拟器/lglrmn/data/client';
+const baseDir = 'E:/战斗模拟器/data/client';
 const buff = analyze(loadHP(path.join(baseDir, 'battle_report/enemy_battle_data_decoded.txt')), '加成(+10%全+15%对大)');
 const nobuff = analyze(loadHP(path.join(baseDir, 'battle_report_nobuff/enemy_battle_data_decoded.txt')), '无加成');
 

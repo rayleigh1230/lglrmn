@@ -8,7 +8,7 @@ import {
   getShipSystems,
   CATEGORY_COLOR,
 } from "../../data/blueprintSelector";
-import { shipThumbnailIcon, peakIcon, prefixIcon, iconUrl } from "../../data/iconResolver";
+import { shipThumbnailIcon, peakIcon, companyIcon, prefixIcon, iconUrl } from "../../data/iconResolver";
 import "./index.css";
 
 export default function BlueprintDesign() {
@@ -38,20 +38,22 @@ export default function BlueprintDesign() {
     return getShipSystems(store, panel.shipId, enabledSlots);
   }, [store, panel, enabledSlots]);
 
-  // 按GROUP统一分组(含固定+可选)，同组2+成员的可切换
+  // 按GROUP统一分组，切换组(同组≥2模块)用弹出选择，单模块组用固定卡片
+  // letter 直接取自 selector 算好的 moduleId 前缀(M/A/B/C...)，避免重复维护映射
   const moduleGroups = useMemo(() => {
-    const letterMap: Record<number, string> = { 101: "M", 102: "A", 201: "B", 202: "C", 203: "D", 204: "E" };
     const groups: Record<string, { key: string; letter: string; options: typeof systems }> = {};
     for (const sys of systems) {
-      if (sys.group === null) continue;
+      if (!sys.isSwitchable || sys.group === null) continue;
       const key = String(sys.group);
       if (!groups[key]) {
-        groups[key] = { key, letter: letterMap[sys.group] ?? "", options: [] };
+        const letter = sys.moduleId ? sys.moduleId.replace(/[0-9]/g, "") : "";
+        groups[key] = { key, letter, options: [] };
       }
       groups[key].options.push(sys);
     }
-    // 只保留有2+成员(需切换)的组
-    return Object.values(groups).filter((g) => g.options.length > 1).sort((a, b) => a.letter.localeCompare(b.letter));
+    return Object.values(groups)
+      .filter((g) => g.options.length > 1)
+      .sort((a, b) => Number(a.key) - Number(b.key));
   }, [systems]);
 
   // 统一槽位列表: 单成员系统用fixed卡片, 多成员组用group弹出
@@ -77,19 +79,24 @@ export default function BlueprintDesign() {
     return slots;
   }, [systems, moduleGroups]);
 
-  // 切换可选模块：同 GROUP 互斥（选一个自动取消同组其他）
-  const toggleModule = (sys: { systemId: string; group: number | null; isAdditional: boolean }) => {
-    if (!sys.isAdditional) return;
+  // 分两排: 固定系统(无切换)一排，切换模块组一排，各自从左到右按编号(顺序)排
+  const fixedSlots = moduleSlots.filter((s) => s.type === "fixed");
+  const switchSlots = moduleSlots.filter((s) => s.type === "group");
+
+  // 切换模块：同 GROUP 互斥（选一个自动取消同组其他，含初始默认项）
+  // 切换组里所有成员(含固定初始项)等价可选；选中态完全由 enabledSlots 驱动
+  const toggleModule = (sys: { systemId: string; group: number | null; isSwitchable: boolean }) => {
+    if (!sys.isSwitchable) return;
     setEnabledSlots((prev) => {
       const enabledSet = new Set(prev);
       if (enabledSet.has(sys.systemId)) {
-        // 已启用 → 取消
+        // 已选中 → 取消(回到默认项, 由 getShipSystems 重算)
         enabledSet.delete(sys.systemId);
       } else {
-        // 未启用 → 启用，同 GROUP 互斥（取消同组其他）
+        // 选中此项，同 GROUP 互斥（取消同组其他所有，含默认项）
         if (sys.group !== null) {
           for (const s of systems) {
-            if (s.group === sys.group && s.isAdditional && s.systemId !== sys.systemId) {
+            if (s.group === sys.group && s.systemId !== sys.systemId) {
               enabledSet.delete(s.systemId);
             }
           }
@@ -152,19 +159,32 @@ export default function BlueprintDesign() {
 
         {/* 第二排: 巅峰等级 / 型号数 / 技术值版本 */}
         <View className="bp-row2">
-          <View className="bp-badge bp-badge--peak">
-            <Image className="bp-badge__peakicon" src={peakIcon("icon_peak_m.png")} mode="aspectFit" />
-            <Text className="bp-badge__label">巅峰等级</Text>
-            <View className="bp-badge__row">
+          {/* 巅峰等级: ADV底图(含ADV字样) + 公司图标叠加 + 右下数字 + 箭头 */}
+          <View className={`bp-peak ${peakLevel > 0 ? "bp-peak--active" : ""}`}>
+            <View className="bp-peak__badge">
+              <Image
+                className="bp-peak__advbg"
+                src={peakIcon("img_blueprint_logo_bg_adv.png")}
+                mode="aspectFit"
+              />
+              <Image
+                className="bp-peak__coicon"
+                src={companyIcon(panel.shipId) || iconUrl("system_type/icon_system_empty.png")}
+                mode="aspectFit"
+              />
+              <View className="bp-peak__lvwrap">
+                <Text className="bp-peak__lv">{peakLevel}</Text>
+              </View>
+            </View>
+            <View className="bp-peak__arrows">
               <Text
-                className="bp-badge__btn"
-                onClick={() => setPeakLevel((v) => Math.max(0, v - 1))}
-              >−</Text>
-              <Text className="bp-badge__value">{peakLevel}</Text>
-              <Text
-                className="bp-badge__btn"
+                className="bp-peak__arrow bp-peak__arrow--up"
                 onClick={() => setPeakLevel((v) => Math.min(20, v + 1))}
-              >+</Text>
+              >▲</Text>
+              <Text
+                className="bp-peak__arrow bp-peak__arrow--down"
+                onClick={() => setPeakLevel((v) => Math.max(0, v - 1))}
+              >▼</Text>
             </View>
           </View>
           <View className="bp-badge bp-badge--variant">
@@ -259,10 +279,10 @@ export default function BlueprintDesign() {
         {/* 系统模块: 图标网格(固定系统 + 可选模块选中态) */}
         <View className="bp-section">
           <Text className="bp-section__title">系统模块</Text>
-          <View className="bp-sysgrid">
-            {moduleSlots.map((slot) => {
-              // 固定系统: 直接显示
-              if (slot.type === "fixed") {
+          {/* 第一排: 固定系统(无切换模块) */}
+          {fixedSlots.length > 0 && (
+            <View className="bp-sysgrid">
+              {fixedSlots.map((slot) => {
                 const sys = slot.system;
                 const icon = sys.prefix ? prefixIcon(sys.prefix) : "";
                 return (
@@ -281,56 +301,63 @@ export default function BlueprintDesign() {
                     </View>
                   </View>
                 );
-              }
-              // 可选模块组: 显示选中模块图标, 点击在图标上方竖排展开
-              const group = slot.group;
-              const selected = group.options.find((o) => o.enabled);
-              const isOpen = dropdownOpen === group.key;
-              return (
-                <View key={group.key} className="bp-syscard-wrap">
-                  {/* 展开的选项(在图标上方竖排) */}
-                  {isOpen && (
-                    <View className="bp-syspop">
-                      {group.options.map((opt) => {
-                        const optIcon = opt.prefix ? prefixIcon(opt.prefix) : "";
-                        return (
-                          <View
-                            key={opt.systemId}
-                            className={`bp-syspop__item ${opt.enabled ? "bp-syspop__item--active" : ""}`}
-                            onClick={() => { toggleModule(opt); setDropdownOpen(""); }}
-                          >
-                            {optIcon ? (
-                              <Image className="bp-syspop__icon" src={optIcon} mode="aspectFit" />
-                            ) : (
-                              <Image className="bp-syspop__icon" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
-                            )}
-                            <Text className="bp-syspop__name">{opt.name}</Text>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  )}
-                  {/* 当前选中模块图标(和固定系统同样式) */}
-                  <View
-                    className={`bp-syscard ${isOpen ? "bp-syscard--popup" : ""}`}
-                    onClick={() => setDropdownOpen(isOpen ? "" : group.key)}
-                  >
-                    <Text className="bp-syscard__tag">{group.letter}</Text>
-                    {selected && selected.prefix ? (
-                      <Image className="bp-syscard__icon" src={prefixIcon(selected.prefix)} mode="aspectFit" />
-                    ) : (
-                      <Image className="bp-syscard__icon bp-syscard__icon--empty" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
+              })}
+            </View>
+          )}
+          {/* 第二排: 切换模块组(可换装) */}
+          {switchSlots.length > 0 && (
+            <View className="bp-sysgrid bp-sysgrid--switch">
+              {switchSlots.map((slot) => {
+                const group = slot.group;
+                const selected = group.options.find((o) => o.enabled);
+                const isOpen = dropdownOpen === group.key;
+                return (
+                  <View key={group.key} className="bp-syscard-wrap">
+                    {/* 展开的选项(在图标上方竖排) */}
+                    {isOpen && (
+                      <View className="bp-syspop">
+                        {group.options.map((opt) => {
+                          const optIcon = opt.prefix ? prefixIcon(opt.prefix) : "";
+                          return (
+                            <View
+                              key={opt.systemId}
+                              className={`bp-syspop__item ${opt.enabled ? "bp-syspop__item--active" : ""}`}
+                              onClick={() => { toggleModule(opt); setDropdownOpen(""); }}
+                            >
+                              {optIcon ? (
+                                <Image className="bp-syspop__icon" src={optIcon} mode="aspectFit" />
+                              ) : (
+                                <Image className="bp-syspop__icon" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
+                              )}
+                              <Text className="bp-syspop__mid">{opt.moduleId}</Text>
+                              <Text className="bp-syspop__name">{opt.name}</Text>
+                            </View>
+                          );
+                        })}
+                      </View>
                     )}
-                    <View className="bp-syscard__slots">
-                      {selected ? Array.from({ length: Math.max(selected.enhanceLimit, 0) }).map((_, i) => (
-                        <View key={i} className="bp-syscard__slot" />
-                      )) : <Text className="bp-syscard__noslots">+</Text>}
+                    {/* 当前选中模块图标(和固定系统同样式) */}
+                    <View
+                      className={`bp-syscard ${isOpen ? "bp-syscard--popup" : ""}`}
+                      onClick={() => setDropdownOpen(isOpen ? "" : group.key)}
+                    >
+                      <Text className="bp-syscard__tag">{selected?.moduleId ?? group.letter}</Text>
+                      {selected && selected.prefix ? (
+                        <Image className="bp-syscard__icon" src={prefixIcon(selected.prefix)} mode="aspectFit" />
+                      ) : (
+                        <Image className="bp-syscard__icon bp-syscard__icon--empty" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
+                      )}
+                      <View className="bp-syscard__slots">
+                        {selected ? Array.from({ length: Math.max(selected.enhanceLimit, 0) }).map((_, i) => (
+                          <View key={i} className="bp-syscard__slot" />
+                        )) : <Text className="bp-syscard__noslots">+</Text>}
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
-          </View>
+                );
+              })}
+            </View>
+          )}
         </View>
 
         <View style={{ height: "20px" }} />

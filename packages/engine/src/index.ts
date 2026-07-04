@@ -79,3 +79,6 @@ export { interceptCheck, type InterceptResult } from './phases/intercept.js';
 
 // 数据层 (蓝图解析/装配/科技点计数/战报解析) - 供 editor/UI 使用
 export * from './data/index.js';
+// loadWeaponPriority 显式补导出: export * 在 TS 静态分析下偶尔丢失具名值导出,
+// 不补这行则 editor 无法加载武器优先级表 → computeFirepower 全部归零
+export { loadWeaponPriority } from './data/blueprintCalc.js';

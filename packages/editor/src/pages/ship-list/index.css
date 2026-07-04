@@ -80,8 +80,8 @@
   height: 96px;
   flex-shrink: 0;
   margin-right: 18px;
-  background: linear-gradient(135deg, #1a2440 0%, #0d1428 100%);
-  border: 1px solid #2a3a5c;
+  background: linear-gradient(135deg, #2a3a5c 0%, #1a2440 100%);
+  border: 1px solid #3a4a6c;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -89,8 +89,8 @@
   overflow: hidden;
 }
 .sl-card__thumb-img {
-  width: 70%;
-  height: 70%;
+  width: 90%;
+  height: 90%;
 }
 
 /* 信息区 */

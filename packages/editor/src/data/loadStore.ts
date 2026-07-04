@@ -8,7 +8,7 @@
  */
 import { createClientData, type ClientDataStore, type ClientDataParts } from "@lagrange/engine";
 import { loadWeaponPriority } from "@lagrange/engine";
-import { setShipThumbMap, type IconManifest } from "./iconResolver";
+import { setShipThumbMap, setCompanyMap, type IconManifest } from "./iconResolver";
 
 // 配置表文件名 → ClientDataParts key 的映射 (与 engine/tests/nodeUtils 一致)
 const TABLE_FILES: Record<keyof ClientDataParts, string> = {
@@ -132,6 +132,13 @@ export async function loadIconManifest(): Promise<IconManifest> {
     setShipThumbMap(thumbMap);
   } catch {
     console.warn("舰船缩略图映射未加载");
+  }
+  // 加载公司徽章映射 (frida dump, shipId → 公司图标)
+  try {
+    const companyMap = await readJson("icons/company_map.json");
+    setCompanyMap(companyMap);
+  } catch {
+    console.warn("公司徽章映射未加载");
   }
   return _manifest;
 }

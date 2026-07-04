@@ -24,6 +24,10 @@ export interface IconManifest {
 /** 舰船ID → 2D缩略图文件名映射 (来自 ship_thumb_map.json) */
 let _shipThumbMap: Record<string, string> = {};
 
+/** 舰船ID → 公司徽章映射 (来自 company_map.json, frida dump) */
+interface CompanyEntry { companyId: number; iconFile: string | null }
+let _companyMap: Record<string, CompanyEntry> = {};
+
 let _manifest: IconManifest | null = null;
 
 export function setManifest(m: IconManifest): void {
@@ -33,6 +37,11 @@ export function setManifest(m: IconManifest): void {
 /** 设置舰船缩略图映射 (从 ship_thumb_map.json 加载) */
 export function setShipThumbMap(map: Record<string, string>): void {
   _shipThumbMap = map;
+}
+
+/** 设置公司徽章映射 (从 company_map.json 加载) */
+export function setCompanyMap(map: Record<string, CompanyEntry>): void {
+  _companyMap = map;
 }
 
 const ICON_BASE = "icons/";
@@ -66,6 +75,14 @@ export function shipThumbnailIcon(shipId: string): string {
   return "";
 }
 
+/**
+ * ★舰船Wiki图(B站wiki高质量正面图): shipId → ship_wiki/ship_XXXXX.jpg
+ * 优先用wiki图(正面/3D视角), 无则返回空回退到缩略图
+ */
+export function shipWikiIcon(shipId: string): string {
+  return ICON_BASE + "ship_wiki/ship_" + shipId + ".jpg";
+}
+
 /** 舰种图标(剪影): 按 category 匹配 */
 export function shipClassIcon(category: string): string {
   const categoryIconMap: Record<string, string> = {
@@ -88,6 +105,16 @@ export function shipClassIcon(category: string): string {
 /** 巅峰图标 */
 export function peakIcon(name: string): string {
   return ICON_BASE + "peak/" + name;
+}
+
+/**
+ * ★公司徽章图标: shipId → company/icon_type_XX.png
+ * 来自游戏 ShipAttribute.company_icon (frida dump)，每个公司的菱形徽章
+ */
+export function companyIcon(shipId: string): string {
+  const entry = _companyMap[shipId];
+  if (entry?.iconFile) return ICON_BASE + "company/" + entry.iconFile;
+  return "";
 }
 
 /** 能力图标(火力/防空/攻城/支援/战略) */

@@ -86,6 +86,56 @@ export function loadWeaponPriority(data: { target_ship?: number[]; target_aircra
 }
 
 /**
+ * 解析舰船当前实际启用的系统ID集合（切换组互斥语义）。
+ *
+ * 模块选择规则（与 editor 侧 blueprintSelector 一致）：
+ *   - 同 GROUP ≥2 成员 = 切换组：组内所有成员（含初始默认项）等价可选，同时只启用一个。
+ *     用户在 enabledSlots 指定了组内某成员 → 启用该成员；
+ *     否则启用默认项（组内第一个 ADDITIONAL_SYS≠1 的）；全可选组无默认则初始不启用。
+ *   - 单成员组 = 固定系统：恒启用。
+ *
+ * 这样保证切换组里"固定项"被换成可选项时，固定项会被卸载（不再双重装配）。
+ *
+ * @returns 启用的 systemId 集合；undefined 表示无 shipSystem 表（调用方按原逻辑处理）
+ */
+function resolveEnabledSystems(
+  systems: Record<string, Record<string, unknown>>,
+  shipId: string,
+  enabledSlots?: string[]
+): Set<string> | null {
+  const enabledSet = enabledSlots ? new Set(enabledSlots) : null;
+
+  // 按 GROUP 分组（无 GROUP 的系统各自成单成员组）
+  const byGroup: Record<string, string[]> = {};
+  for (const k in systems) {
+    if (!k.startsWith(shipId)) continue;
+    const g = systems[k].GROUP;
+    const gKey = g != null ? String(g) : k;
+    (byGroup[gKey] = byGroup[gKey] || []).push(k);
+  }
+
+  const result = new Set<string>();
+  for (const gKey in byGroup) {
+    const members = byGroup[gKey].sort((a, b) => a.localeCompare(b));
+    if (members.length < 2) {
+      // 单成员组: 固定系统恒启用
+      result.add(members[0]);
+      continue;
+    }
+    // 切换组: 用户显式选中优先
+    const userSel = enabledSet ? members.find((m) => enabledSet.has(m)) : null;
+    if (userSel) {
+      result.add(userSel);
+    } else {
+      // 默认项: 组内第一个 ADDITIONAL_SYS≠1 的；全可选组无默认则不启用
+      const def = members.find((m) => Number(systems[m].ADDITIONAL_SYS ?? 0) !== 1);
+      if (def) result.add(def);
+    }
+  }
+  return result;
+}
+
+/**
  * 从 cfg_ship_slot 装配舰船的所有武器
  * @param store 配置数据
  * @param shipId 5位舰船ID
@@ -98,8 +148,8 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
   const systems = store.shipSystem as Record<string, Record<string, unknown>> | undefined;
   if (!slots || !weapons || !actions) return [];
 
-  // 构建启用系统集合（含固定系统+选中的可选模块）
-  const enabledSet = enabledSlots ? new Set(enabledSlots) : null;
+  // 启用系统集合（切换组互斥：固定项被换掉时不装配）
+  const enabledSysSet = systems ? resolveEnabledSystems(systems, shipId, enabledSlots) : null;
 
   const result: AssembledWeapon[] = [];
   const seen = new Set<string>(); // 同 weaponId 去重(一个武器可能挂在多个槽)
@@ -110,14 +160,9 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
     const cat = Number(row[0]); // 0=模块, 1=主武, 2=副武
     if (cat !== 1 && cat !== 2) continue; // 只取武器槽
 
-    // 模块过滤：可选模块(ADDITIONAL_SYS=1)需要显式启用才装配
-    // 默认(无enabledSlots)只装配固定系统，与游戏 prepare_by_ship_id 默认型号一致
+    // 系统启用过滤：仅装配 resolveEnabledSystems 判定为启用的系统
     const modSystemId = slotId.slice(0, 7);
-    const modSys = systems?.[modSystemId];
-    const isAdditional = modSys && Number(modSys.ADDITIONAL_SYS ?? 0) === 1;
-    if (isAdditional) {
-      if (!enabledSet || !enabledSet.has(modSystemId)) continue; // 未启用的可选模块跳过
-    }
+    if (enabledSysSet && !enabledSysSet.has(modSystemId)) continue;
 
     const weaponId = String(row[2]);
     if (!weaponId || weaponId === "0") continue;
@@ -326,7 +371,9 @@ function getArmorModuleIds(
   const slots = store.shipSlot as Record<string, unknown[]> | undefined;
   const systems = store.shipSystem as Record<string, Record<string, unknown>> | undefined;
   if (!slots || !systems) return [];
-  const enabledSet = enabledSlots ? new Set(enabledSlots) : null;
+
+  // 启用系统集合（切换组互斥：固定项被换掉时不装配）
+  const enabledSysSet = resolveEnabledSystems(systems, shipId, enabledSlots);
 
   // 找装甲系统的 systemId（SYSTEM_LABEL='装甲' 或 SYSTEM_TYPE=4）
   const armorSystemIds: string[] = [];
@@ -338,7 +385,7 @@ function getArmorModuleIds(
     }
   }
 
-  // 从 cfg_ship_slot 找装甲系统下的模块（cat=0），按 enabledSlots 过滤可选模块
+  // 从 cfg_ship_slot 找装甲系统下的模块（cat=0），只取启用系统的模块
   const moduleIds: string[] = [];
   for (const slotId in slots) {
     const row = slots[slotId];
@@ -347,12 +394,8 @@ function getArmorModuleIds(
     if (!weaponId || weaponId === "0") continue;
     const sysId = slotId.slice(0, 7);
     if (!armorSystemIds.includes(sysId)) continue;
-    // 模块过滤：可选模块未启用则跳过
-    if (enabledSet) {
-      const sys = systems[sysId];
-      const isAdditional = sys && Number(sys.ADDITIONAL_SYS ?? 0) === 1;
-      if (isAdditional && !enabledSet.has(sysId)) continue;
-    }
+    // 系统启用过滤
+    if (enabledSysSet && !enabledSysSet.has(sysId)) continue;
     moduleIds.push(weaponId);
   }
   return moduleIds;

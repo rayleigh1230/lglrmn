@@ -239,21 +239,15 @@ export interface ShipSystemInfo {
   enhanceLimit: number;   // 强化项上限
   isMain: boolean;        // 是否主系统
   group: number | null;   // GROUP (101=主武器M, 102=副武器A, 201=特种B, 202=附加C, 103-106=固定)
-  isAdditional: boolean;  // 是否可选模块(ADDITIONAL_SYS=1, 超主力舰可选装配)
-  moduleId: string;       // 模块标识符(M1/A1/B1等, 固定系统为空)
+  isAdditional: boolean;  // ADDITIONAL_SYS=1 (原始标记, 超主力舰非默认装配项)
+  isSwitchable: boolean;  // ★是否可切换(同GROUP≥2模块时全部可换; 单模块组=固定不可换)
+  isDefault: boolean;     // ★是否默认选中项(切换组里 ADDITIONAL_SYS≠1 的初始项)
+  moduleId: string;       // 模块标识符(M1/M2/A1/A2等, 单模块固定系统为空)
   prefix: number;         // SYSTEM_EFFECT_PREFIX(取图标用, 0=无强化/无图标)
-  enabled: boolean;       // ★是否当前启用(固定系统恒true, 可选模块由enabledSlots决定)
+  enabled: boolean;       // ★是否当前选中(固定系统恒true; 切换组由enabledSlots决定, 默认项)
 }
 
-/** GROUP → 标识字母映射 (超主力舰模块组) */
-function groupToLetter(group: number | null): string {
-  if (group === null) return "";
-  // 101=M(主武器), 102=A(副武器), 201=B(特种), 202=C(附加装甲)
-  const map: Record<number, string> = { 101: "M", 102: "A", 201: "B", 202: "C", 203: "D", 204: "E" };
-  return map[group] ?? "";
-}
-
-/** 取舰船的所有子系统(用于系统模块展示)
+/** 取舰船的所有子系统(用于系统模块展示)/** 取舰船的所有子系统(用于系统模块展示)
  *  @param enabledSlots 启用的可选模块 systemId 列表（固定系统恒启用，可选模块按此清单）
  */
 export function getShipSystems(store: ClientDataStore, shipId: string, enabledSlots: string[] = []): ShipSystemInfo[] {
@@ -261,10 +255,9 @@ export function getShipSystems(store: ClientDataStore, shipId: string, enabledSl
   const enhance = store.systemEnhance as Record<string, any> | undefined;
   if (!sys) return [];
 
-  // 先按 GROUP 分组，确定组内序号
+  // 第一遍: 收集原始信息(不含可切换/选中判定，需先看完整组才能定)，按 GROUP 分组
   const byGroup: Record<string, ShipSystemInfo[]> = {};
   const allSystems: ShipSystemInfo[] = [];
-  const enabledSet = new Set(enabledSlots);
 
   for (const k in sys) {
     if (!k.startsWith(shipId)) continue;
@@ -280,9 +273,6 @@ export function getShipSystems(store: ClientDataStore, shipId: string, enabledSl
       if (enh) prefix = Number(enh.SYSTEM_EFFECT_PREFIX ?? 0);
     }
 
-    // enabled: 固定系统恒启用，可选模块按 enabledSlots
-    const enabled = !isAdditional || enabledSet.has(k);
-
     const info: ShipSystemInfo = {
       systemId: k,
       name: String(s.NAME ?? ""),
@@ -291,47 +281,70 @@ export function getShipSystems(store: ClientDataStore, shipId: string, enabledSl
       isMain: Boolean(s.MAIN_SYSTEM),
       group,
       isAdditional,
+      isSwitchable: false,
+      isDefault: !isAdditional,
       moduleId: "",
       prefix,
-      enabled,
+      enabled: false,
     };
 
-    // 按 GROUP 分组(固定系统 group=103-106 各自成组)
+    // 按 GROUP 分组(无 GROUP 的系统各自成组，等同单模块固定)
     const gKey = group != null ? String(group) : k;
     if (!byGroup[gKey]) byGroup[gKey] = [];
     byGroup[gKey].push(info);
     allSystems.push(info);
   }
 
-  // 为每个系统生成模块标识符(组内序号)
+  // 第二遍: 按组成员数判定可切换性、生成模块标识符、计算选中态
+  // 规则: 同组≥2模块 → 切换组(全部等价可选, 含初始默认项); 单模块组 → 固定不可换
+  const enabledSet = new Set(enabledSlots);
+
+  // ★字母分配: 对该舰所有可切换组按 GROUP 数值升序，依次分配 M, A, B, C, D...
+  // (与游戏 UI 一致: M=主武器组, A=副武器组, 之后 B/C/D... 按组数值顺序连续)
+  // 不能用静态 GROUP→字母映射，因为同一 GROUP 在不同舰船可能是不同字母
+  const LETTERS = "MABCDEFGHI"; // M 起始，足够覆盖单舰切换组数
+  const switchGroups = Object.keys(byGroup)
+    .map((g) => Number(g))
+    .filter((g) => byGroup[String(g)].length >= 2)
+    .sort((a, b) => a - b);
+  const groupLetter: Record<number, string> = {};
+  switchGroups.forEach((g, i) => { groupLetter[g] = LETTERS[i] ?? ""; });
+
   for (const gKey in byGroup) {
     const group = Number(gKey);
     const items = byGroup[gKey].sort((a, b) => a.systemId.localeCompare(b.systemId));
-    const letter = groupToLetter(group);
-    if (letter) {
-      // 超主力模块组: M1/M2/M3, A1/A2...
-      items.forEach((item, i) => {
-        item.moduleId = letter + (i + 1);
-      });
-    }
-    // 固定系统(103-106)无标识符
+    const letter = groupLetter[group] ?? "";
+    const isSwitchGroup = items.length >= 2;
+
+    // 组内默认项: 切换组里第一个 ADDITIONAL≠1 的(初始装配); 全可选组无默认
+    const defaultItem = isSwitchGroup ? items.find((it) => !it.isAdditional) ?? null : null;
+
+    // 该组当前是否有用户显式选中的项(任意成员被 enabledSlots 命中)
+    const userSelected = isSwitchGroup ? items.find((it) => enabledSet.has(it.systemId)) ?? null : null;
+
+    items.forEach((item, i) => {
+      item.isSwitchable = isSwitchGroup;
+      // 模块标识: 仅切换组生成 M1/M2/A1/A2; 单模块固定组留空
+      item.moduleId = isSwitchGroup && letter ? letter + (i + 1) : "";
+
+      if (!isSwitchGroup) {
+        // 固定系统: 恒选中
+        item.enabled = true;
+      } else {
+        // 切换组: 用户显式选中优先; 否则选中默认项; 全可选组(无默认)则初始无选中
+        item.enabled = userSelected ? item === userSelected : item === defaultItem;
+      }
+    });
   }
 
-  // 排序: 主武器(101) → 副武器(102) → 特种(201) → 附加(202) → 固定(103-106)
-  const groupOrder = (g: number | null) => {
-    if (g === 101) return 0;
-    if (g === 102) return 1;
-    if (g === 201) return 2;
-    if (g === 202) return 3;
-    if (g === 103) return 4;
-    if (g === 104) return 5;
-    if (g === 105) return 6;
-    if (g === 106) return 7;
-    return 99;
-  };
-  return allSystems.sort((a, b) => {
-    const ga = groupOrder(a.group);
-    const gb = groupOrder(b.group);
+  // 过滤空系统: 无图标(prefix=0)且无强化槽(enhanceLimit=0)的固定系统不显示
+  // (如"独立式指挥系统""态势感知系统"等，显示出来只是空占位框)
+  const visible = allSystems.filter((s) => s.isSwitchable || s.prefix !== 0 || s.enhanceLimit !== 0);
+
+  // 排序: 按 GROUP 数值升序（与字母分配顺序一致: M/A/B/C...）
+  return visible.sort((a, b) => {
+    const ga = a.group ?? 9999;
+    const gb = b.group ?? 9999;
     if (ga !== gb) return ga - gb;
     return a.systemId.localeCompare(b.systemId);
   });

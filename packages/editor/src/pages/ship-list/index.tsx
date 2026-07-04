@@ -11,7 +11,7 @@ import {
   setWhitelist,
   type ShipListItem,
 } from "../../data/blueprintSelector";
-import { iconUrl } from "../../data/iconResolver";
+import { iconUrl, shipThumbnailIcon, shipWikiIcon } from "../../data/iconResolver";
 import "./index.css";
 
 export default function ShipList() {
@@ -90,8 +90,14 @@ export default function ShipList() {
             <View className="sl-card__thumb">
               <Image
                 className="sl-card__thumb-img"
-                src={iconUrl(SHIP_CATEGORIES.find((c) => c.key === ship.category)?.icon)}
+                src={shipWikiIcon(ship.shipId)}
                 mode="aspectFit"
+                onError={(e) => {
+                  // wiki图加载失败 → 回退到侧视缩略图 → 再回退舰种图标
+                  const img = e.currentTarget as any;
+                  const fallback = shipThumbnailIcon(ship.shipId) || iconUrl(SHIP_CATEGORIES.find((c) => c.key === ship.category)?.icon);
+                  if (img && img.src !== fallback) img.src = fallback;
+                }}
               />
             </View>
               <View className="sl-card__body">
