@@ -187,9 +187,9 @@ export default function EnhancePage() {
           items={navResult.items}
           onSelect={setCurrentSlotId}
           iconFor={(sid) => {
-            const s = sys.slotInfos[sid];
-            const modId = s?.installedModuleIds?.[0];
-            return modId ? prefixIcon(modId.replace(/[0-9]/g, "")) : "";
+            // 用该槽首个强化项的 SYSTEM_EFFECT_PREFIX 解析图标（与蓝图页一致）
+            const item = navResult.items.find((i) => i.slotId === sid);
+            return item && item.prefix ? prefixIcon(item.prefix) : "";
           }}
         />
       </View>

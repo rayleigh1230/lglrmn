@@ -52,6 +52,7 @@ export interface SystemNavItem {
   name: string;       // 系统名
   isActive: boolean;  // 是否启用（切换组语义）
   isCurrent: boolean; // 是否当前选中
+  prefix: number;     // SYSTEM_EFFECT_PREFIX（取图标用，0=无图标），来自该槽首个强化项
 }
 
 /** 加点浮窗数据 */
@@ -122,8 +123,13 @@ export function resolveEnhanceTreeVM(
       const level = acquired.get(s.enhanceId) ?? 0;
 
       let state: NodeState;
-      if (isChoice && !choiceGroups[choiceKey].selectedEnhanceId) {
+      const grp = isChoice ? choiceGroups[choiceKey] : undefined;
+      if (isChoice && !grp!.selectedEnhanceId) {
+        // 二选一未选：合并图标
         state = "choice";
+      } else if (isChoice && grp!.selectedEnhanceId && grp!.selectedEnhanceId !== s.enhanceId) {
+        // 二选一已选另一项：本项永久灰锁
+        state = "locked";
       } else if (level > 0) {
         state = "acquired";
       } else if (slotInfo) {
@@ -159,11 +165,15 @@ export function resolveSystemNav(
   const defaultSlotId = slotIds[0] ?? "";
   const items: SystemNavItem[] = slotIds.map((sid) => {
     const info = sys.slotInfos[sid];
+    // 取该槽首个强化项的 SYSTEM_EFFECT_PREFIX（用于 prefixIcon 解析系统图标）
+    const slots = sys.bySlot[sid];
+    const firstPrefix = slots && slots.length > 0 ? Number(slots[0].effectPrefix) : 0;
     return {
       slotId: sid,
       name: info?.systemName || sid,
       isActive: info?.isActive ?? true,
       isCurrent: sid === currentSlotId,
+      prefix: firstPrefix,
     };
   });
   return { items, defaultSlotId };

@@ -69,28 +69,30 @@ export default function EnhanceSheet({ vm, onClose, onAddOne, onAddFull, onSelec
           </View>
         )}
 
-        {/* 按钮区 */}
-        {vm.prereqMissing.length > 0 ? (
-          <View className="es-blocked">
-            <Text className="es-blocked-text">需先解锁前置：{vm.prereqMissing.join("、")}</Text>
-          </View>
-        ) : vm.isMaxed ? (
-          <View className="es-blocked">
-            <Text className="es-blocked-text es-blocked-text--max">已强化</Text>
-          </View>
-        ) : (
-          <View className="es-btns">
-            {vm.mode === "multi" && (
-              <View className="es-btn es-btn--full" onClick={onAddFull}>
-                <Text className="es-btn-cost">消耗 {vm.fullCost} 点</Text>
-                <Text className="es-btn-label">全部强化</Text>
-              </View>
-            )}
-            <View className={`es-btn es-btn--one ${vm.mode === "single" ? "es-btn--wide" : ""}`} onClick={onAddOne}>
-              <Text className="es-btn-cost">消耗 {vm.singleCost} 点</Text>
-              <Text className="es-btn-label">强化</Text>
+        {/* 按钮区（choice 模式只显示选项卡，不显示按钮；选中后切到 single 模式才出按钮） */}
+        {vm.mode !== "choice" && (
+          vm.prereqMissing.length > 0 ? (
+            <View className="es-blocked">
+              <Text className="es-blocked-text">需先解锁前置：{vm.prereqMissing.join("、")}</Text>
             </View>
-          </View>
+          ) : vm.isMaxed ? (
+            <View className="es-blocked">
+              <Text className="es-blocked-text es-blocked-text--max">已强化</Text>
+            </View>
+          ) : (
+            <View className="es-btns">
+              {vm.mode === "multi" && (
+                <View className="es-btn es-btn--full" onClick={onAddFull}>
+                  <Text className="es-btn-cost">消耗 {vm.fullCost} 点</Text>
+                  <Text className="es-btn-label">全部强化</Text>
+                </View>
+              )}
+              <View className={`es-btn es-btn--one ${vm.mode === "single" ? "es-btn--wide" : ""}`} onClick={onAddOne}>
+                <Text className="es-btn-cost">消耗 {vm.singleCost} 点</Text>
+                <Text className="es-btn-label">强化</Text>
+              </View>
+            </View>
+          )
         )}
       </View>
     </View>
