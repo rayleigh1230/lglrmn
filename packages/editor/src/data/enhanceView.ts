@@ -200,10 +200,10 @@ export function renderEnhanceDesc(
     if (curVal > 0 || nextVal > 0) {
       const detail = slot.effect?.desc || slot.effect?.name || "";
       const valStr = isMaxed
-        ? `<b style="color:#ffc857">${curVal}</b>`
+        ? `<b style="color:#ffc857">${Math.round(curVal)}</b>`
         : currentLevel === 0
-        ? `<b style="color:#ffc857">${nextVal}</b>`
-        : `<b style="color:#ffc857">${curVal} → ${nextVal}</b>`;
+        ? `<b style="color:#ffc857">${Math.round(nextVal)}</b>`
+        : `<b style="color:#ffc857">${Math.round(curVal)} → ${Math.round(nextVal)}</b>`;
       return `${detail} ${valStr}`;
     }
   }
