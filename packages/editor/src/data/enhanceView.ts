@@ -28,13 +28,15 @@ export type NodeState =
   | "selected"    // 当前选中（浮窗打开）
   | "choice";     // 二选一未选（合并图标）
 
-/** UI 用节点（含状态） */
+/** UI 用节点（含状态 + 网格坐标） */
 export interface EnhanceNodeVM {
   slot: EnhanceSlot;
   state: NodeState;
   currentLevel: number;
   isChoice: boolean;        // 是否二选一节点（nodeFlag≠0 且在 ≥2 桶里）
   choiceGroupId?: string;   // 二选一桶 key（slotId+treeColumn）
+  gridCol: number;          // ★网格列号（= BFS 跳数）
+  gridRow: number;          // ★网格行号（= ui_level 按高度降序后的序号，0=最上）
 }
 
 /** 二选一桶 */
@@ -158,61 +160,58 @@ export function resolveEnhanceTreeVM(
     }
   }
 
-  // 按 BFS 列号分组，列内按 treeColumn(=ui_level 行号)升序排（行号小的在上）
-  const colBuckets: Record<number, EnhanceSlot[]> = {};
-  for (const s of allSlots) {
-    if (hiddenByChoice.has(s.enhanceId)) continue;
-    const col = bfsCol.get(s.enhanceId) ?? 0;
-    (colBuckets[col] = colBuckets[col] || []).push(s);
-  }
+  // ★计算行号：ui_level(treeColumn) 按 LEVEL_ENHANCE_HIGHT 高度降序后的序号（0=最上）
+  //   LEVEL_ENHANCE_HIGHT = {3:0, 0:1, 2:2, 4:4}（cocos Y向上，值越大越靠屏幕上方）
+  //   行序：ui4(高4)→ui2(高2)→ui0(高1)→ui3(高0)，即 [4,2,0,3]
+  const HEIGHT: Record<number, number> = { 3: 0, 0: 1, 2: 2, 4: 4 };
+  const visibleSlots = allSlots.filter((s) => !hiddenByChoice.has(s.enhanceId));
+  const uiLevels = Array.from(new Set(visibleSlots.map((s) => s.treeColumn)));
+  uiLevels.sort((a, b) => (HEIGHT[b] ?? b) - (HEIGHT[a] ?? a)); // 高度降序
+  const rowOfUi: Record<number, number> = {};
+  uiLevels.forEach((u, i) => { rowOfUi[u] = i; });
 
+  // 构建 VM（含网格坐标 gridCol=BFS跳数, gridRow=行号）
   const columns: Record<number, EnhanceNodeVM[]> = {};
-  for (const [colStr, slots] of Object.entries(colBuckets)) {
-    const col = Number(colStr);
-    // 列内按 LEVEL_ENHANCE_HIGHT[treeColumn] 降序排（高度大的在上，frida 实证）
-    //   LEVEL_ENHANCE_HIGHT = {3:0, 0:1, 2:2, 4:4}（cocos Y向上，值越大越靠屏幕上方）
-    //   即 ui4最上 → ui2 → ui0 → ui3最下
-    const HEIGHT: Record<number, number> = { 3: 0, 0: 1, 2: 2, 4: 4 };
-    slots.sort((a, b) => {
-      const ha = HEIGHT[a.treeColumn] ?? a.treeColumn;
-      const hb = HEIGHT[b.treeColumn] ?? b.treeColumn;
-      return hb - ha || a.optIdx - b.optIdx;
-    });
+  for (const s of visibleSlots) {
+    const col = bfsCol.get(s.enhanceId) ?? 0;
+    const choiceKey = `${s.slotId}_${s.treeColumn}`;
+    const grp = choiceGroups[choiceKey];
+    const isChoice = !!grp && s.nodeFlag !== 0 && grp.options[0].enhanceId === s.enhanceId;
+    const level = acquired.get(s.enhanceId) ?? 0;
 
-    columns[col] = slots.map((s) => {
-      const choiceKey = `${s.slotId}_${s.treeColumn}`;
-      const grp = choiceGroups[choiceKey];
-      const isChoice = !!grp && s.nodeFlag !== 0 && grp.options[0].enhanceId === s.enhanceId;
-      const level = acquired.get(s.enhanceId) ?? 0;
-
-      let state: NodeState;
-      if (isChoice && grp) {
-        // 二选一主显示位
-        if (grp.selectedEnhanceId) {
-          state = grp.selectedEnhanceId === s.enhanceId
-            ? (level > 0 ? "acquired" : "available")
-            : "locked";
-        } else {
-          state = "choice";
-        }
-      } else if (level > 0) {
-        state = "acquired";
-      } else if (slotInfo) {
-        const avail = isEnhanceAvailable(s, slotInfo, acquiredSet);
-        state = avail.available ? "available" : "locked";
+    let state: NodeState;
+    if (isChoice && grp) {
+      if (grp.selectedEnhanceId) {
+        state = grp.selectedEnhanceId === s.enhanceId
+          ? (level > 0 ? "acquired" : "available")
+          : "locked";
       } else {
-        state = "locked";
+        state = "choice";
       }
-      if (s.enhanceId === selectedEnhanceId) state = "selected";
+    } else if (level > 0) {
+      state = "acquired";
+    } else if (slotInfo) {
+      const avail = isEnhanceAvailable(s, slotInfo, acquiredSet);
+      state = avail.available ? "available" : "locked";
+    } else {
+      state = "locked";
+    }
+    if (s.enhanceId === selectedEnhanceId) state = "selected";
 
-      return {
-        slot: s,
-        state,
-        currentLevel: level,
-        isChoice,
-        choiceGroupId: isChoice ? choiceKey : undefined,
-      };
-    });
+    const vm: EnhanceNodeVM = {
+      slot: s,
+      state,
+      currentLevel: level,
+      isChoice,
+      choiceGroupId: isChoice ? choiceKey : undefined,
+      gridCol: col,
+      gridRow: rowOfUi[s.treeColumn] ?? 0,
+    };
+    (columns[col] = columns[col] || []).push(vm);
+  }
+  // 各列内按行号升序（行号小=最上，排前面）
+  for (const col in columns) {
+    columns[col].sort((a, b) => a.gridRow - b.gridRow || a.slot.optIdx - b.slot.optIdx);
   }
   return { columns, choiceGroups };
 }

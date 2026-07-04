@@ -1,49 +1,13 @@
-.et-tree {
-  display: flex;
-  gap: 0;
-  padding: 16px;
-  overflow-x: auto;
-}
-.et-col {
-  display: flex;
-  flex-shrink: 0;
-}
-.et-col-nodes {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* 网格布局：X=BFS列号, Y=ui_level行号（高度降序） */
+.et-grid {
+  display: grid;
+  gap: 24px 12px; /* 行间距 列间距 */
+  padding: 28px 16px 16px;
+  justify-items: center;
   align-items: center;
 }
 
-/* 节点行：左侧连线 + 节点 */
-.et-node-row {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-/* 连线（朴素，不发光）。根节点(第一列)不显示 */
-.et-link {
-  width: 24px;
-  height: 2px;
-  background: #2a3458;
-  flex-shrink: 0;
-}
-/* 多前置：斜线汇聚标记 */
-.et-link--multi {
-  position: relative;
-  width: 24px;
-}
-.et-link-mark {
-  position: absolute;
-  right: -2px;
-  top: -10px;
-  color: #3a4468;
-  font-size: 16px;
-  line-height: 1;
-}
-
-/* 节点 */
+/* 节点（正方形框） */
 .et-node {
   position: relative;
   width: 60px;
