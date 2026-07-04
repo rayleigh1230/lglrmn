@@ -70,7 +70,7 @@ export interface EnhanceSystemSlotInfo {
   systemType: number;
   /** GROUP（切换组标识） */
   group: number;
-  /** 已装配模块 ID 列表（cfg_ship_slot cat=0，空数组=空槽） */
+  /** 已装配模块 ID 列表（cfg_ship_slot cat 0-3，空数组=真空槽。cat: 0模块/1主武器/2副武器/3特种） */
   installedModuleIds: string[];
   /** ★是否装配了模块（空槽=false，空槽的强化项不生效） */
   hasModule: boolean;
@@ -211,13 +211,13 @@ function buildSlotInfos(
   const result: Record<string, EnhanceSystemSlotInfo> = {};
   if (!shipSystem) return result;
 
-  // 收集每个 slotId 的已装配模块（cfg_ship_slot cat=0）
+  // 收集每个 slotId 的已装配模块（cfg_ship_slot cat 0-3 都是有效装配槽）
   const slotModules: Record<string, string[]> = {};
   if (shipSlot) {
     for (const slotKey in shipSlot) {
       if (!slotKey.startsWith(shipId)) continue;
       const row = shipSlot[slotKey];
-      if (Number(row[0]) !== 0) continue; // 只取模块槽
+      if (Number(row[0]) > 3) continue; // cat 0-3 都是有效装配槽(0模块/1主武器/2副武器/3特种)，依据 docs/10 字段字典 5.1
       const sid = slotKey.slice(0, 7);
       const modId = String(row[2]);
       if (modId && modId !== '0') {

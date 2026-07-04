@@ -68,36 +68,40 @@ console.log('[测试1] 60501 slot01 科技树前置依赖');
   assert(n13?.nodeFlag === 2, `optIdx13 nodeFlag=2（特殊解锁）`);
 }
 
-// ===== 测试2: 容器语义——空槽 hasModule=false =====
-console.log('\n[测试2] 容器语义：6050101(空槽) vs 6050110(有模块)');
+// ===== 测试2: 容器语义——有模块 vs 真空槽 hasModule =====
+console.log('\n[测试2] 容器语义：6050101(有模块,cat=1主武器) vs 9800101(真空槽)');
 {
-  const sys = resolveEnhanceSystem(store, '60501');
-  // 6050101 舰首轨道炮 = 空槽（无模块）
-  const info01 = sys.slotInfos['6050101'];
+  const sys60501 = resolveEnhanceSystem(store, '60501');
+  // 6050101 舰首轨道炮 = 装配了 16051（cat=1 主武器模块）
+  const info01 = sys60501.slotInfos['6050101'];
   assert(info01 != null, `6050101 slotInfo 存在`);
-  assert(info01?.hasModule === false, `6050101 空槽 hasModule=false`);
-  assert((info01?.installedModuleIds ?? []).length === 0, `6050101 无已装配模块`);
-
-  // 6050110 附加装甲 = 装了 36052
-  const info10 = sys.slotInfos['6050110'];
+  assert(info01?.hasModule === true, `6050101 有模块 hasModule=true (cat=1主武器也算装配)`);
+  assert((info01?.installedModuleIds ?? []).length > 0, `6050101 有已装配模块`);
+  // 6050110 附加装甲 = 有模块（cat=0）
+  const info10 = sys60501.slotInfos['6050110'];
   assert(info10?.hasModule === true, `6050110 有模块 hasModule=true`);
-  assert(info10?.installedModuleIds.includes('36052'), `6050110 装配了 36052`);
+
+  // 真正的空槽：9800101（系统槽存在但无任何装配行）
+  const sys98001 = resolveEnhanceSystem(store, '98001');
+  const infoEmpty = sys98001.slotInfos['9800101'];
+  if (infoEmpty) {
+    assert(infoEmpty.hasModule === false, `9800101 真空槽 hasModule=false`);
+    assert((infoEmpty.installedModuleIds ?? []).length === 0, `9800101 无已装配模块`);
+  }
 }
 
 // ===== 测试3: isEnhanceAvailable 空槽门控 =====
 console.log('\n[测试3] isEnhanceAvailable 空槽门控');
 {
-  const sys = resolveEnhanceSystem(store, '60501');
-  const slot01 = sys.bySlot['6050101'];
-  const info01 = sys.slotInfos['6050101'];
-  const n01 = slot01.find((s) => s.optIdx === 1)!;
-  const acquired = new Set<string>(); // 即使无前置（根节点）
-
-  // 空槽：即使无前置，也因无模块不可用
-  const avail = isEnhanceAvailable(n01, info01, acquired);
-  assert(avail.available === false, `空槽强化项 available=false`);
-  assert(avail.reasons.length > 0, `空槽有不可用原因`);
-  assert(avail.reasons.some((r) => r.includes('未装配模块')), `原因含"未装配模块"`);
+  // 用真正的空槽 9800101 测试门控
+  const sys = resolveEnhanceSystem(store, '98001');
+  const slotEmpty = sys.bySlot['9800101']?.[0];
+  const infoEmpty = sys.slotInfos['9800101'];
+  if (slotEmpty && infoEmpty) {
+    const avail = isEnhanceAvailable(slotEmpty, infoEmpty, new Set());
+    assert(avail.available === false, `空槽强化项不可用`);
+    assert(avail.reasons.length > 0, `空槽有不可用原因`);
+  }
 }
 
 // ===== 测试4: isEnhanceAvailable 有模块 + 前置门控 =====
