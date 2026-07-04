@@ -1,4 +1,5 @@
-import { View, Text, Image } from "@tarojs/components";
+import { View, Text, Image, ScrollView } from "@tarojs/components";
+import { useRef } from "react";
 import type { EnhanceNodeVM, ChoiceGroup } from "../../data/enhanceView";
 import { enhanceIcon } from "../../data/iconResolver";
 import "./index.css";
@@ -18,11 +19,40 @@ export default function EnhanceTree({ columns, choiceGroups, onSelectNode, onOpe
   const maxCol = Math.max(...allNodes.map((n) => n.gridCol), 0);
   const maxRow = Math.max(...allNodes.map((n) => n.gridRow), 0);
 
+  // 鼠标拖曳滚动（H5 桌面端）
+  const dragRef = useRef<{ x: number; left: number; dragging: boolean }>({ x: 0, left: 0, dragging: false });
+  const onPointerDown = (e: any) => {
+    const scroller = e.currentTarget as HTMLElement;
+    dragRef.current = { x: e.clientX, left: scroller.scrollLeft, dragging: true };
+    scroller.style.cursor = "grabbing";
+  };
+  const onPointerMove = (e: any) => {
+    if (!dragRef.current.dragging) return;
+    const scroller = e.currentTarget as HTMLElement;
+    const dx = e.clientX - dragRef.current.x;
+    scroller.scrollLeft = dragRef.current.left - dx;
+  };
+  const onPointerUp = (e: any) => {
+    dragRef.current.dragging = false;
+    (e.currentTarget as HTMLElement).style.cursor = "grab";
+  };
+
   return (
-    <View
-      className="et-grid"
-      style={`grid-template-columns: repeat(${maxCol + 1}, 1fr); grid-template-rows: repeat(${maxRow + 1}, auto);`}
+    <ScrollView
+      className="et-scroll"
+      scrollX
+      onTouchStart={onPointerDown}
+      onTouchMove={onPointerMove}
+      onTouchEnd={onPointerUp}
+      onMouseDown={onPointerDown}
+      onMouseMove={onPointerMove}
+      onMouseUp={onPointerUp}
+      onMouseLeave={onPointerUp}
     >
+      <View
+        className="et-grid"
+        style={`grid-template-columns: repeat(${maxCol + 1}, 76px); grid-template-rows: repeat(${maxRow + 1}, auto);`}
+      >
       {allNodes.map((node) => {
         // 二选一未选：合并图标
         if (node.state === "choice" && node.choiceGroupId) {
@@ -71,6 +101,7 @@ export default function EnhanceTree({ columns, choiceGroups, onSelectNode, onOpe
           </View>
         );
       })}
-    </View>
+      </View>
+    </ScrollView>
   );
 }

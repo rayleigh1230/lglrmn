@@ -1,3 +1,19 @@
+/* 横向滚动容器（支持鼠标拖曳） */
+.et-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+}
+.et-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.et-scroll::-webkit-scrollbar-thumb {
+  background: #2a3458;
+  border-radius: 3px;
+}
+
 /* 网格布局：X=BFS列号, Y=ui_level行号（高度降序） */
 .et-grid {
   display: grid;
@@ -5,6 +21,8 @@
   padding: 28px 8px 16px;
   justify-items: center;
   align-items: center;
+  width: max-content; /* 宽度随内容撑开，触发横向滚动 */
+  min-width: 100%;
 }
 
 /* 节点（正方形框） */
