@@ -169,8 +169,15 @@ export function resolveEnhanceTreeVM(
   const columns: Record<number, EnhanceNodeVM[]> = {};
   for (const [colStr, slots] of Object.entries(colBuckets)) {
     const col = Number(colStr);
-    // 列内按 treeColumn(ui_level 行号)升序，同 ui_level 按 optIdx
-    slots.sort((a, b) => a.treeColumn - b.treeColumn || a.optIdx - b.optIdx);
+    // 列内按 LEVEL_ENHANCE_HIGHT[treeColumn] 降序排（高度大的在上，frida 实证）
+    //   LEVEL_ENHANCE_HIGHT = {3:0, 0:1, 2:2, 4:4}（cocos Y向上，值越大越靠屏幕上方）
+    //   即 ui4最上 → ui2 → ui0 → ui3最下
+    const HEIGHT: Record<number, number> = { 3: 0, 0: 1, 2: 2, 4: 4 };
+    slots.sort((a, b) => {
+      const ha = HEIGHT[a.treeColumn] ?? a.treeColumn;
+      const hb = HEIGHT[b.treeColumn] ?? b.treeColumn;
+      return hb - ha || a.optIdx - b.optIdx;
+    });
 
     columns[col] = slots.map((s) => {
       const choiceKey = `${s.slotId}_${s.treeColumn}`;
