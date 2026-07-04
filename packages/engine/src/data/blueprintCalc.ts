@@ -356,7 +356,7 @@ export function computeFirepower(
 
 /** EFFECT_ID 常量 */
 const EFFECT_RESIST = 10033;  // 物理抵抗值（绝对值）
-const EFFECT_SHIELD = 10021;  // 能量护盾（万分比）
+const EFFECT_SHIELD = 10021;  // 能量护盾（百分比）
 
 /**
  * 从 cfg_ship_slot 找装甲系统的模块ID（cat=0 的槽，SYSTEM_LABEL='装甲'）
@@ -402,10 +402,10 @@ function getArmorModuleIds(
 }
 
 /**
- * 从 module_effect 取装甲的抵抗值和护盾值（基础值）
+ * 从 module_effect 取装甲模块提供的面板属性（抵抗/护盾/结构加成）
  * module_effect key = moduleId(5位) + 序号(2位)
  * EFFECT_ID=10033 → 抵抗值（绝对值）
- * EFFECT_ID=10021 → 护盾值（万分比）
+ * EFFECT_ID=10021 → 护盾（百分比）
  */
 export function getBaseDefense(store: ClientDataStore, shipId: string, enabledSlots?: string[]): { resistance: number; shield: number } {
   const moduleEffect = store.moduleEffect as Record<string, Record<string, unknown>> | undefined;
@@ -425,7 +425,7 @@ export function getBaseDefense(store: ClientDataStore, shipId: string, enabledSl
       if (effectId === EFFECT_RESIST) {
         resistance += param;
       } else if (effectId === EFFECT_SHIELD) {
-        shield += param; // 万分比
+        shield += param; // 百分比
       }
     }
   }
@@ -454,7 +454,7 @@ export function resolveBlueprintPanel(
   const baseStructure = shipRow ? Number(shipRow[4]) : 0;
   const baseSpeed = shipRow ? Number(shipRow[5]) : 0;
 
-  // 抵抗/护盾: 从装甲模块的 module_effect 取基础值（按 enabledSlots 过滤）
+  // 抵抗/护盾/结构加成: 从装甲模块的 module_effect 取（按 enabledSlots 过滤）
   const defense = getBaseDefense(store, shipId, enabledSlots);
   const resistance = defense.resistance + (blueprint?.resistanceBonus ?? 0);
   const shield = defense.shield; // module_effect EID=10021 PARAM 直接是百分比(15=15%)
