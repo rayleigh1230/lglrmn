@@ -363,6 +363,14 @@ export default function BlueprintDesign() {
         <View style={{ height: "20px" }} />
       </View>
 
+      {/* 右下角"蓝图强化"悬浮按钮 */}
+      <Text
+        className="bp-enhance-fab"
+        onClick={() => Taro.navigateTo({ url: `/pages/enhance/index?shipId=${panel.shipId}` })}
+      >
+        蓝图强化
+      </Text>
+
       {/* 底部型号切换栏 */}
       <View className="bp-variants">
         {variants.map((v) => (

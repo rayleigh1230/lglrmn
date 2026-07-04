@@ -1,7 +1,8 @@
 export default {
   pages: [
     'pages/ship-list/index',
-    'pages/blueprint-design/index'
+    'pages/blueprint-design/index',
+    'pages/enhance/index'
   ],
   window: {
     backgroundTextStyle: 'light',

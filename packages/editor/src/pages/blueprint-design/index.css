@@ -446,3 +446,19 @@
   color: #ffc857;
   font-weight: 600;
 }
+
+/* 右下角"蓝图强化"悬浮按钮（FAB），浮在型号栏上方右侧 */
+.bp-enhance-fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(135deg, #ffc857, #e6a823);
+  color: #1a1208;
+  padding: 12px 28px;
+  border-radius: 28px;
+  font-size: 26px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 101;
+}
+.bp-enhance-fab:active { opacity: 0.8; }
