@@ -95,7 +95,11 @@ export {
 
 export {
   resolveEnhanceSystem,
+  resolveEnhanceTree,
+  isEnhanceAvailable,
   getEnhanceValue,
   type EnhanceSlot,
+  type EnhanceSystemSlotInfo,
+  type EnhanceAvailability,
   type ShipEnhanceSystem,
 } from './enhanceSystem.js';
