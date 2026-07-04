@@ -1,8 +1,8 @@
 /* 网格布局：X=BFS列号, Y=ui_level行号（高度降序） */
 .et-grid {
   display: grid;
-  gap: 24px 12px; /* 行间距 列间距 */
-  padding: 28px 16px 16px;
+  gap: 24px 4px; /* 行间距 列间距（列紧凑） */
+  padding: 28px 8px 16px;
   justify-items: center;
   align-items: center;
 }
