@@ -277,9 +277,9 @@ export function renderEnhanceDesc(
     | undefined;
   const byLv = descTable?.[slot.enhanceId];
 
-  // 数值高亮：把描述里的数字/百分比用金色 <b> 包裹
+  // 数值高亮：当前值白色（对应等级区 es-lv-cur），与描述文字区分
   const highlight = (s: string) =>
-    s.replace(/(\d+(?:\.\d+)?%?)/g, '<b style="color:#ffc857">$1</b>');
+    s.replace(/(\d+(?:\.\d+)?%?)/g, '<b style="color:#e0e6f0">$1</b>');
 
   // 从文本提取所有数字(含百分比), 返回数值数组(去%)
   const extractNums = (s: string): number[] =>
@@ -310,7 +310,7 @@ export function renderEnhanceDesc(
       }
     }
     const incStr = diffs.length > 0
-      ? ` <b style="color:#4ade80">${diffs.join(" ")}</b>`
+      ? ` <b style="color:#ffc857">${diffs.join(" ")}</b>`
       : "";
     return `${highlight(curDesc)}${incStr}`;
   }
