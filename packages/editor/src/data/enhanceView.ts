@@ -303,6 +303,8 @@ export function renderEnhanceDesc(
     // 用 curDesc 作模板(部分强化)或 nextDesc 作模板(未强化,去掉原数值)
     const template = currentLevel > 0 ? curDesc : nextDesc;
     // 增量数组：每个数字位置对应一个增量字符串(无变化则为空)
+    // 单级强化(maxLevel=1)不加 + 前缀(没有增量概念，就是固定值)
+    const isSingleLevel = slot.maxLevel === 1;
     const incArr: string[] = [];
     for (let i = 0; i < nextNums.length; i++) {
       const cv = currentLevel > 0 ? (curNums[i] ?? 0) : 0;
@@ -310,7 +312,8 @@ export function renderEnhanceDesc(
       if (d > 0) {
         // 单位跟随 nextDesc 里该数字
         const raw = (nextDesc.match(NUM_RE) ?? [])[i] ?? "";
-        incArr.push(`+${d}${raw.includes("%") ? "%" : ""}`);
+        const unit = raw.includes("%") ? "%" : "";
+        incArr.push(isSingleLevel ? `${d}${unit}` : `+${d}${unit}`);
       } else {
         incArr.push(""); // 无变化
       }
