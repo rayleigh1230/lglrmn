@@ -327,7 +327,7 @@ export function renderEnhanceDesc(
       i++;
       if (currentLevel > 0) {
         const curPart = `<b style="color:${CUR_COLOR}">${match}</b>`;
-        const incPart = inc ? `<b style="color:${NEXT_COLOR}">(${inc})</b>` : "";
+        const incPart = inc ? ` <b style="color:${NEXT_COLOR}">${inc}</b>` : "";
         return `${curPart}${incPart}`;
       }
       // 未强化：不显示当前数值，只显示差值(金)；无变化留空
