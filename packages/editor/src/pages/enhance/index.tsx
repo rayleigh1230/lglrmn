@@ -35,6 +35,7 @@ export default function EnhancePage() {
     | { type: "choice"; choiceKey: string }
     | null
   >(null);
+  const [preview, setPreview] = useState(false); // 全部加强预览开关
 
   const sys = useMemo(() => {
     if (!store || !shipId) return null;
@@ -120,14 +121,14 @@ export default function EnhancePage() {
       maxLevel,
       name: slot.effect?.name || slot.enhanceId,
       icon: enhanceIcon(slot.enhanceId),
-      descHtml: renderEnhanceDesc(store, slot, cur),
+      descHtml: renderEnhanceDesc(store, slot, cur, preview),
       levelDots: Array.from({ length: maxLevel }, (_, i) => i < cur),
       singleCost: singleCost(store, slot, cur),
       fullCost: fullCost(store, slot, cur),
       prereqMissing: avail.available ? [] : avail.reasons,
       isMaxed,
     };
-  }, [store, sheet, sys, currentSlotId, treeVM, acquired]);
+  }, [store, sheet, sys, currentSlotId, treeVM, acquired, preview]);
 
   const onAddOne = () => {
     if (!sheetVM || sheetVM.mode === "choice") return;
@@ -214,6 +215,8 @@ export default function EnhancePage() {
       {sheetVM && (
         <EnhanceSheet
           vm={sheetVM}
+          preview={preview}
+          onTogglePreview={() => setPreview((p) => !p)}
           onClose={() => setSheet(null)}
           onAddOne={onAddOne}
           onAddFull={onAddFull}

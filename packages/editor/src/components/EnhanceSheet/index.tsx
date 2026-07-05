@@ -5,19 +5,21 @@ import "./index.css";
 
 interface Props {
   vm: EnhanceSheetVM;
+  preview: boolean;
+  onTogglePreview: () => void;
   onClose: () => void;
   onAddOne: () => void;   // +1 级 / 单级强化
   onAddFull: () => void;  // 加满
   onSelectChoice?: (enhanceId: string) => void;  // choice 模式选选项
 }
 
-export default function EnhanceSheet({ vm, onClose, onAddOne, onAddFull, onSelectChoice }: Props) {
-  const lt = levelText(vm.currentLevel, vm.maxLevel);
+export default function EnhanceSheet({ vm, preview, onTogglePreview, onClose, onAddOne, onAddFull, onSelectChoice }: Props) {
+  const lt = levelText(vm.currentLevel, vm.maxLevel, preview);
 
   return (
     <View className="es-overlay" onClick={onClose}>
       <View className="es-sheet" onClick={(e) => e.stopPropagation()}>
-        {/* 顶部：图标 + 名称 */}
+        {/* 顶部：图标 + 名称 + 全部加强预览开关 */}
         <View className="es-head">
           {vm.icon ? (
             <Image className="es-icon" src={vm.icon} mode="aspectFit" />
@@ -28,6 +30,16 @@ export default function EnhanceSheet({ vm, onClose, onAddOne, onAddFull, onSelec
             <Text className="es-name">{vm.name}</Text>
             {vm.isMaxed && <Text className="es-tag es-tag--max">已强化</Text>}
           </View>
+          {/* 全部加强预览开关（仅多级强化项显示） */}
+          {vm.maxLevel > 1 && vm.mode !== "choice" && (
+            <View
+              className={`es-preview-toggle ${preview ? "es-preview-toggle--on" : ""}`}
+              onClick={onTogglePreview}
+            >
+              <Text className="es-preview-label">满级预览</Text>
+              <View className={`es-preview-switch ${preview ? "es-preview-switch--on" : ""}`} />
+            </View>
+          )}
           <Text className="es-close" onClick={onClose}>×</Text>
         </View>
 

@@ -270,7 +270,8 @@ export function resolveTuneRow(
 export function renderEnhanceDesc(
   store: ClientDataStore,
   slot: EnhanceSlot,
-  currentLevel: number
+  currentLevel: number,
+  preview = false
 ): string {
   const descTable = (store as any).enhanceDescRendered as
     | Record<string, Record<string, string>>
@@ -295,7 +296,14 @@ export function renderEnhanceDesc(
       return curDesc.replace(NUM_RE, `<b style="color:${CUR_COLOR}">$&</b>`);
     }
 
-    // 未强化 / 部分强化：原位标注——每个数字位置显示"当前值(+增量)"
+    // ★预览模式（全部加强预览）：显示加满后的总值（满级描述，金色）
+    //   对应等级区 +N（加满差值）。满级描述里所有数字都是加满后的最终值
+    if (preview) {
+      const fullDesc = byLv[String(slot.maxLevel)] ?? "";
+      return fullDesc.replace(NUM_RE, `<b style="color:${NEXT_COLOR}">$&</b>`);
+    }
+
+    // 默认模式 - 未强化 / 部分强化：原位标注——每个数字位置显示"当前值(+增量)"
     //   curNums[i] 对应 curDesc 第i个数字；nextNums[i] 对应 nextDesc 第i个数字
     //   增量 = nextNums[i] - curNums[i]（未强化时 curNums 全当 0）
     const curNums = currentLevel > 0 ? extractNums(curDesc) : [];
@@ -341,19 +349,32 @@ export function renderEnhanceDesc(
 
 /**
  * 等级显示文本分段："2+1/4" 格式。
- * - 未强化（0级）：current="" next="+1" max="/4"（组件渲染为 +1/4）
- * - 部分（2级,max4）：current="2" next="+1" max="/4"
- * - 满级：current="4" next="" max="/4"（无 +1）
+ * - 默认模式：next = "+1"（下一级）
+ * - preview 模式（全部加强预览）：next = "+(maxLevel-currentLevel)"（加满还差几级），满级为""不显示
+ *
+ * - 未强化（0级）：current="" next="+N" max="/4"
+ * - 部分（2级,max4）：current="2" next="+1"(默认)/"+2"(预览,4-2) max="/4"
+ * - 满级：current="4" next=""（差值0不显示）max="/4"
  */
-export function levelText(currentLevel: number, maxLevel: number): {
+export function levelText(currentLevel: number, maxLevel: number, preview = false): {
   current: string;
   next: string;
   max: string;
 } {
   const isMaxed = currentLevel >= maxLevel;
+  let next: string;
+  if (isMaxed) {
+    next = "";
+  } else if (preview) {
+    // 全部加强预览：+N = 加满还差几级（maxLevel - currentLevel）
+    const remain = maxLevel - currentLevel;
+    next = remain > 0 ? `+${remain}` : "";
+  } else {
+    next = "+1";
+  }
   return {
     current: currentLevel > 0 ? String(currentLevel) : "",
-    next: isMaxed ? "" : "+1",
+    next,
     max: `/${maxLevel}`,
   };
 }
