@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Taro, { useRouter } from "@tarojs/taro";
 import { useEditorData } from "../../state/useEditorData";
+import { useEnhanceState } from "../../state/enhanceStore";
 import {
   getShipPanel,
   getVariants,
@@ -15,6 +16,7 @@ export default function BlueprintDesign() {
   const router = useRouter();
   const bpId = (router.params.bpId || "") as string;
   const { store, loading, error } = useEditorData();
+  const enhanceState = useEnhanceState();
 
   // 巅峰等级（本地状态，0-20，+/- 按钮调节）
   const [peakLevel, setPeakLevel] = useState(0);
@@ -23,10 +25,22 @@ export default function BlueprintDesign() {
   // 下拉框展开状态（哪个GROUP展开）
   const [dropdownOpen, setDropdownOpen] = useState("");
 
+  // 当前船的强化等级（从全局 store 取，版本号变化时重算）
+  const shipId = useMemo(() => {
+    if (!store) return "";
+    const wl = (store as any).shipWhitelist ?? {};
+    return (wl[bpId]?.shipId ?? "") as string;
+  }, [store, bpId]);
+  const enhanceLevels = useMemo(
+    () => (shipId ? enhanceState.getLevels(shipId) : {}),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [shipId, enhanceState.version]
+  );
+
   const panel = useMemo(() => {
     if (!store) return null;
-    return getShipPanel(store, bpId, peakLevel, enabledSlots);
-  }, [store, bpId, peakLevel, enabledSlots]);
+    return getShipPanel(store, bpId, peakLevel, enabledSlots, enhanceLevels);
+  }, [store, bpId, peakLevel, enabledSlots, enhanceLevels]);
 
   const variants = useMemo(() => {
     if (!store) return [];

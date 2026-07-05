@@ -8,6 +8,7 @@
 import type { ClientDataStore } from "@lagrange/engine";
 import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense } from "@lagrange/engine";
 import type { BlueprintPanel } from "@lagrange/engine";
+import { levelsToTechStr } from "../state/useBlueprintDesign";
 
 // ===== 舰型分类(顺序即底部图标栏顺序) =====
 export interface ShipCategory {
@@ -177,8 +178,15 @@ export interface ShipPanelData {
 /** 取舰船面板数据（含火力/属性，走蓝图计算层）
  *  @param peakLevel 巅峰等级（0-20），提供后聚合巅峰加成（结构/移速）
  *  @param enabledSlots 启用的可选模块 systemId 列表（影响武器装配/属性计算）
+ *  @param enhanceLevels 强化项等级映射 { enhanceId: level }，转 techStr 传给 resolver
  */
-export function getShipPanel(store: ClientDataStore, bpId: string, peakLevel: number = 0, enabledSlots: string[] = []): ShipPanelData | null {
+export function getShipPanel(
+  store: ClientDataStore,
+  bpId: string,
+  peakLevel: number = 0,
+  enabledSlots: string[] = [],
+  enhanceLevels?: Record<string, number>
+): ShipPanelData | null {
   const whitelist = (store as any).shipWhitelist ?? _whitelist;
   const entry = whitelist?.[bpId];
   if (!entry) return null;
@@ -196,10 +204,14 @@ export function getShipPanel(store: ClientDataStore, bpId: string, peakLevel: nu
   const baseStructure = Number(shipRow[4] ?? 0);
   const defense = getBaseDefense(store, entry.shipId, enabledSlots);
   const moduleStructureBonus = Math.floor((baseStructure * defense.structurePermille) / 10000);
-  const needsResolver = peakLevel > 0 || moduleStructureBonus > 0;
+  // ★强化等级转 techStr（战报科技串），传给 resolver 使面板反映强化加成
+  const techStr = enhanceLevels && Object.keys(enhanceLevels).length > 0
+    ? levelsToTechStr(store, entry.shipId, enhanceLevels)
+    : "";
+  const needsResolver = peakLevel > 0 || moduleStructureBonus > 0 || techStr !== "";
 
   const blueprint = needsResolver
-    ? resolveBlueprint(store, entry.shipId, "", { peakLevel, moduleStructureBonus })
+    ? resolveBlueprint(store, entry.shipId, techStr, { peakLevel, moduleStructureBonus })
     : null;
   const panel = resolveBlueprintPanel(store, entry.shipId, shipName, blueprint, enabledSlots);
 

@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro, { useRouter } from "@tarojs/taro";
 import { useEditorData } from "../../state/useEditorData";
+import { useEnhanceState } from "../../state/enhanceStore";
 import {
   resolveEnhanceSystem,
   isEnhanceAvailable,
@@ -29,7 +30,29 @@ export default function EnhancePage() {
   const { store, loading, error } = useEditorData();
 
   const [currentSlotId, setCurrentSlotId] = useState("");
-  const [acquired, setAcquired] = useState<Map<string, number>>(new Map());
+  const enhanceState = useEnhanceState();
+  // acquired: 本地 state 驱动 UI，初始化从全局 store 取，变更时同步回全局
+  const [acquired, setAcquired] = useState<Map<string, number>>(() => {
+    const globalLevels = enhanceState.getLevels(shipId);
+    return new Map(Object.entries(globalLevels));
+  });
+  // 全局 store 变化时（如从其他页回来）同步到本地
+  useEffect(() => {
+    const globalLevels = enhanceState.getLevels(shipId);
+    setAcquired(new Map(Object.entries(globalLevels)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shipId, enhanceState.version]);
+  // 本地变更同步回全局 store
+  const updateAcquired = (updater: (prev: Map<string, number>) => Map<string, number>) => {
+    setAcquired((prev) => {
+      const next = updater(prev);
+      // 同步到全局 store（转普通对象）
+      const obj: Record<string, number> = {};
+      next.forEach((v, k) => { if (v > 0) obj[k] = v; });
+      enhanceState.setLevels(shipId, obj);
+      return next;
+    });
+  };
   const [sheet, setSheet] = useState<
     | { type: "node"; enhanceId: string }
     | { type: "choice"; choiceKey: string }
@@ -133,7 +156,7 @@ export default function EnhancePage() {
   const onAddOne = () => {
     if (!sheetVM || sheetVM.mode === "choice") return;
     const newLv = Math.min(sheetVM.maxLevel, sheetVM.currentLevel + 1);
-    setAcquired((prev) => {
+    updateAcquired((prev) => {
       const m = new Map(prev);
       if (newLv > 0) m.set(sheetVM.slot.enhanceId, newLv);
       return m;
@@ -142,7 +165,7 @@ export default function EnhancePage() {
   };
   const onAddFull = () => {
     if (!sheetVM) return;
-    setAcquired((prev) => {
+    updateAcquired((prev) => {
       const m = new Map(prev);
       m.set(sheetVM.slot.enhanceId, sheetVM.maxLevel);
       return m;
