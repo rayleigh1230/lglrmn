@@ -290,12 +290,13 @@ export function renderEnhanceDesc(
   const computeDiffs = (curDesc: string, nextDesc: string): string[] => {
     const curNums = extractNums(curDesc);
     const nextNums = extractNums(nextDesc);
+    // nextDesc 里每个数字是否带 %（用于增量单位判定）
+    const nextNumPct = (nextDesc.match(/\d+(?:\.\d+)?%?/g) ?? []).map((x) => x.includes("%"));
     const diffs: string[] = [];
     for (let i = 0; i < curNums.length && i < nextNums.length; i++) {
       const d = nextNums[i] - curNums[i];
       if (d > 0) {
-        const hasPct = /\d+(?:\.\d+)?%/.test(curDesc);
-        diffs.push(`+${d}${hasPct ? "%" : ""}`);
+        diffs.push(`+${d}${nextNumPct[i] ? "%" : ""}`);
       }
     }
     return diffs;
