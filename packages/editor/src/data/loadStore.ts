@@ -102,6 +102,13 @@ export async function loadStore(): Promise<ClientDataStore> {
     console.warn("强化项渲染描述表未加载, 占位符将无法替换");
   }
 
+  // 加载强化项数值表(enhanceId+level → {value, effect_id}, 解决PARAM空的伤害类数值来源)
+  try {
+    (_store as any).enhanceValues = await readJson(CONFIG_BASE + "enhance_values.json");
+  } catch {
+    console.warn("强化项数值表未加载, 伤害类强化可能无数值");
+  }
+
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
 
   // 加载武器优先级表（火力计算用）

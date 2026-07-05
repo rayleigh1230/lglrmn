@@ -304,7 +304,7 @@ export interface ResolvedEffect {
   /** 该强化的最大等级（来自 ENHANCE_COST 长度） */
   maxLevel: number;
   /** 数值来源：param_level=等级表 / direct=直接PARAM */
-  source: 'param_level' | 'direct';
+  source: 'param_level' | 'direct' | 'enhance_values';
 }
 
 /** 未实现的效果（EFFECT_ID 无对应 handler），透明记录便于后续扩展 */
@@ -458,7 +458,7 @@ interface EffectLookup {
   effect: RawSystemEffect;
   value: number; // 已按level缩放
   maxParamValue: number; // 满级值
-  source: 'param_level' | 'direct';
+  source: 'param_level' | 'direct' | 'enhance_values';
 }
 
 function lookupEffect(
@@ -469,6 +469,10 @@ function lookupEffect(
   const prefix = String(tech.techId);
   const level = tech.level;
   const maxLevel = findMaxLevel(store, tech);
+  // ★enhance_values 表（frida dump，解决 EFFECT_PARAM 空的伤害类数值来源）
+  const enhanceValues = (store as any).enhanceValues as
+    | Record<string, Record<string, { value: number; effect_id: number | null }>>
+    | undefined;
 
   // 1. direct：尝试 PREFIX + level补零2位
   const directKey = prefix + String(level).padStart(2, '0');
@@ -477,9 +481,19 @@ function lookupEffect(
     const effectId = direct.EFFECT_ID ?? -1;
     // B类：按等级缩放
     const maxParamValue = extractParamValue(effectId, direct.EFFECT_PARAM);
-    const value = direct.EFFECT_PARAM_LEVEL
+    let value = direct.EFFECT_PARAM_LEVEL
       ? lookupParamLevel(direct.EFFECT_PARAM_LEVEL, level) // A类查表
       : maxParamValue * level / maxLevel; // B类缩放
+    // ★回退：value=0 或 effectId 无效时查 enhance_values 表
+    if ((!value || effectId === -1) && enhanceValues && tech.enhanceId) {
+      const lvEntry = enhanceValues[tech.enhanceId]?.[String(level)];
+      if (lvEntry) {
+        value = lvEntry.value;
+        const eid = lvEntry.effect_id ?? undefined;
+        const effectWithId = eid !== undefined ? { ...direct, EFFECT_ID: eid } as typeof direct : direct;
+        return { effect: effectWithId, value, maxParamValue: value, source: 'enhance_values' };
+      }
+    }
     return { effect: direct, value, maxParamValue, source: direct.EFFECT_PARAM_LEVEL ? 'param_level' : 'direct' };
   }
 
@@ -501,7 +515,22 @@ function lookupEffect(
 
   // B类：按等级缩放
   const maxParamValue = extractParamValue(effectId, base.EFFECT_PARAM);
-  const value = (maxParamValue * level) / maxLevel;
+  let value = (maxParamValue * level) / maxLevel;
+
+  // ★回退：若 value=0 或 effectId 无效（PARAM 空的伤害类），查 enhance_values 表
+  if ((!value || effectId === -1) && enhanceValues && tech.enhanceId) {
+    const lvEntry = enhanceValues[tech.enhanceId]?.[String(level)];
+    if (lvEntry) {
+      value = lvEntry.value;
+      // 用表里的 effect_id 覆盖（base.EFFECT_ID 可能是 null）
+      const eid = lvEntry.effect_id ?? undefined;
+      const effectWithId = eid !== undefined
+        ? { ...base, EFFECT_ID: eid } as typeof base
+        : base;
+      return { effect: effectWithId, value, maxParamValue: value, source: 'enhance_values' };
+    }
+  }
+
   return { effect: base, value, maxParamValue, source: 'direct' };
 }
 
