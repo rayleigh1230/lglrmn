@@ -27,6 +27,7 @@ import "./index.css";
 export default function EnhancePage() {
   const router = useRouter();
   const shipId = (router.params.shipId || "") as string;
+  const peakLevel = Number(router.params.peakLevel || 0);
   const { store, loading, error } = useEditorData();
 
   const [currentSlotId, setCurrentSlotId] = useState("");
@@ -78,8 +79,8 @@ export default function EnhancePage() {
   const treeVM = useMemo(() => {
     if (!store || !currentSlotId) return null;
     const selId = sheet?.type === "node" ? sheet.enhanceId : undefined;
-    return resolveEnhanceTreeVM(store, shipId, currentSlotId, acquired, selId);
-  }, [store, shipId, currentSlotId, acquired, sheet]);
+    return resolveEnhanceTreeVM(store, shipId, currentSlotId, acquired, selId, peakLevel);
+  }, [store, shipId, currentSlotId, acquired, sheet, peakLevel]);
 
   const tuneSlots = useMemo(() => {
     if (!store || !currentSlotId) return [];

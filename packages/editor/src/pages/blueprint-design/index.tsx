@@ -380,7 +380,7 @@ export default function BlueprintDesign() {
       {/* 右下角"蓝图强化"悬浮按钮 */}
       <Text
         className="bp-enhance-fab"
-        onClick={() => Taro.navigateTo({ url: `/pages/enhance/index?shipId=${panel.shipId}` })}
+        onClick={() => Taro.navigateTo({ url: `/pages/enhance/index?shipId=${panel.shipId}&peakLevel=${peakLevel}` })}
       >
         蓝图强化
       </Text>

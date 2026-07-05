@@ -1,7 +1,7 @@
 import { View, Text, Image } from "@tarojs/components";
 import { useRef, useEffect } from "react";
 import type { EnhanceNodeVM, ChoiceGroup } from "../../data/enhanceView";
-import { enhanceIcon } from "../../data/iconResolver";
+import { enhanceIcon, iconUrl } from "../../data/iconResolver";
 import "./index.css";
 
 interface Props {
@@ -108,6 +108,9 @@ export default function EnhanceTree({ columns, choiceGroups, onSelectNode, onOpe
             )}
             {node.slot.effect?.label && (
               <Text className="et-label">{node.slot.effect.label}</Text>
+            )}
+            {node.hasPeakExtra && (
+              <Image className="et-adv" src={iconUrl("peak/icon_adv_prop_l.png")} mode="aspectFit" />
             )}
             {node.currentLevel > 0 && (
               <Text className="et-lv">{node.currentLevel}</Text>

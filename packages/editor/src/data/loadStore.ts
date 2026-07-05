@@ -109,6 +109,13 @@ export async function loadStore(): Promise<ClientDataStore> {
     console.warn("强化项数值表未加载, 伤害类强化可能无数值");
   }
 
+  // 加载巅峰强化扩展映射(slotId → optIdx70 peakEnhanceId, 巅峰等级提升maxLevel)
+  try {
+    (_store as any).peakEnhanceMap = await readJson(CONFIG_BASE + "peak_enhance_map.json");
+  } catch {
+    console.warn("巅峰强化扩展映射未加载");
+  }
+
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
 
   // 加载武器优先级表（火力计算用）

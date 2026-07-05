@@ -36,6 +36,8 @@ export interface EnhanceNodeVM {
   choiceGroupId?: string;   // 二选一桶 key（slotId+treeColumn）
   gridCol: number;          // ★网格列号（= BFS 跳数）
   gridRow: number;          // ★网格行号（= ui_level 按高度降序后的序号，0=最上）
+  hasPeakExtra: boolean;    // ★巅峰等级提升了该槽 maxLevel（显示 ADV 标志）
+  extraMaxLevel: number;    // ★巅峰提升的额外等级数
 }
 
 /** 二选一桶 */
@@ -75,14 +77,15 @@ export interface EnhanceSheetVM {
 }
 
 /**
- * 解析某系统槽的科技树为 UI 节点（含状态 + 二选一合并）。
+ * 解析某系统槽的科技树为 UI 节点（含状态 + 二选一合并 + 巅峰扩展）。
  */
 export function resolveEnhanceTreeVM(
   store: ClientDataStore,
   shipId: string,
   slotId: string,
   acquired: Map<string, number>,
-  selectedEnhanceId?: string
+  selectedEnhanceId?: string,
+  peakLevel = 0
 ): { columns: Record<number, EnhanceNodeVM[]>; choiceGroups: Record<string, ChoiceGroup> } {
   const sys = resolveEnhanceSystem(store, shipId);
   const slotInfo = sys.slotInfos[slotId];
@@ -169,6 +172,18 @@ export function resolveEnhanceTreeVM(
   const rowOfUi: Record<number, number> = {};
   uiLevels.forEach((u, i) => { rowOfUi[u] = i; });
 
+  // ★巅峰等级提升的额外 maxLevel（optIdx70 的 ENHANCE_COST 长度，按巅峰等级截取）
+  //   peak_enhance_map.json: { slotId: [peakEnhanceId(optIdx70)] }
+  //   extra = min(peakLevel, optIdx70 的 ENHANCE_COST 长度)
+  const peakMap = (store as any).peakEnhanceMap as Record<string, string[]> | undefined;
+  const peakEnhanceId = peakMap?.[slotId]?.[0];
+  let extraMaxLevel = 0;
+  if (peakEnhanceId && peakLevel > 0) {
+    const peakRec = (store.systemEnhance as Record<string, { ENHANCE_COST?: number[] }>)[peakEnhanceId];
+    const peakCostLen = peakRec?.ENHANCE_COST?.length ?? 0;
+    extraMaxLevel = Math.min(peakLevel, peakCostLen);
+  }
+
   // 构建 VM（含网格坐标 gridCol=BFS跳数, gridRow=行号）
   const columns: Record<number, EnhanceNodeVM[]> = {};
   for (const s of visibleSlots) {
@@ -205,6 +220,8 @@ export function resolveEnhanceTreeVM(
       choiceGroupId: isChoice ? choiceKey : undefined,
       gridCol: col,
       gridRow: rowOfUi[s.treeColumn] ?? 0,
+      hasPeakExtra: extraMaxLevel > 0,
+      extraMaxLevel,
     };
     (columns[col] = columns[col] || []).push(vm);
   }
