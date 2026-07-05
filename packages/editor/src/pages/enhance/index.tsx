@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro, { useRouter } from "@tarojs/taro";
 import { useEditorData } from "../../state/useEditorData";
@@ -18,7 +18,7 @@ import {
   type EnhanceSheetVM,
   type TuneSlotVM,
 } from "../../data/enhanceView";
-import { enhanceIcon, prefixIcon } from "../../data/iconResolver";
+import { enhanceIcon } from "../../data/iconResolver";
 import EnhanceTree from "../../components/EnhanceTree";
 import EnhanceSheet from "../../components/EnhanceSheet";
 import TuneRow from "../../components/TuneRow";
@@ -30,6 +30,12 @@ export default function EnhancePage() {
   const router = useRouter();
   const shipId = (router.params.shipId || "") as string;
   const peakLevel = Number(router.params.peakLevel || 0);
+  // ★从蓝图页传来的装配选择（超主力舰切换组成员 systemId，逗号分隔）
+  //   强化页系统排与蓝图页强关联：只显示并强化已装配的系统
+  const enabledSlots = (() => {
+    const raw = (router.params.slots || "") as string;
+    return raw ? raw.split(",").filter(Boolean) : undefined;
+  })();
   const { store, loading, error } = useEditorData();
 
   const [currentSlotId, setCurrentSlotId] = useState("");
@@ -39,14 +45,21 @@ export default function EnhancePage() {
     const globalLevels = enhanceState.getLevels(shipId);
     return new Map(Object.entries(globalLevels));
   });
-  // 全局 store 变化时（如从其他页回来）同步到本地
+  // ★防循环标记：本页发起的 updateAcquired 会 bump version，用 ref 标记跳过自己触发的同步
+  const selfUpdated = useRef(false);
+  // 全局 store 变化时（如从其他页回来）同步到本地；跳过本页自己发起的更新
   useEffect(() => {
+    if (selfUpdated.current) {
+      selfUpdated.current = false; // 自己触发的 version 变化，不同步回本地
+      return;
+    }
     const globalLevels = enhanceState.getLevels(shipId);
     setAcquired(new Map(Object.entries(globalLevels)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shipId, enhanceState.version]);
   // 本地变更同步回全局 store
   const updateAcquired = (updater: (prev: Map<string, number>) => Map<string, number>) => {
+    selfUpdated.current = true; // 标记本次 version 变化是本页发起的
     setAcquired((prev) => {
       const next = updater(prev);
       // 同步到全局 store（转普通对象）
@@ -66,13 +79,14 @@ export default function EnhancePage() {
 
   const sys = useMemo(() => {
     if (!store || !shipId) return null;
-    return resolveEnhanceSystem(store, shipId);
-  }, [store, shipId]);
+    // ★传 enabledSlots：切换组的 isActive/hasModule 与蓝图页装配选择一致
+    return resolveEnhanceSystem(store, shipId, enabledSlots);
+  }, [store, shipId, enabledSlots]);
 
   const navResult = useMemo(() => {
     if (!store || !shipId) return { items: [], defaultSlotId: "" };
-    return resolveSystemNav(store, shipId, currentSlotId);
-  }, [store, shipId, currentSlotId]);
+    return resolveSystemNav(store, shipId, currentSlotId, acquired, enabledSlots);
+  }, [store, shipId, currentSlotId, acquired, enabledSlots]);
 
   // 默认槽初始化（进页面后取 slotId 最小）
   if (!currentSlotId && navResult.defaultSlotId) {
@@ -82,13 +96,23 @@ export default function EnhancePage() {
   const treeVM = useMemo(() => {
     if (!store || !currentSlotId) return null;
     const selId = sheet?.type === "node" ? sheet.enhanceId : undefined;
-    return resolveEnhanceTreeVM(store, shipId, currentSlotId, acquired, selId, peakLevel);
-  }, [store, shipId, currentSlotId, acquired, sheet, peakLevel]);
+    return resolveEnhanceTreeVM(store, shipId, currentSlotId, acquired, selId, peakLevel, enabledSlots);
+  }, [store, shipId, currentSlotId, acquired, sheet, peakLevel, enabledSlots]);
 
   const tuneRowVM = useMemo(() => {
     if (!store || !currentSlotId) return [];
-    return resolveTuneRowVM(store, shipId, currentSlotId, acquired);
-  }, [store, shipId, currentSlotId, acquired]);
+    // choiceGroups 参数保留向后兼容（调校区不再隐藏，改为图标联动）
+    return resolveTuneRowVM(store, shipId, currentSlotId, acquired, treeVM?.choiceGroups);
+  }, [store, shipId, currentSlotId, acquired, treeVM]);
+
+  // ★被调校项关联的强化项 ID 集合（改进4：强化节点加 icon_link 标记）
+  const linkedEnhanceIds = useMemo(() => {
+    const s = new Set<string>();
+    for (const t of tuneRowVM) {
+      if (t.targetEnhanceId) s.add(t.targetEnhanceId);
+    }
+    return s;
+  }, [tuneRowVM]);
 
   // 浮窗 VM
   const sheetVM: EnhanceSheetVM | null = useMemo(() => {
@@ -113,6 +137,7 @@ export default function EnhancePage() {
         fullCost: 0,
         prereqMissing: [],
         isMaxed: false,
+        slotsFull: false,
         choiceGroup: grp,
       };
     }
@@ -142,6 +167,16 @@ export default function EnhancePage() {
     const maxLevel = isChoice ? 1 : (slot.maxLevel + nodeExtra);
     const isMaxed = cur >= maxLevel;
     const avail = isEnhanceAvailable(slot, slotInfo, new Set(acquired.keys()));
+    // ★孔位上限：该槽 ENHANCEMENTS_LIMIT（与导航条/蓝图页孔位计数一致）
+    //   已投入强化项数(level>0，不含调校/解锁) >= limit 且当前项未加点 → 孔位满，不能再强化新项
+    const shipSystem = store.shipSystem as Record<string, { ENHANCEMENTS_LIMIT?: number }> | undefined;
+    const enhanceLimit = Number(shipSystem?.[currentSlotId]?.ENHANCEMENTS_LIMIT ?? 0);
+    let usedSlots = 0;
+    const slotsInSlot = sys.bySlot[currentSlotId] ?? [];
+    for (const s of slotsInSlot) {
+      if ((acquired.get(s.enhanceId) ?? 0) > 0) usedSlots++;
+    }
+    const slotsFull = cur === 0 && enhanceLimit > 0 && usedSlots >= enhanceLimit;
     return {
       mode: maxLevel > 1 ? "multi" : "single",
       slot,
@@ -156,6 +191,7 @@ export default function EnhancePage() {
       fullCost: fullCost(store, slot, cur),
       prereqMissing: avail.available ? [] : avail.reasons,
       isMaxed,
+      slotsFull,
     };
   }, [store, sheet, sys, currentSlotId, treeVM, acquired, preview]);
 
@@ -189,11 +225,38 @@ export default function EnhancePage() {
     });
   };
 
+  // currentSlotName 提前算（onReset/渲染都用）
+  const currentSlotName = sys?.slotInfos[currentSlotId]?.systemName || currentSlotId;
+
+  // ★重置当前系统槽：清空该槽所有强化加点 + 调校加点 + 解锁（整个 slotId 的 acquired 全删）
+  const onReset = () => {
+    Taro.showModal({
+      title: "重置确认",
+      content: `将清空「${currentSlotName}」的所有强化、调校和解锁加点，确定？`,
+      confirmColor: "#ff7a7a",
+      success: (res) => {
+        if (!res.confirm) return;
+        updateAcquired((prev) => {
+          const m = new Map(prev);
+          for (const eid of m.keys()) {
+            // 该 slotId 下的所有 enhanceId（含强化 optIdx1-18、解锁、调校）全删
+            if (eid.startsWith(currentSlotId)) m.delete(eid);
+          }
+          return m;
+        });
+      },
+    });
+  };
+
+  // ★占位按钮（存档系统下一轮实现）
+  const onPlaceholder = (name: string) => {
+    Taro.showToast({ title: `${name}功能开发中`, icon: "none" });
+  };
+
   if (loading) return <View className="en-loading"><Text>加载中...</Text></View>;
   if (error) return <View className="en-loading"><Text className="text-danger">{error}</Text></View>;
   if (!sys || !shipId) return <View className="en-loading"><Text>舰船数据未找到: {shipId}</Text></View>;
 
-  const currentSlotName = sys.slotInfos[currentSlotId]?.systemName || currentSlotId;
   const slotInfo = sys.slotInfos[currentSlotId];
 
   return (
@@ -210,6 +273,7 @@ export default function EnhancePage() {
             <EnhanceTree
               columns={treeVM.columns}
               choiceGroups={treeVM.choiceGroups}
+              linkedEnhanceIds={linkedEnhanceIds}
               onSelectNode={(eid) => setSheet({ type: "node", enhanceId: eid })}
               onOpenChoice={(key) => setSheet({ type: "choice", choiceKey: key })}
             />
@@ -226,17 +290,28 @@ export default function EnhancePage() {
         />
       </View>
 
-      {/* 区域③ 系统导航：固定最下方 */}
+      {/* 区域③ 系统导航 */}
       <View className="en-nav-fixed">
         <SystemNav
           items={navResult.items}
           onSelect={setCurrentSlotId}
-          iconFor={(sid) => {
-            // 用该槽首个强化项的 SYSTEM_EFFECT_PREFIX 解析图标（与蓝图页一致）
-            const item = navResult.items.find((i) => i.slotId === sid);
-            return item && item.prefix ? prefixIcon(item.prefix) : "";
-          }}
         />
+      </View>
+
+      {/* 区域④ 功能区：重置 + 保存/导入/分享（占位），固定页面最底部 */}
+      <View className="en-actions">
+        <View className="en-action en-action--reset" onClick={onReset}>
+          <Text className="en-action__label">重置</Text>
+        </View>
+        <View className="en-action en-action--save" onClick={() => onPlaceholder("保存")}>
+          <Text className="en-action__label">保存</Text>
+        </View>
+        <View className="en-action en-action--import" onClick={() => onPlaceholder("导入")}>
+          <Text className="en-action__label">导入</Text>
+        </View>
+        <View className="en-action en-action--share" onClick={() => onPlaceholder("分享")}>
+          <Text className="en-action__label">分享</Text>
+        </View>
       </View>
 
       {/* 浮窗 */}
@@ -256,6 +331,8 @@ export default function EnhancePage() {
       {tuneSlot && (
         <TuneSheet
           vm={tuneSlot}
+          preview={preview}
+          onTogglePreview={() => setPreview((p) => !p)}
           onClose={() => setTuneSlot(null)}
           onAddOne={() => {
             const newLv = Math.min(tuneSlot.maxLevel, tuneSlot.currentLevel + 1);
@@ -266,6 +343,14 @@ export default function EnhancePage() {
             });
             if (newLv >= tuneSlot.maxLevel) setTuneSlot(null);
             else setTuneSlot({ ...tuneSlot, currentLevel: newLv, state: "active" });
+          }}
+          onAddFull={() => {
+            updateAcquired((prev) => {
+              const m = new Map(prev);
+              m.set(tuneSlot.enhanceId, tuneSlot.maxLevel);
+              return m;
+            });
+            setTuneSlot(null);
           }}
         />
       )}

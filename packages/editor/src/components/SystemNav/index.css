@@ -1,14 +1,14 @@
 .sn-scroll {
   white-space: nowrap;
-  padding: 12px 16px;
+  padding: 8px 12px;
 }
 .sn-item {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  width: 80px;
-  margin-right: 10px;
-  padding: 8px 4px;
+  width: 96px;
+  margin-right: 8px;
+  padding: 6px 4px;
   border-radius: 8px;
   border: 2px solid #2a3458;
   background: #131a2e;
@@ -18,22 +18,55 @@
   border-color: #ffc857;
   background: rgba(255, 200, 87, 0.08);
 }
-.sn-icon { width: 48px; height: 48px; }
+.sn-icon { width: 56px; height: 56px; }
 .sn-icon--ph {
   display: flex;
   align-items: center;
   justify-content: center;
   color: #6b7891;
-  font-size: 22px;
+  font-size: 28px;
 }
 .sn-name {
   display: block;
-  font-size: 18px;
+  font-size: 20px;
   color: #9aa4bc;
   margin-top: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 72px;
+  max-width: 86px;
 }
 .sn-item--cur .sn-name { color: #ffc857; }
+
+/* ★孔位状态点（参照蓝图页 bp-syscard__slot，但区分三态） */
+.sn-slots {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  justify-content: center;
+}
+.sn-slot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+/* 满级：白色实心 */
+.sn-slot--full {
+  background: #ffffff;
+}
+/* 已投入未满级：灰色实心 */
+.sn-slot--partial {
+  background: #6b7891;
+}
+/* 未强化：空圈（透明背景 + 灰边） */
+.sn-slot--empty {
+  background: transparent;
+  border: 1px solid #3a4566;
+}
+.sn-noslots {
+  display: block;
+  font-size: 18px;
+  color: #4a5478;
+  margin-top: 4px;
+  text-align: center;
+}

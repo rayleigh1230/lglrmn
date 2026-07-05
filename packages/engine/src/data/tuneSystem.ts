@@ -1,15 +1,20 @@
 /**
  * 调校系统解析器
  *
- * ★ 机制（2026-07-03 从游戏运行时 frida dump 确认）：
+ * ★ 机制（2026-07-03 从游戏运行时 frida dump 确认，2026-07-05 修正 optIdx 范围）：
  *
  * 调校是独立系统，与巅峰等级无必然关系。
- * 调校槽在 cfg_system_enhance 里，optIdx=31-43，特征：
+ * 调校槽在 cfg_system_enhance 里，特征是有 ADJUST_PROB 字段（10级成功率）：
  *   - EFFECT_TYPE=2（走标准效果链）
  *   - ADJUST_PROB: 10级成功率 (100,100,100,90,80,70,60,50,25,15)
- *   - ADJUST_ENHANCE_INDEX: 被调校的目标 optIdx（1-10）
+ *   - ADJUST_ENHANCE_INDEX: 被调校的目标 optIdx（1-13）
  *   - ADJUST_RARITY: 所需武器技术稀有度
  *   - SYSTEM_EFFECT_PREFIX: 调校效果前缀（查 system_effect 取数值）
+ *
+ * ★optIdx 范围（数据实证，不能靠 optIdx 识别调校槽）：
+ *   主体在 31-43（2231条，98%），但少量调校槽的 optIdx 在 7/12/50/51（23条，2%），
+ *   如白垩级 521010112（optIdx=12）。因此 resolveTuneSystem 仅用 ADJUST_PROB 识别，
+ *   不限制 optIdx 范围。
  *
  * 调校三步链（用户描述 + 数据印证）：
  *   1. 普通强化项（optIdx 01-11）点过等级
@@ -80,12 +85,13 @@ export function resolveTuneSystem(store: ClientDataStore, shipId: string): ShipT
 
   for (const enhanceId in enhance) {
     if (!enhanceId.startsWith(shipId)) continue;
-    const optIdx = Number(enhanceId.slice(7, 9));
-    // 调校槽：optIdx=31-43 且有 ADJUST_PROB 字段
-    if (optIdx < 31 || optIdx > 43) continue;
     const rec = enhance[enhanceId];
+    // ★调校槽：有 ADJUST_PROB 字段（10级成功率）即为调校槽
+    //   optIdx 不固定（主体在 31-43，但少量在 7/12/50/51，如白垩级 521010112 optIdx=12）
+    //   不能靠 optIdx 范围识别，只能靠 ADJUST_PROB 特征字段
     const adjustProb = rec.ADJUST_PROB;
     if (!adjustProb || !Array.isArray(adjustProb)) continue;
+    const optIdx = Number(enhanceId.slice(7, 9));
 
     const slotId = enhanceId.slice(0, 7);
     const effectPrefix = Number(rec.SYSTEM_EFFECT_PREFIX) || 0;
@@ -258,10 +264,13 @@ export function computeTuneBonus(
 }
 
 /**
- * 判断一个 enhanceId 是否为调校槽。
- * 用于 resolver 区分普通强化和调校强化。
+ * 判断一个 enhanceId 是否为调校槽（启发式，按 optIdx 粗判）。
+ * ★注意：调校槽的精确识别应优先用 resolveTuneSystem（按 ADJUST_PROB 字段）。
+ *   本函数仅靠 enhanceId 字符串，无法访问字段，对范围外调校槽（optIdx=7/12/50/51）
+ *   会漏判。当前无调用方，保留供未来按 optIdx 粗筛场景使用。
  */
 export function isTuneSlot(enhanceId: string): boolean {
   const optIdx = Number(enhanceId.slice(7, 9));
-  return optIdx >= 31 && optIdx <= 43;
+  // 主体在 31-43，少量在 7/12/50/51（数据实证，见 resolveTuneSystem 注释）
+  return (optIdx >= 31 && optIdx <= 43) || optIdx === 7 || optIdx === 12 || optIdx === 50 || optIdx === 51;
 }

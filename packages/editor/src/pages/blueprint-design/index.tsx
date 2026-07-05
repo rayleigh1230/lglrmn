@@ -9,6 +9,7 @@ import {
   getShipSystems,
   CATEGORY_COLOR,
 } from "../../data/blueprintSelector";
+import { computeSlotStates, type SlotState } from "../../data/enhanceView";
 import { shipThumbnailIcon, peakIcon, companyIcon, prefixIcon, iconUrl } from "../../data/iconResolver";
 import "./index.css";
 
@@ -299,6 +300,8 @@ export default function BlueprintDesign() {
               {fixedSlots.map((slot) => {
                 const sys = slot.system;
                 const icon = sys.prefix ? prefixIcon(sys.prefix) : "";
+                // ★孔位状态（与强化页导航条联动，按强化等级计数着色）
+                const slotStates = store ? computeSlotStates(store, sys.systemId, sys.enhanceLimit, enhanceLevels) : [];
                 return (
                   <View key={sys.systemId} className="bp-syscard">
                     {sys.moduleId && <Text className="bp-syscard__tag">{sys.moduleId}</Text>}
@@ -308,8 +311,8 @@ export default function BlueprintDesign() {
                       <Image className="bp-syscard__icon bp-syscard__icon--empty" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
                     )}
                     <View className="bp-syscard__slots">
-                      {Array.from({ length: Math.max(sys.enhanceLimit, 0) }).map((_, i) => (
-                        <View key={i} className="bp-syscard__slot" />
+                      {slotStates.map((st, i) => (
+                        <View key={i} className={`bp-syscard__slot bp-syscard__slot--${st}`} />
                       ))}
                       {sys.enhanceLimit === 0 && <Text className="bp-syscard__noslots">—</Text>}
                     </View>
@@ -362,9 +365,13 @@ export default function BlueprintDesign() {
                         <Image className="bp-syscard__icon bp-syscard__icon--empty" src={iconUrl("system_type/icon_system_empty.png")} mode="aspectFit" />
                       )}
                       <View className="bp-syscard__slots">
-                        {selected ? Array.from({ length: Math.max(selected.enhanceLimit, 0) }).map((_, i) => (
-                          <View key={i} className="bp-syscard__slot" />
-                        )) : <Text className="bp-syscard__noslots">+</Text>}
+                        {selected ? (() => {
+                          // ★切换组孔位状态（与固定系统一致，按强化等级着色）
+                          const slotStates = store ? computeSlotStates(store, selected.systemId, selected.enhanceLimit, enhanceLevels) : [];
+                          return slotStates.map((st, i) => (
+                            <View key={i} className={`bp-syscard__slot bp-syscard__slot--${st}`} />
+                          ));
+                        })() : <Text className="bp-syscard__noslots">+</Text>}
                       </View>
                     </View>
                   </View>
@@ -380,7 +387,14 @@ export default function BlueprintDesign() {
       {/* 右下角"蓝图强化"悬浮按钮 */}
       <Text
         className="bp-enhance-fab"
-        onClick={() => Taro.navigateTo({ url: `/pages/enhance/index?shipId=${panel.shipId}&peakLevel=${peakLevel}` })}
+        onClick={() => {
+          // ★把蓝图页当前装配清单传给强化页，使强化页系统排与蓝图页强关联
+          //   序列化所有 enabled=true 的系统（固定系统 + 切换组选中成员 + 默认项），
+          //   这样强化页能精确知道哪些系统是装配好的，避免显示切换组未选中成员
+          const enabledSystemIds = systems.filter((s) => s.enabled).map((s) => s.systemId);
+          const slotsParam = enabledSystemIds.length > 0 ? `&slots=${enabledSystemIds.join(",")}` : "";
+          Taro.navigateTo({ url: `/pages/enhance/index?shipId=${panel.shipId}&peakLevel=${peakLevel}${slotsParam}` });
+        }}
       >
         蓝图强化
       </Text>

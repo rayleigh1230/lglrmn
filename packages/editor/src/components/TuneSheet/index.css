@@ -53,6 +53,46 @@
   font-size: 20px;
   color: #8a96b0;
 }
+.ts-tag--max { color: #4ade80; }
+
+/* 满级预览开关（和强化浮窗一致） */
+.ts-preview-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ts-preview-label {
+  font-size: 18px;
+  color: #6b7891;
+}
+.ts-preview-toggle--on .ts-preview-label {
+  color: #ffc857;
+}
+.ts-preview-switch {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #2a3458;
+  position: relative;
+}
+.ts-preview-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #6b7891;
+}
+.ts-preview-switch--on {
+  background: #ffc857;
+}
+.ts-preview-switch--on::after {
+  left: 18px;
+  background: #1a1208;
+}
 .ts-close {
   font-size: 36px;
   color: #6b7891;
@@ -90,12 +130,6 @@
   background: #4fc3f7;
   border-color: #6ad3ff;
 }
-.ts-rate {
-  display: block;
-  font-size: 20px;
-  color: #8a96b0;
-  margin-bottom: 14px;
-}
 .ts-btns {
   display: flex;
   gap: 10px;
@@ -106,9 +140,17 @@
   padding: 10px 0;
   text-align: center;
 }
+.ts-btn--full {
+  background: linear-gradient(135deg, #3a2a10, #5a4020);
+  border: 1px solid #ffc857;
+}
 .ts-btn--one {
   background: linear-gradient(135deg, #1a3a1a, #2a5c2a);
   border: 1px solid #4ade80;
+}
+.ts-btn--wide {
+  flex: none;
+  width: 100%;
 }
 .ts-btn-label {
   display: block;

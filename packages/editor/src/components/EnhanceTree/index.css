@@ -1,89 +1,120 @@
-/* 横向滚动容器（支持鼠标拖曳） */
+/* 横向+纵向滚动容器（科技树区 flex:1 撑满，节点多时内部滚动） */
 .et-scroll {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  flex: 1;
+  overflow: auto; /* ★纵向也滚动，4节点超高一屏时可纵向滑 */
   cursor: grab;
   -webkit-overflow-scrolling: touch;
 }
 .et-scroll::-webkit-scrollbar {
-  height: 6px;
+  width: 6px;
+  height: 8px;
 }
 .et-scroll::-webkit-scrollbar-thumb {
   background: #2a3458;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 /* 网格布局：X=BFS列号, Y=ui_level行号（高度降序） */
 .et-grid {
+  position: relative; /* ★让 SVG 连线层锚定到 grid */
   display: grid;
-  gap: 24px 4px; /* 行间距 列间距（列紧凑） */
-  padding: 28px 8px 16px;
+  gap: 14px 8px; /* 行间距(收紧) 列间距 */
+  padding: 36px 12px 20px;
   justify-items: center;
   align-items: center;
   width: max-content; /* 宽度随内容撑开，触发横向滚动 */
   min-width: 100%;
 }
 
+/* ★SVG 连线层（绝对定位覆盖在 grid 上） */
+.et-edges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* 不挡节点点击 */
+  z-index: 0;
+}
+.et-edge {
+  stroke: #2a3458; /* 未点亮：暗灰 */
+  stroke-width: 3px;
+}
+.et-edge--lit {
+  stroke: #4fc3f7; /* 已点亮路径：蓝 */
+}
+
 /* 节点（正方形框） */
 .et-node {
   position: relative;
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  border: 2px solid #2a3458;
+  z-index: 1; /* ★高于 SVG 连线层 */
+  width: 100px;
+  height: 100px;
+  border-radius: 14px;
+  border: 3px solid #2a3458;
   background: #131a2e;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.et-icon { width: 48px; height: 48px; }
+.et-icon { width: 76px; height: 76px; }
 .et-icon--ph {
   display: flex;
   align-items: center;
   justify-content: center;
   color: #4fc3f7;
-  font-size: 22px;
+  font-size: 36px;
   font-weight: bold;
 }
-.et-node--locked { opacity: 0.4; filter: grayscale(1); }
-.et-node--available { border-color: #4a5478; }
+.et-node--locked .et-icon { opacity: 0.4; filter: grayscale(1); }
+.et-node--locked { border-color: #2a3458; }
+/* ★已解锁未投入（available）：边框明亮蓝色，图标保持灰 */
+.et-node--available { border-color: #4fc3f7; }
+.et-node--available .et-icon { opacity: 0.5; filter: grayscale(1); }
+/* ★已投入（acquired）：边框明亮蓝色 + 图标高亮（去灰） */
 .et-node--acquired { border-color: #4fc3f7; background: #1a2440; }
-/* 被选中：边框发光（唯一发光态） */
+.et-node--acquired .et-icon { opacity: 1; filter: none; }
+/* 被选中：边框金色发光（唯一发光态） */
 .et-node--selected {
   border-color: #ffc857;
-  box-shadow: 0 0 12px rgba(255, 200, 87, 0.7);
+  box-shadow: 0 0 18px rgba(255, 200, 87, 0.7);
 }
+.et-node--selected .et-icon { opacity: 1; filter: none; }
 /* 二选一未选：虚线暗金 */
 .et-node--choice {
-  border: 2px dashed #6b5820;
+  border: 3px dashed #6b5820;
   background: #1a1810;
 }
 .et-lv {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
+  bottom: -6px;
+  right: -6px;
   background: #4fc3f7;
   color: #0a0e1a;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 8px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  min-width: 28px;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 2;
 }
 .et-choice-label {
   position: absolute;
-  bottom: -16px;
-  font-size: 14px;
+  bottom: -20px;
+  font-size: 20px;
   color: #8a7430;
   white-space: nowrap;
 }
 /* 分类标签（预警/伤害/频率/命中，图标上方） */
 .et-label {
   position: absolute;
-  top: -16px;
+  top: -22px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 13px;
+  font-size: 20px;
   color: #8a96b0;
   white-space: nowrap;
   line-height: 1;
@@ -91,9 +122,26 @@
 /* 巅峰扩展标志（ADV 图标，左上角） */
 .et-adv {
   position: absolute;
-  top: -6px;
-  left: -6px;
-  width: 20px;
-  height: 20px;
+  top: -10px;
+  left: -10px;
+  width: 34px;
+  height: 34px;
   z-index: 2;
+}
+/* ★关联标记（icon_link，右上角，与调校槽标记位置一致） */
+.et-link {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 32px;
+  height: 32px;
+  z-index: 3;
+}
+.et-link--on {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgba(79, 195, 247, 0.6));
+}
+.et-link--locked {
+  opacity: 0.35;
+  filter: grayscale(1);
 }

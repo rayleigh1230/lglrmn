@@ -87,6 +87,10 @@ export default function EnhanceSheet({ vm, preview, onTogglePreview, onClose, on
             <View className="es-blocked">
               <Text className="es-blocked-text">需先解锁前置：{vm.prereqMissing.join("、")}</Text>
             </View>
+          ) : vm.slotsFull ? (
+            <View className="es-blocked">
+              <Text className="es-blocked-text">强化次数已满</Text>
+            </View>
           ) : vm.isMaxed ? (
             <View className="es-blocked">
               <Text className="es-blocked-text es-blocked-text--max">已强化</Text>

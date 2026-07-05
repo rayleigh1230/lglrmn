@@ -1,22 +1,22 @@
 .tr-row {
-  padding: 12px 16px;
+  padding: 20px 24px;
   border-top: 1px solid #1e2942;
   border-bottom: 1px solid #1e2942;
 }
 .tr-title {
   display: block;
-  font-size: 20px;
+  font-size: 28px;
   color: #8a96b0;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 .tr-items {
   display: flex;
-  gap: 16px;
+  gap: 28px;
 }
 .tr-hex {
   position: relative;
-  width: 48px;
-  height: 54px;
+  width: 90px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,39 +25,55 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 48px;
-  height: 54px;
+  width: 90px;
+  height: 100px;
 }
 .tr-hex-icon {
   position: relative;
-  width: 32px;
-  height: 32px;
+  width: 58px;
+  height: 58px;
   z-index: 1;
 }
 .tr-hex-lock {
   position: relative;
-  width: 20px;
-  height: 20px;
+  width: 38px;
+  height: 38px;
   z-index: 1;
   opacity: 0.6;
 }
-.tr-hex--locked .tr-hex-bg {
-  opacity: 0.3;
+.tr-hex--locked .tr-hex-bg,
+.tr-hex--locked .tr-hex-icon {
+  opacity: 0.4;
   filter: grayscale(1);
 }
-.tr-hex--on .tr-hex-bg {
+/* ★已解锁未投入（available）：六角形底图蓝色描边发光(=边框高亮)，图标保持灰 */
+.tr-hex--available .tr-hex-bg {
+  opacity: 0.85;
+  filter: drop-shadow(0 0 4px rgba(79, 195, 247, 0.9));
+}
+.tr-hex--available .tr-hex-icon {
+  opacity: 0.55;
+  filter: grayscale(1);
+}
+/* ★已投入（active）：底图正常 + 图标高亮（去灰） */
+.tr-hex--active .tr-hex-bg {
   opacity: 1;
+  filter: none;
+}
+.tr-hex--active .tr-hex-icon {
+  opacity: 1;
+  filter: none;
 }
 .tr-hex-lv {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
+  bottom: -4px;
+  right: -4px;
   background: #4fc3f7;
   color: #0a0e1a;
-  font-size: 14px;
+  font-size: 22px;
   font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 8px;
+  padding: 2px 9px;
+  border-radius: 12px;
   z-index: 2;
 }
 .tr-hex-lv--check {
@@ -65,4 +81,21 @@
 }
 .tr-hex:active {
   opacity: 0.7;
+}
+/* ★关联标记（icon_link）：调校型右上角，未解锁灰、解锁/激活高亮 */
+.tr-link {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 32px;
+  height: 32px;
+  z-index: 3;
+}
+.tr-link--on {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgba(79, 195, 247, 0.6));
+}
+.tr-link--locked {
+  opacity: 0.35;
+  filter: grayscale(1);
 }

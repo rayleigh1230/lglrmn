@@ -49,13 +49,62 @@ export interface ChoiceGroup {
   selectedEnhanceId?: string; // 已选项（acquired 中的）
 }
 
+/** 孔位状态 */
+export type SlotState = "full" | "partial" | "empty";
+
+/**
+ * ★计算某系统槽的孔位状态数组（强化页导航条 + 蓝图页系统排 共用，确保两边联动一致）。
+ *
+ * 语义：总数 = ENHANCEMENTS_LIMIT；按计数着色：
+ *   - full（白）= 满级强化项数（acquired level >= maxLevel）
+ *   - partial（灰）= 已投入未满级强化项数（0 < level < maxLevel）
+ *   - empty（空圈）= 剩余孔位
+ *
+ * ENHANCEMENTS_LIMIT 与实际强化项数无固定映射（limit=5 可能对应 6-7 个强化项），
+ * 因此按「满级数 + 已投入数」计数，不与具体强化项一一绑定。
+ *
+ * @param store 配置数据
+ * @param slotId 7位系统槽 ID
+ * @param enhanceLimit 该槽的 ENHANCEMENTS_LIMIT（蓝图页 selector 已取，避免重复读表）
+ * @param acquired 已投入强化等级映射（enhanceStore 内容）
+ */
+export function computeSlotStates(
+  store: ClientDataStore,
+  slotId: string,
+  enhanceLimit: number,
+  acquired?: Map<string, number> | Record<string, number>
+): SlotState[] {
+  if (enhanceLimit <= 0) return [];
+  const sys = resolveEnhanceSystem(store, slotId.slice(0, 5));
+  const slots = sys.bySlot[slotId] ?? [];
+  const get = (eid: string): number =>
+    acquired instanceof Map ? (acquired.get(eid) ?? 0) : (acquired?.[eid] ?? 0);
+
+  let fullCount = 0;
+  let partialCount = 0;
+  for (const sl of slots) {
+    const lv = get(sl.enhanceId);
+    if (sl.maxLevel > 0 && lv >= sl.maxLevel) fullCount++;
+    else if (lv > 0) partialCount++;
+  }
+  const emptyCount = Math.max(0, enhanceLimit - fullCount - partialCount);
+  return [
+    ...Array(fullCount).fill("full") as SlotState[],
+    ...Array(partialCount).fill("partial") as SlotState[],
+    ...Array(emptyCount).fill("empty") as SlotState[],
+  ];
+}
+
 /** 系统导航项 */
 export interface SystemNavItem {
   slotId: string;
   name: string;       // 系统名
   isActive: boolean;  // 是否启用（切换组语义）
   isCurrent: boolean; // 是否当前选中
+  hasModule: boolean; // ★是否已装配模块（空槽不显示强化进度）
   prefix: number;     // SYSTEM_EFFECT_PREFIX（取图标用，0=无图标），来自该槽首个强化项
+  enhanceLimit: number; // ★孔位总数（cfg_ship_system.ENHANCEMENTS_LIMIT）
+  slots: SlotState[];   // ★每孔位状态：full=满级白, partial=已投入未满灰, empty=未强化空圈
 }
 
 /** 加点浮窗数据 */
@@ -73,11 +122,13 @@ export interface EnhanceSheetVM {
   fullCost: number;        // 加满总额（左按钮）
   prereqMissing: string[]; // 前置未满足的原因
   isMaxed: boolean;        // 已满级
+  slotsFull: boolean;      // ★该系统孔位已满（已投入项数 >= ENHANCEMENTS_LIMIT），当前项未加点时不能再强化
   choiceGroup?: ChoiceGroup; // choice 模式专用
 }
 
 /**
  * 解析某系统槽的科技树为 UI 节点（含状态 + 二选一合并 + 巅峰扩展）。
+ * @param enabledSlots 蓝图页装配选择，影响切换组门控（与蓝图页一致）
  */
 export function resolveEnhanceTreeVM(
   store: ClientDataStore,
@@ -85,9 +136,10 @@ export function resolveEnhanceTreeVM(
   slotId: string,
   acquired: Map<string, number>,
   selectedEnhanceId?: string,
-  peakLevel = 0
+  peakLevel = 0,
+  enabledSlots?: string[]
 ): { columns: Record<number, EnhanceNodeVM[]>; choiceGroups: Record<string, ChoiceGroup> } {
-  const sys = resolveEnhanceSystem(store, shipId);
+  const sys = resolveEnhanceSystem(store, shipId, enabledSlots);
   const slotInfo = sys.slotInfos[slotId];
   const { columns: rawColumns } = resolveEnhanceTree(store, shipId, slotId);
 
@@ -250,27 +302,57 @@ export function resolveEnhanceTreeVM(
 }
 
 /**
- * 取全舰系统导航条 + 默认槽（slotId 最小的有强化项的槽）。
+ * 取全舰系统导航条 + 默认槽。
+ *
+ * ★与蓝图页系统排强关联：
+ *   1. 固定系统（非切换组）：恒显示。
+ *   2. 超主力舰切换组（同 GROUP≥2 成员，如 M1/M2）：只显示 enabledSlots 选中的那个成员
+ *      （isActive=true），未选中的成员不显示——与蓝图页装配选择完全一致。
+ *   3. 已装配模块（hasModule=true）：空槽不显示。
+ *
+ * @param enabledSlots 蓝图页的装配选择（systemId 列表），影响切换组的 isActive 判定
+ * @param acquired 当前已投入的强化等级（算孔位状态用），可选
  */
 export function resolveSystemNav(
   store: ClientDataStore,
   shipId: string,
-  currentSlotId: string
+  currentSlotId: string,
+  acquired?: Map<string, number>,
+  enabledSlots?: string[]
 ): { items: SystemNavItem[]; defaultSlotId: string } {
-  const sys = resolveEnhanceSystem(store, shipId);
-  const slotIds = Object.keys(sys.bySlot).sort();
+  // ★传 enabledSlots：切换组的 isActive 按蓝图页装配选择判定（而非默认成员）
+  const sys = resolveEnhanceSystem(store, shipId, enabledSlots);
+  const shipSystem = store.shipSystem as Record<string, { ENHANCEMENTS_LIMIT?: number }> | undefined;
+  // ★过滤：有强化项 + 已装配模块 + （切换组）当前启用
+  //   超主力舰切换组未选中的成员 → isActive=false → 不显示
+  const slotIds = Object.keys(sys.bySlot)
+    .filter((sid) => {
+      const info = sys.slotInfos[sid];
+      if (!info?.hasModule) return false;       // 空槽不显示
+      if (info.isSwitchable && !info.isActive) return false; // 切换组未选中的成员不显示
+      return true;
+    })
+    .sort();
   const defaultSlotId = slotIds[0] ?? "";
   const items: SystemNavItem[] = slotIds.map((sid) => {
     const info = sys.slotInfos[sid];
     // 取该槽首个强化项的 SYSTEM_EFFECT_PREFIX（用于 prefixIcon 解析系统图标）
-    const slots = sys.bySlot[sid];
-    const firstPrefix = slots && slots.length > 0 ? Number(slots[0].effectPrefix) : 0;
+    const slotsInSlot = sys.bySlot[sid] ?? [];
+    const firstPrefix = slotsInSlot.length > 0 ? Number(slotsInSlot[0].effectPrefix) : 0;
+
+    // ★孔位状态（按计数，复用 computeSlotStates，与蓝图页系统排联动一致）
+    const enhanceLimit = Number(shipSystem?.[sid]?.ENHANCEMENTS_LIMIT ?? 0);
+    const slotStates = computeSlotStates(store, sid, enhanceLimit, acquired);
+
     return {
       slotId: sid,
       name: info?.systemName || sid,
       isActive: info?.isActive ?? true,
       isCurrent: sid === currentSlotId,
+      hasModule: info?.hasModule ?? false,
       prefix: firstPrefix,
+      enhanceLimit,
+      slots: slotStates,
     };
   });
   return { items, defaultSlotId };
@@ -314,24 +396,46 @@ export interface TuneSlotVM {
 /**
  * 解析调校区：解锁型槽(optIdx 11/12, UNLOCK_TYPE=2) + 调校型槽(optIdx 31-43)
  * 解锁顺序: 按列表顺序从左到右, 前一个是后一个的前置
+ *
+ * ★三槽都不隐藏（用户确认）：前置两个解锁槽 + 第三个调校槽永远显示。
+ *   未解锁=灰图标，已解锁=高亮图标。
+ *   调校型与关联强化项图标联动：用其 target 强化项的 effectPrefix 解析图标（原版就是二合一图标）。
+ *
+ * ★二选一合并：当多个调校槽的 target 互为二选一（同 choiceGroup）时，合并成只显示一个：
+ *   - 优先显示 target 已被玩家选中的那个调校槽
+ *   - 都没选时，显示 choiceGroup 主选项（flag 最小）对应的调校槽
+ *   这样第三槽始终只有一个图标位，跟随强化项选择联动
+ *
+ * @param choiceGroups 从 resolveEnhanceTreeVM 取得，用于判定调校 target 是否互为二选一
  */
 export function resolveTuneRowVM(
   store: ClientDataStore,
   shipId: string,
   slotId: string,
-  acquired: Map<string, number>
+  acquired: Map<string, number>,
+  choiceGroups?: Record<string, ChoiceGroup>
 ): TuneSlotVM[] {
   const result: TuneSlotVM[] = [];
   const sysEnh = store.systemEnhance as Record<string, Record<string, unknown>>;
   const sysEff = store.systemEffect;
   if (!sysEnh || !sysEff) return result;
 
-  // 1. 解锁型槽: optIdx 11-13, UNLOCK_TYPE=2, cost=[0]
+  // ★构建 enhanceId → choiceGroup 反查表（判定调校 target 是否在二选一桶里）
+  const choiceGroupByEnhanceId: Map<string, ChoiceGroup> = new Map();
+  if (choiceGroups) {
+    for (const grp of Object.values(choiceGroups)) {
+      for (const opt of grp.options) {
+        choiceGroupByEnhanceId.set(opt.enhanceId, grp);
+      }
+    }
+  }
+
+  // 1. 前置解锁槽: UNLOCK_TYPE===2（永久加成槽 + 纯消费槽，无等级，cost=[0]）
+  //    ★文档§2.1 三步链前两步；optIdx 不固定（4-12 浮动），只能靠 UNLOCK_TYPE=2 识别
+  //    数据特征：UNLOCK_TYPE=2 + ENHANCE_COST=[0] + UNLOCK_COST_RARITY（解锁消耗）
   const unlockIds: string[] = [];
   for (const eid in sysEnh) {
     if (!eid.startsWith(slotId) || eid.length !== 9) continue;
-    const oi = parseInt(eid.slice(7, 9), 10);
-    if (oi < 11 || oi > 13) continue;
     const rec = sysEnh[eid];
     if (rec.UNLOCK_TYPE !== 2) continue;
     unlockIds.push(eid);
@@ -339,10 +443,32 @@ export function resolveTuneRowVM(
   unlockIds.sort();
 
   // 2. 调校型槽: resolveTuneSystem 按 slotId 过滤
-  const tuneSlots = resolveTuneSystem(store, shipId).tuneSlots.filter((t) => t.slotId === slotId);
+  const tuneSlotsRaw = resolveTuneSystem(store, shipId).tuneSlots.filter((t) => t.slotId === slotId);
+
+  // ★二选一合并：target 互为二选一（同 choiceGroup）的调校槽只保留一个
+  //   - 玩家已选某强化项 → 保留关联该强化项的调校槽
+  //   - 都没选 → 保留 choiceGroup 主选项（flag 最小，即 options[0]）对应的调校槽
+  //   - 无 choiceGroup 关联的调校槽（普通 1:1）→ 直接保留
+  const seenGroup = new Set<string>(); // 已处理的 choiceGroup key（避免重复保留）
+  const tuneSlots = tuneSlotsRaw.filter((t) => {
+    if (!t.targetEnhanceId || !choiceGroups) return true; // 无关联或无 choiceGroups → 保留
+    const grp = choiceGroupByEnhanceId.get(t.targetEnhanceId);
+    if (!grp) return true; // target 不在任何二选一桶 → 普通调校，保留
+    // target 在二选一桶里：同组只保留一个
+    if (seenGroup.has(grp.key)) return false; // 同组已处理过 → 丢弃
+    seenGroup.add(grp.key);
+    // 决定保留哪个：若玩家已选某 target，且当前调校槽的 target 正是它 → 保留当前
+    //   否则（都没选，或当前不是已选的）→ 只在"主选项对应"时保留
+    if (grp.selectedEnhanceId) {
+      // 玩家已选：保留 target === selectedEnhanceId 的那个
+      return t.targetEnhanceId === grp.selectedEnhanceId;
+    }
+    // 都没选：保留 target === 主选项(options[0]) 的那个
+    return t.targetEnhanceId === grp.options[0].enhanceId;
+  });
 
   // 3. 合并 + 构建 VM
-  // 解锁型
+  // 解锁型（永远显示）
   for (const eid of unlockIds) {
     const rec = sysEnh[eid];
     const oi = parseInt(eid.slice(7, 9), 10);
@@ -364,18 +490,23 @@ export function resolveTuneRowVM(
       maxLevel: 1,
     });
   }
-  // 调校型
+  // 调校型（永远显示，图标与关联强化项联动）
   for (const t of tuneSlots) {
     const level = acquired.get(t.enhanceId) ?? 0;
     // 门控: 目标强化项需已点
     const targetAcquired = (acquired.get(t.targetEnhanceId) ?? 0) > 0;
+    // ★图标联动：调校项用其 target 强化项的 effectPrefix 解析图标（原版二合一图标语义）
+    //   target 强化项的 effectPrefix 从 systemEnhance[targetEnhanceId].SYSTEM_EFFECT_PREFIX 取
+    const targetRec = sysEnh[t.targetEnhanceId];
+    const targetPrefix = targetRec ? Number(targetRec.SYSTEM_EFFECT_PREFIX) : 0;
+    const linkedIcon = targetPrefix ? prefixIcon(targetPrefix) : prefixIcon(t.effectPrefix);
     result.push({
       enhanceId: t.enhanceId,
       slotId,
       optIdx: t.optIdx,
       type: "tune",
       name: t.effect?.name ?? t.enhanceId,
-      icon: prefixIcon(t.effectPrefix),
+      icon: linkedIcon,
       effectName: t.effect?.name ?? "",
       effectId: t.effect?.effectId,
       param: t.effect?.param,
