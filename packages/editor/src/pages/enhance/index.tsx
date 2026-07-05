@@ -134,7 +134,9 @@ export default function EnhancePage() {
       const choiceKey = `${rawSlot.slotId}_${rawSlot.treeColumn}`;
       isChoice = !!treeVM?.choiceGroups[choiceKey] && rawSlot.nodeFlag !== 0;
     }
-    const maxLevel = isChoice ? 1 : slot.maxLevel;
+    // ★maxLevel 含巅峰扩展等级（从 treeVM 节点取 extraMaxLevel）
+    const nodeExtra = allSlots.find((n) => n.slot.enhanceId === sheet.enhanceId)?.extraMaxLevel ?? 0;
+    const maxLevel = isChoice ? 1 : (slot.maxLevel + nodeExtra);
     const isMaxed = cur >= maxLevel;
     const avail = isEnhanceAvailable(slot, slotInfo, new Set(acquired.keys()));
     return {

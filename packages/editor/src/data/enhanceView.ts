@@ -172,16 +172,29 @@ export function resolveEnhanceTreeVM(
   const rowOfUi: Record<number, number> = {};
   uiLevels.forEach((u, i) => { rowOfUi[u] = i; });
 
-  // ★巅峰等级提升的额外 maxLevel（optIdx70 的 ENHANCE_COST 长度，按巅峰等级截取）
-  //   peak_enhance_map.json: { slotId: [peakEnhanceId(optIdx70)] }
-  //   extra = min(peakLevel, optIdx70 的 ENHANCE_COST 长度)
-  const peakMap = (store as any).peakEnhanceMap as Record<string, string[]> | undefined;
-  const peakEnhanceId = peakMap?.[slotId]?.[0];
+  // ★巅峰等级提升的额外 maxLevel
+  //   从 cfg_ship_peak_level[shipId+peakLv(2位)] 字段1 解析 optIdx70/71 的等级
+  //   字段1格式: "slotId70,level;slotId71,level;..."
+  //   每个槽的 extra maxLevel = 该槽 optIdx70 的当前等级（巅峰解锁了多少级就+多少）
   let extraMaxLevel = 0;
-  if (peakEnhanceId && peakLevel > 0) {
-    const peakRec = (store.systemEnhance as Record<string, { ENHANCE_COST?: number[] }>)[peakEnhanceId];
-    const peakCostLen = peakRec?.ENHANCE_COST?.length ?? 0;
-    extraMaxLevel = Math.min(peakLevel, peakCostLen);
+  if (peakLevel > 0) {
+    const peakTable = store.shipPeakLevel as Record<string, [string, string]> | undefined;
+    const peakKey = shipId + String(peakLevel).padStart(2, "0");
+    const peakEntry = peakTable?.[peakKey];
+    if (peakEntry && peakEntry[1]) {
+      // 字段1: "405010170,2;405010270,3" → 找当前 slotId 的 optIdx70
+      const segs = peakEntry[1].split(";").filter((s) => s.trim());
+      for (const seg of segs) {
+        const [enhanceIdStr, lvStr] = seg.split(",").map((s) => s.trim());
+        // enhanceId 9位 = slotId(7) + optIdx(2=70/71)
+        if (enhanceIdStr && enhanceIdStr.slice(0, 7) === slotId) {
+          const optIdx = parseInt(enhanceIdStr.slice(7, 9), 10);
+          if (optIdx === 70 || optIdx === 71) {
+            extraMaxLevel += Number(lvStr) || 0;
+          }
+        }
+      }
+    }
   }
 
   // 构建 VM（含网格坐标 gridCol=BFS跳数, gridRow=行号）
