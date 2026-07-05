@@ -280,30 +280,10 @@ export function renderEnhanceDesc(
   // 颜色：当前值白(对应等级区 es-lv-cur)，下一级增量金(对应 es-lv-next)
   const CUR_COLOR = "#e0e6f0";
   const NEXT_COLOR = "#ffc857";
-  // 当前值高亮（白色）
-  const highlightCur = (s: string) =>
-    s.replace(/(\d+(?:\.\d+)?%?)/g, `<b style="color:${CUR_COLOR}">$1</b>`);
+  const NUM_RE = /\d+(?:\.\d+)?%?/g;
   // 从文本提取所有数字(含百分比), 返回数值数组(去%)
   const extractNums = (s: string): number[] =>
-    (s.match(/\d+(?:\.\d+)?%?/g) ?? []).map((x) => Number(x.replace("%", "")));
-  // 算两段描述的增量(下一级-当前级), 返回 ["+2%", ...]
-  const computeDiffs = (curDesc: string, nextDesc: string): string[] => {
-    const curNums = extractNums(curDesc);
-    const nextNums = extractNums(nextDesc);
-    // nextDesc 里每个数字是否带 %（用于增量单位判定）
-    const nextNumPct = (nextDesc.match(/\d+(?:\.\d+)?%?/g) ?? []).map((x) => x.includes("%"));
-    const diffs: string[] = [];
-    for (let i = 0; i < curNums.length && i < nextNums.length; i++) {
-      const d = nextNums[i] - curNums[i];
-      if (d > 0) {
-        diffs.push(`+${d}${nextNumPct[i] ? "%" : ""}`);
-      }
-    }
-    return diffs;
-  };
-  // 增量高亮（金色）
-  const highlightInc = (diffs: string[]) =>
-    diffs.length > 0 ? ` <b style="color:${NEXT_COLOR}">${diffs.join(" ")}</b>` : "";
+    (s.match(NUM_RE) ?? []).map((x) => Number(x.replace("%", "")));
 
   if (byLv && slot.maxLevel > 0) {
     const isMaxed = currentLevel >= slot.maxLevel;
@@ -312,18 +292,44 @@ export function renderEnhanceDesc(
 
     if (isMaxed) {
       // 满级：只有当前值，无增量（对应等级区 4/4 无 +1）
-      return highlightCur(curDesc);
+      return curDesc.replace(NUM_RE, `<b style="color:${CUR_COLOR}">$&</b>`);
     }
-    if (currentLevel === 0) {
-      // 未强化：显示文字说明(不显示当前数值) + 增量(金)
-      //   文字模板取下一级描述，但去掉里面的数值（只留文字），再拼增量
-      const diffs = computeDiffs("0", nextDesc);
-      const textOnly = nextDesc.replace(/\d+(?:\.\d+)?%?/g, "").trim();
-      return `${textOnly} ${highlightInc(diffs)}`.trim();
+
+    // 未强化 / 部分强化：原位标注——每个数字位置显示"当前值(+增量)"
+    //   curNums[i] 对应 curDesc 第i个数字；nextNums[i] 对应 nextDesc 第i个数字
+    //   增量 = nextNums[i] - curNums[i]（未强化时 curNums 全当 0）
+    const curNums = currentLevel > 0 ? extractNums(curDesc) : [];
+    const nextNums = extractNums(nextDesc);
+    // 用 curDesc 作模板(部分强化)或 nextDesc 作模板(未强化,去掉原数值)
+    const template = currentLevel > 0 ? curDesc : nextDesc;
+    // 增量数组：每个数字位置对应一个增量字符串(无变化则为空)
+    const incArr: string[] = [];
+    for (let i = 0; i < nextNums.length; i++) {
+      const cv = currentLevel > 0 ? (curNums[i] ?? 0) : 0;
+      const d = nextNums[i] - cv;
+      if (d > 0) {
+        // 单位跟随 nextDesc 里该数字
+        const raw = (nextDesc.match(NUM_RE) ?? [])[i] ?? "";
+        incArr.push(`+${d}${raw.includes("%") ? "%" : ""}`);
+      } else {
+        incArr.push(""); // 无变化
+      }
     }
-    // 部分强化：当前值(白) + 增量(金)
-    const diffs = computeDiffs(curDesc, nextDesc);
-    return `${highlightCur(curDesc)}${highlightInc(diffs)}`;
+    // 遍历 template, 把第 i 个数字替换为 "当前值(+增量)" 或 "(+增量)"(未强化)
+    let i = 0;
+    const result = template.replace(NUM_RE, (match) => {
+      const inc = incArr[i] ?? "";
+      i++;
+      if (currentLevel > 0) {
+        // 部分强化：当前值(白) + 增量(金，无变化则不显示)
+        const curPart = `<b style="color:${CUR_COLOR}">${match}</b>`;
+        const incPart = inc ? `<b style="color:${NEXT_COLOR}">(${inc})</b>` : "";
+        return `${curPart}${incPart}`;
+      }
+      // 未强化：不显示当前数值，只显示增量(金)；无变化的数字位置留空
+      return inc ? `<b style="color:${NEXT_COLOR}">${inc}</b>` : "";
+    });
+    return result;
   }
 
   // 回退：DESC_DETAIL 纯文字（无占位符）
