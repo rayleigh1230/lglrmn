@@ -116,6 +116,13 @@ export async function loadStore(): Promise<ClientDataStore> {
     console.warn("巅峰强化扩展映射未加载");
   }
 
+  // 加载武器伤害类型映射(weaponId → kinetic/energy, 来自weapon_action[3])
+  try {
+    (_store as any).weaponDamageType = await readJson(CONFIG_BASE + "weapon_damage_type.json");
+  } catch {
+    console.warn("武器伤害类型映射未加载");
+  }
+
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
 
   // 加载武器优先级表（火力计算用）

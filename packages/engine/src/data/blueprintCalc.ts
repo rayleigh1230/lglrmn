@@ -35,6 +35,7 @@ export interface AssembledWeapon {
   airCdReduction: number; // 对空冷却时间下降（module_effect EID=12306，万分比/100，如40=降40%）
   airDurReduction: number;// 对空攻击持续时间下降（module_effect EID=12311，万分比/100）
   isAirborne: boolean;    // 是否机载（战机/艇自身 或 无人机/载机系统的武器）
+  damageType: string;     // ★伤害类型('kinetic'实弹/'energy'能量, 来自weapon_action[3])
   canTargetShip: boolean;     // ★是否对舰(weapon_priority_target_ship)
   canTargetAircraft: boolean; // ★是否防空(weapon_priority_target_aircraft)
   canTargetDestroy: boolean;  // ★是否攻城(weapon_priority_target_destroy)
@@ -247,6 +248,7 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
       airCdReduction,
       airDurReduction,
       isAirborne,
+      damageType: (store as any).weaponDamageType?.[weaponId] ?? 'kinetic',
       canTargetShip: _priorityShip.has(Number(weaponId)),
       canTargetAircraft: _priorityAir.has(Number(weaponId)),
       canTargetDestroy: _priorityDestroy.has(Number(weaponId)),
@@ -303,13 +305,13 @@ export function computeFirepower(
     if (period <= 0) continue;
 
     // 强化加成系数（万分比 → 倍率）
-    // 按 systemLabel（强化项的 TARGET_MODULE_TYPE 分组）+ WEAPON_TYPE（模块效果的武器类型分组）+ all（通用）取加成
-    const wtKey = String(w.weaponType);
+    // 按 wt:WEAPON_TYPE + dt:damageType + systemLabel + all 四层取加成
     const dmgBonus = blueprint?.weaponDamageBonus ?? {};
     const weaponDmgBonus = (
-      (dmgBonus[wtKey] ?? 0) +           // 按武器类型(模块效果 TARGET_MODULE_TYPE)
-      (dmgBonus[w.systemLabel] ?? 0) +   // 按系统标签(强化项 TARGET_MODULE_TYPE)
-      (dmgBonus['all'] ?? 0)             // 通用
+      (dmgBonus['wt:' + w.weaponType] ?? 0) +   // 按武器类型(模块 TARGET_MODULE_TYPE=201-206)
+      (dmgBonus['dt:' + w.damageType] ?? 0) +   // 按伤害类型(模块 TARGET_MODULE_TYPE=20200 能量武器)
+      (dmgBonus[w.systemLabel] ?? 0) +           // 按系统标签(强化项 TARGET_MODULE_TYPE)
+      (dmgBonus['all'] ?? 0)                     // 通用
     ) / PERCENTile;
     const baseDmgBonus = blueprint?.baseDamageBonus ?? 0; // 绝对值 +dph
     const effectiveDph = (w.dph + baseDmgBonus) * (1 + weaponDmgBonus);
@@ -502,17 +504,19 @@ interface ModulePanelEffects {
 }
 
 /**
- * TARGET_MODULE_TYPE → 武器类型 key 映射
- * 决定模块效果作用于哪类武器（火力计算时按武器 WEAPON_TYPE 匹配）
+ * TARGET_MODULE_TYPE → 武器匹配 key 映射
+ * 决定模块效果作用于哪类武器（火力计算时按武器 damageType/weaponType 匹配）
+ * 20200=能量武器 → 按 damageType='energy' 匹配（不是 WEAPON_TYPE）
+ * 201-206=具体武器类型 → 按 WEAPON_TYPE 匹配
  */
-const TMT_TO_WEAPON_TYPES: Record<number, string[]> = {
-  201: ['3'],        // 火炮
-  202: ['4'],        // 轨道炮
-  203: ['7'],        // 离子炮
-  204: ['5'],        // 脉冲炮
-  205: ['2'],        // 导弹
-  206: ['6'],        // 鱼雷/投射
-  20200: ['5', '7'], // 能量武器(脉冲+离子)
+const TMT_TO_WEAPON_KEYS: Record<number, string[]> = {
+  201: ['wt:3'],        // 火炮
+  202: ['wt:4'],        // 轨道炮
+  203: ['wt:7'],        // 离子炮
+  204: ['wt:5'],        // 脉冲炮
+  205: ['wt:2'],        // 导弹
+  206: ['wt:6'],        // 鱼雷/投射
+  20200: ['dt:energy'], // 能量武器(按damageType匹配, 跨WEAPON_TYPE)
 };
 
 /**
@@ -563,10 +567,10 @@ function getAllModuleEffects(
         case EFFECT_SHIELD: result.shield += param; break;
         case EFFECT_STRUCTURE_HP: result.structurePermille += param; break;
         case EFFECT_WEAPON_DAMAGE: {
-          // 按 TARGET_MODULE_TYPE 分发到对应武器类型（无 TMT='all' 通用）
-          const wtKeys = tmt ? (TMT_TO_WEAPON_TYPES[tmt] ?? ['all']) : ['all'];
-          for (const wtk of wtKeys) {
-            result.weaponDamagePermille[wtk] = (result.weaponDamagePermille[wtk] ?? 0) + param;
+          // 按 TARGET_MODULE_TYPE 分发（wt:X=按WEAPON_TYPE, dt:X=按damageType, 无TMT='all'）
+          const wkeys = tmt ? (TMT_TO_WEAPON_KEYS[tmt] ?? ['all']) : ['all'];
+          for (const wk of wkeys) {
+            result.weaponDamagePermille[wk] = (result.weaponDamagePermille[wk] ?? 0) + param;
           }
           break;
         }
