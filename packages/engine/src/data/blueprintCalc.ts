@@ -303,8 +303,14 @@ export function computeFirepower(
     if (period <= 0) continue;
 
     // 强化加成系数（万分比 → 倍率）
-    const dmgBonusKey = w.systemLabel || "";
-    const weaponDmgBonus = (blueprint?.weaponDamageBonus?.[dmgBonusKey] ?? 0) / PERCENTile;
+    // 按 systemLabel（强化项的 TARGET_MODULE_TYPE 分组）+ WEAPON_TYPE（模块效果的武器类型分组）+ all（通用）取加成
+    const wtKey = String(w.weaponType);
+    const dmgBonus = blueprint?.weaponDamageBonus ?? {};
+    const weaponDmgBonus = (
+      (dmgBonus[wtKey] ?? 0) +           // 按武器类型(模块效果 TARGET_MODULE_TYPE)
+      (dmgBonus[w.systemLabel] ?? 0) +   // 按系统标签(强化项 TARGET_MODULE_TYPE)
+      (dmgBonus['all'] ?? 0)             // 通用
+    ) / PERCENTile;
     const baseDmgBonus = blueprint?.baseDamageBonus ?? 0; // 绝对值 +dph
     const effectiveDph = (w.dph + baseDmgBonus) * (1 + weaponDmgBonus);
 
@@ -486,13 +492,28 @@ interface ModulePanelEffects {
   resistance: number;        // EID=10033 绝对值
   shield: number;            // EID=10021 百分比
   structurePermille: number; // EID=10 万分比
-  weaponDamagePermille: number;  // EID=12020 武器伤害（万分比）
+  // 按武器类型分组的伤害加成（万分比）key='all'通用 或 WEAPON_TYPE 数字字符串
+  weaponDamagePermille: Record<string, number>;
   hitPermille: number;          // EID=12010/12012 命中（万分比）
   speedPermille: number;        // EID=1 常规移速（万分比）
   curvaturePermille: number;    // EID=2 曲率移速（万分比）
   critPermille: number;         // EID=12030 暴击（万分比）
   repairPermille: number;       // EID=12050 维修效率（万分比）
 }
+
+/**
+ * TARGET_MODULE_TYPE → 武器类型 key 映射
+ * 决定模块效果作用于哪类武器（火力计算时按武器 WEAPON_TYPE 匹配）
+ */
+const TMT_TO_WEAPON_TYPES: Record<number, string[]> = {
+  201: ['3'],        // 火炮
+  202: ['4'],        // 轨道炮
+  203: ['7'],        // 离子炮
+  204: ['5'],        // 脉冲炮
+  205: ['2'],        // 导弹
+  206: ['6'],        // 鱼雷/投射
+  20200: ['5', '7'], // 能量武器(脉冲+离子)
+};
 
 /**
  * ★遍历所有启用系统的 cat=0 模块，按 EFFECT_ID 聚合面板属性加成。
@@ -506,7 +527,7 @@ function getAllModuleEffects(
 ): ModulePanelEffects {
   const result: ModulePanelEffects = {
     resistance: 0, shield: 0, structurePermille: 0,
-    weaponDamagePermille: 0, hitPermille: 0, speedPermille: 0,
+    weaponDamagePermille: {}, hitPermille: 0, speedPermille: 0,
     curvaturePermille: 0, critPermille: 0, repairPermille: 0,
   };
   const moduleEffect = store.moduleEffect as Record<string, Record<string, unknown>> | undefined;
@@ -536,11 +557,19 @@ function getAllModuleEffects(
       const eff = moduleEffect[key];
       const eid = Number(eff.EFFECT_ID);
       const param = Number(eff.EFFECT_PARAM) || 0;
+      const tmt = Number(eff.TARGET_MODULE_TYPE) || 0;
       switch (eid) {
         case EFFECT_RESIST: result.resistance += param; break;
         case EFFECT_SHIELD: result.shield += param; break;
         case EFFECT_STRUCTURE_HP: result.structurePermille += param; break;
-        case EFFECT_WEAPON_DAMAGE: result.weaponDamagePermille += param; break;
+        case EFFECT_WEAPON_DAMAGE: {
+          // 按 TARGET_MODULE_TYPE 分发到对应武器类型（无 TMT='all' 通用）
+          const wtKeys = tmt ? (TMT_TO_WEAPON_TYPES[tmt] ?? ['all']) : ['all'];
+          for (const wtk of wtKeys) {
+            result.weaponDamagePermille[wtk] = (result.weaponDamagePermille[wtk] ?? 0) + param;
+          }
+          break;
+        }
         case EFFECT_HIT:
         case EFFECT_HIT_ANTI: result.hitPermille += param; break;
         case EFFECT_SPEED: result.speedPermille += param; break;
@@ -594,14 +623,16 @@ export function resolveBlueprintPanel(
   const curvatureSpeed = Math.round(baseCurvature * (1 + curvatureBonusTotal / PERCENTile));
 
   // 武器装配+火力（按 enabledSlots 过滤可选模块）
-  // ★模块武器伤害加成(EID=12020，能源系统模块)叠加到 weaponDamageBonus
+  // ★模块武器伤害加成(EID=12020)按 TARGET_MODULE_TYPE 分发到对应武器类型
   const weapons = resolveShipWeapons(store, shipId, enabledSlots);
   let firepowerBlueprint = blueprint;
-  if (modEffects.weaponDamagePermille > 0 && blueprint) {
-    firepowerBlueprint = {
-      ...blueprint,
-      weaponDamageBonus: { ...blueprint.weaponDamageBonus, all: (blueprint.weaponDamageBonus?.all ?? 0) + modEffects.weaponDamagePermille },
-    };
+  const dmgKeys = Object.keys(modEffects.weaponDamagePermille);
+  if (dmgKeys.length > 0 && blueprint) {
+    const merged = { ...blueprint.weaponDamageBonus };
+    for (const k of dmgKeys) {
+      merged[k] = (merged[k] ?? 0) + modEffects.weaponDamagePermille[k];
+    }
+    firepowerBlueprint = { ...blueprint, weaponDamageBonus: merged };
   }
   const firepower = computeFirepower(weapons, firepowerBlueprint);
 
