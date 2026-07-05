@@ -13,7 +13,6 @@ import {
   resolveEnhanceSystem,
   resolveEnhanceTree,
   resolveTuneSystem,
-  getEnhanceValue,
   isEnhanceAvailable,
   type EnhanceSlot,
   type EnhanceSystemSlotInfo,
@@ -254,34 +253,48 @@ export function resolveTuneRow(
 }
 
 /**
- * 渲染强化项描述（方案 B）。
- * - 简单类（能取到非零数值）：显示 "当前 → 下一级" 或单值
- * - 复杂类（无等级表/数值为0）：用 DESC_DETAIL 纯文字解说（slot.effect.desc 已是无占位符版本）
+ * 渲染强化项描述（用 frida 批量 dump 的渲染表，占位符已替换）。
  *
- * 返回带 <b> 高亮的 HTML 片段（数值用金色）。
+ * 数据来源：store.enhanceDescRendered（enhance_desc_rendered.json），
+ *   格式 { enhanceId: { level: "占位符已替换的纯文本" } }。
+ *
+ * 显示规则（与等级区一致）：
+ *   - 未强化：显示下一级(1级)描述
+ *   - 部分强化：当前级 → 下一级 两段描述
+ *   - 满级：只显示满级描述
+ *
+ * 返回带 <b> 高亮的 HTML 片段（数值用金色）。表缺失时回退到 DESC_DETAIL。
  */
 export function renderEnhanceDesc(
   store: ClientDataStore,
   slot: EnhanceSlot,
   currentLevel: number
 ): string {
-  if (slot.maxLevel > 0) {
-    const isMaxed = currentLevel >= slot.maxLevel;
-    const curVal = currentLevel > 0 ? getEnhanceValue(store, slot.enhanceId, currentLevel) : 0;
-    const nextVal = !isMaxed ? getEnhanceValue(store, slot.enhanceId, currentLevel + 1) : 0;
+  const descTable = (store as any).enhanceDescRendered as
+    | Record<string, Record<string, string>>
+    | undefined;
+  const byLv = descTable?.[slot.enhanceId];
 
-    // 数值有意义（非 0）才走数值替换分支
-    if (curVal > 0 || nextVal > 0) {
-      const detail = slot.effect?.desc || slot.effect?.name || "";
-      const valStr = isMaxed
-        ? `<b style="color:#ffc857">${Math.round(curVal)}</b>`
-        : currentLevel === 0
-        ? `<b style="color:#ffc857">${Math.round(nextVal)}</b>`
-        : `<b style="color:#ffc857">${Math.round(curVal)} → ${Math.round(nextVal)}</b>`;
-      return `${detail} ${valStr}`;
+  if (byLv && slot.maxLevel > 0) {
+    const isMaxed = currentLevel >= slot.maxLevel;
+    const curDesc = currentLevel > 0 ? (byLv[String(currentLevel)] ?? "") : "";
+    const nextDesc = !isMaxed ? (byLv[String(currentLevel + 1)] ?? "") : "";
+
+    // 数值高亮：把描述里的数字/百分比用金色 <b> 包裹
+    const highlight = (s: string) =>
+      s.replace(/(\d+(?:\.\d+)?%?)/g, '<b style="color:#ffc857">$1</b>');
+
+    if (isMaxed) {
+      return highlight(curDesc);
     }
+    if (currentLevel === 0) {
+      return highlight(nextDesc);
+    }
+    // 当前 → 下一级：若两段文字模板相同(只有数值不同)，只显示数值变化
+    return `${highlight(curDesc)} <b style="color:#ffc857">→</b> ${highlight(nextDesc)}`;
   }
-  // 复杂类：用 DESC_DETAIL（引擎 effect.desc 已是纯文字）
+
+  // 回退：DESC_DETAIL 纯文字（无占位符）
   return slot.effect?.desc || slot.effect?.name || "";
 }
 

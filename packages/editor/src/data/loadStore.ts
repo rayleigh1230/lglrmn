@@ -95,6 +95,13 @@ export async function loadStore(): Promise<ClientDataStore> {
     console.warn("舰船白名单未加载");
   }
 
+  // 加载强化项渲染描述表(enhanceId+level → 占位符已替换的纯文本, frida批量dump)
+  try {
+    (_store as any).enhanceDescRendered = await readJson(CONFIG_BASE + "enhance_desc_rendered.json");
+  } catch {
+    console.warn("强化项渲染描述表未加载, 占位符将无法替换");
+  }
+
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
 
   // 加载武器优先级表（火力计算用）
