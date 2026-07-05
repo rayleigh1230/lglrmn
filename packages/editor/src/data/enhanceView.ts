@@ -258,12 +258,14 @@ export function resolveTuneRow(
  * 数据来源：store.enhanceDescRendered（enhance_desc_rendered.json），
  *   格式 { enhanceId: { level: "占位符已替换的纯文本" } }。
  *
- * 显示规则（与等级区一致）：
- *   - 未强化：显示下一级(1级)描述
- *   - 部分强化：当前级 → 下一级 两段描述
+ * 显示规则（与等级区 2+1/4 的 +1 语义一致——预览下一级的增加量）：
+ *   - 未强化：显示1级描述（下一级预览）
+ *   - 部分强化：当前级描述 + 增量标注（+Δ，金色）
  *   - 满级：只显示满级描述
  *
- * 返回带 <b> 高亮的 HTML 片段（数值用金色）。表缺失时回退到 DESC_DETAIL。
+ * 增量 = 下一级数值 − 当前级数值（从两段文本提取数字相减）。
+ *
+ * 返回带 <b> 高亮的 HTML 片段。表缺失时回退到 DESC_DETAIL。
  */
 export function renderEnhanceDesc(
   store: ClientDataStore,
@@ -275,14 +277,18 @@ export function renderEnhanceDesc(
     | undefined;
   const byLv = descTable?.[slot.enhanceId];
 
+  // 数值高亮：把描述里的数字/百分比用金色 <b> 包裹
+  const highlight = (s: string) =>
+    s.replace(/(\d+(?:\.\d+)?%?)/g, '<b style="color:#ffc857">$1</b>');
+
+  // 从文本提取所有数字(含百分比), 返回数值数组(去%)
+  const extractNums = (s: string): number[] =>
+    (s.match(/\d+(?:\.\d+)?%?/g) ?? []).map((x) => Number(x.replace("%", "")));
+
   if (byLv && slot.maxLevel > 0) {
     const isMaxed = currentLevel >= slot.maxLevel;
     const curDesc = currentLevel > 0 ? (byLv[String(currentLevel)] ?? "") : "";
     const nextDesc = !isMaxed ? (byLv[String(currentLevel + 1)] ?? "") : "";
-
-    // 数值高亮：把描述里的数字/百分比用金色 <b> 包裹
-    const highlight = (s: string) =>
-      s.replace(/(\d+(?:\.\d+)?%?)/g, '<b style="color:#ffc857">$1</b>');
 
     if (isMaxed) {
       return highlight(curDesc);
@@ -290,8 +296,23 @@ export function renderEnhanceDesc(
     if (currentLevel === 0) {
       return highlight(nextDesc);
     }
-    // 当前 → 下一级：若两段文字模板相同(只有数值不同)，只显示数值变化
-    return `${highlight(curDesc)} <b style="color:#ffc857">→</b> ${highlight(nextDesc)}`;
+    // 部分强化：当前描述 + 增量（+Δ，对应等级区 +1 的"下一级增加量"语义）
+    const curNums = extractNums(curDesc);
+    const nextNums = extractNums(nextDesc);
+    const diffs: string[] = [];
+    for (let i = 0; i < curNums.length && i < nextNums.length; i++) {
+      const d = nextNums[i] - curNums[i];
+      if (d > 0) {
+        // 推断单位：原数字带%则增量也带%
+        const hasPct = (curDesc.match(/\d+(?:\.\d+)?%/) ?? [])[i] !== undefined
+          || /\d+(?:\.\d+)?%/.test(curDesc);
+        diffs.push(`+${d}${hasPct ? "%" : ""}`);
+      }
+    }
+    const incStr = diffs.length > 0
+      ? ` <b style="color:#4ade80">${diffs.join(" ")}</b>`
+      : "";
+    return `${highlight(curDesc)}${incStr}`;
   }
 
   // 回退：DESC_DETAIL 纯文字（无占位符）
