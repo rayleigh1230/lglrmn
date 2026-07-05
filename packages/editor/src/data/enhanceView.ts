@@ -313,13 +313,16 @@ export function renderEnhanceDesc(
       // 满级：只有当前值，无增量（对应等级区 4/4 无 +1）
       return highlightCur(curDesc);
     }
-    // 未强化 + 部分强化：统一为"当前(白) + 增量(金)"
-    //   未强化时 curDesc 为空(不显示当前值，对应等级区不显示0)，只显示增量
-    const diffs = currentLevel > 0
-      ? computeDiffs(curDesc, nextDesc)
-      : computeDiffs("0", nextDesc);  // 未强化：当前值当0算增量(=1级值本身)
-    const curPart = currentLevel > 0 ? highlightCur(curDesc) : "";
-    return `${curPart}${highlightInc(diffs)}`;
+    if (currentLevel === 0) {
+      // 未强化：显示文字说明(不显示当前数值) + 增量(金)
+      //   文字模板取下一级描述，但去掉里面的数值（只留文字），再拼增量
+      const diffs = computeDiffs("0", nextDesc);
+      const textOnly = nextDesc.replace(/\d+(?:\.\d+)?%?/g, "").trim();
+      return `${textOnly} ${highlightInc(diffs)}`.trim();
+    }
+    // 部分强化：当前值(白) + 增量(金)
+    const diffs = computeDiffs(curDesc, nextDesc);
+    return `${highlightCur(curDesc)}${highlightInc(diffs)}`;
   }
 
   // 回退：DESC_DETAIL 纯文字（无占位符）
