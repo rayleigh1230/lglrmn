@@ -296,48 +296,41 @@ export function renderEnhanceDesc(
       return curDesc.replace(NUM_RE, `<b style="color:${CUR_COLOR}">$&</b>`);
     }
 
-    // ★预览模式（全部加强预览）：显示加满后的总值（满级描述，金色）
-    //   对应等级区 +N（加满差值）。满级描述里所有数字都是加满后的最终值
-    if (preview) {
-      const fullDesc = byLv[String(slot.maxLevel)] ?? "";
-      return fullDesc.replace(NUM_RE, `<b style="color:${NEXT_COLOR}">$&</b>`);
-    }
-
-    // 默认模式 - 未强化 / 部分强化：原位标注——每个数字位置显示"当前值(+增量)"
-    //   curNums[i] 对应 curDesc 第i个数字；nextNums[i] 对应 nextDesc 第i个数字
-    //   增量 = nextNums[i] - curNums[i]（未强化时 curNums 全当 0）
-    const curNums = currentLevel > 0 ? extractNums(curDesc) : [];
-    const nextNums = extractNums(nextDesc);
-    // 用 curDesc 作模板(部分强化)或 nextDesc 作模板(未强化,去掉原数值)
-    const template = currentLevel > 0 ? curDesc : nextDesc;
-    // 增量数组：每个数字位置对应一个增量字符串(无变化则为空)
-    // 单级强化(maxLevel=1)不加 + 前缀(没有增量概念，就是固定值)
+    // 默认模式 + 预览模式 共用"当前值(+差值)"规则
+    //   差值来源: 默认=下一级(currentLevel+1), 预览=满级(maxLevel)
+    //   单级强化(maxLevel=1)不加 + 前缀
+    const targetLevel = preview ? slot.maxLevel : currentLevel + 1;
+    const targetDesc = byLv[String(targetLevel)] ?? nextDesc;
     const isSingleLevel = slot.maxLevel === 1;
+
+    const curNums = currentLevel > 0 ? extractNums(curDesc) : [];
+    const targetNums = extractNums(targetDesc);
+    // 模板: 部分强化用 curDesc(显示当前值), 未强化用 targetDesc(不显示当前值只显示差值)
+    const template = currentLevel > 0 ? curDesc : targetDesc;
+    // 差值数组: targetNums[i] - curNums[i] (未强化 curNums 当0)
     const incArr: string[] = [];
-    for (let i = 0; i < nextNums.length; i++) {
+    for (let i = 0; i < targetNums.length; i++) {
       const cv = currentLevel > 0 ? (curNums[i] ?? 0) : 0;
-      const d = nextNums[i] - cv;
+      const d = targetNums[i] - cv;
       if (d > 0) {
-        // 单位跟随 nextDesc 里该数字
-        const raw = (nextDesc.match(NUM_RE) ?? [])[i] ?? "";
+        const raw = (targetDesc.match(NUM_RE) ?? [])[i] ?? "";
         const unit = raw.includes("%") ? "%" : "";
         incArr.push(isSingleLevel ? `${d}${unit}` : `+${d}${unit}`);
       } else {
-        incArr.push(""); // 无变化
+        incArr.push("");
       }
     }
-    // 遍历 template, 把第 i 个数字替换为 "当前值(+增量)" 或 "(+增量)"(未强化)
+    // 遍历 template, 第 i 个数字 → 当前值(白)(+差值)(金) / 只差值(金,未强化)
     let i = 0;
     const result = template.replace(NUM_RE, (match) => {
       const inc = incArr[i] ?? "";
       i++;
       if (currentLevel > 0) {
-        // 部分强化：当前值(白) + 增量(金，无变化则不显示)
         const curPart = `<b style="color:${CUR_COLOR}">${match}</b>`;
         const incPart = inc ? `<b style="color:${NEXT_COLOR}">(${inc})</b>` : "";
         return `${curPart}${incPart}`;
       }
-      // 未强化：不显示当前数值，只显示增量(金)；无变化的数字位置留空
+      // 未强化：不显示当前数值，只显示差值(金)；无变化留空
       return inc ? `<b style="color:${NEXT_COLOR}">${inc}</b>` : "";
     });
     return result;
