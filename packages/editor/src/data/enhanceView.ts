@@ -172,26 +172,27 @@ export function resolveEnhanceTreeVM(
   const rowOfUi: Record<number, number> = {};
   uiLevels.forEach((u, i) => { rowOfUi[u] = i; });
 
-  // ★巅峰等级提升的额外 maxLevel
-  //   从 cfg_ship_peak_level[shipId+peakLv(2位)] 字段1 解析 optIdx70/71 的等级
-  //   字段1格式: "slotId70,level;slotId71,level;..."
-  //   每个槽的 extra maxLevel = 该槽 optIdx70 的当前等级（巅峰解锁了多少级就+多少）
-  let extraMaxLevel = 0;
+  // ★巅峰等级扩展——按普通强化项逐个匹配（不是按 slot 统一）
+  //   机制(frida 实证): optIdx70 的 ADJUST_ENHANCE_INDEX 字段 = 被扩展的普通强化项 optIdx
+  //   字段1里 "slotId70,level" 的 level = 该普通强化项的 extra maxLevel
+  //   先解析字段1 + 查 ADJUST_ENHANCE_INDEX 建映射 {被扩展optIdx → extraLevel}
+  const peakExtraByOptIdx: Record<number, number> = {};
   if (peakLevel > 0) {
     const peakTable = store.shipPeakLevel as Record<string, [string, string]> | undefined;
     const peakKey = shipId + String(peakLevel).padStart(2, "0");
     const peakEntry = peakTable?.[peakKey];
     if (peakEntry && peakEntry[1]) {
-      // 字段1: "405010170,2;405010270,3" → 找当前 slotId 的 optIdx70
       const segs = peakEntry[1].split(";").filter((s) => s.trim());
       for (const seg of segs) {
         const [enhanceIdStr, lvStr] = seg.split(",").map((s) => s.trim());
-        // enhanceId 9位 = slotId(7) + optIdx(2=70/71)
-        if (enhanceIdStr && enhanceIdStr.slice(0, 7) === slotId) {
-          const optIdx = parseInt(enhanceIdStr.slice(7, 9), 10);
-          if (optIdx === 70 || optIdx === 71) {
-            extraMaxLevel += Number(lvStr) || 0;
-          }
+        if (!enhanceIdStr || enhanceIdStr.slice(0, 7) !== slotId) continue;
+        const peakOptIdx = parseInt(enhanceIdStr.slice(7, 9), 10);
+        if (peakOptIdx < 70) continue;
+        // 查该 optIdx70 的 ADJUST_ENHANCE_INDEX = 被扩展的普通 optIdx
+        const peakRec = (store.systemEnhance as Record<string, { ADJUST_ENHANCE_INDEX?: number }>)[enhanceIdStr];
+        const targetOptIdx = peakRec?.ADJUST_ENHANCE_INDEX;
+        if (targetOptIdx) {
+          peakExtraByOptIdx[targetOptIdx] = (peakExtraByOptIdx[targetOptIdx] ?? 0) + (Number(lvStr) || 0);
         }
       }
     }
@@ -225,6 +226,9 @@ export function resolveEnhanceTreeVM(
     }
     if (s.enhanceId === selectedEnhanceId) state = "selected";
 
+    // ★该节点的巅峰扩展等级（按 optIdx 匹配 peakExtraByOptIdx）
+    const nodeExtra = peakExtraByOptIdx[s.optIdx] ?? 0;
+
     const vm: EnhanceNodeVM = {
       slot: s,
       state,
@@ -233,8 +237,8 @@ export function resolveEnhanceTreeVM(
       choiceGroupId: isChoice ? choiceKey : undefined,
       gridCol: col,
       gridRow: rowOfUi[s.treeColumn] ?? 0,
-      hasPeakExtra: extraMaxLevel > 0,
-      extraMaxLevel,
+      hasPeakExtra: nodeExtra > 0,
+      extraMaxLevel: nodeExtra,
     };
     (columns[col] = columns[col] || []).push(vm);
   }
