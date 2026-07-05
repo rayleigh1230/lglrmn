@@ -744,6 +744,13 @@ export function resolveBlueprint(
       }
 
       // ===== 伤害类 =====
+      case 12020: // 系统内武器伤害提升（B类，万分比，对舰）—— 最常见的伤害强化
+      case 12021: // 系统内武器伤害提升（变种）
+      case 12022: // 系统内武器伤害提升（变种）
+      case 10011: // 武器伤害提升
+        weaponDamageBonus['all'] = (weaponDamageBonus['all'] ?? 0) + lookup.value * 100;
+        effects.push(resolved);
+        break;
       case 12350: // 单发基础攻击力提升（B类，绝对值 +dph）
         baseDamageBonus += lookup.value;
         effects.push(resolved);
