@@ -361,6 +361,14 @@ export function computeFirepower(
 const EFFECT_RESIST = 10033;      // 物理抵抗值（绝对值，直接加）
 const EFFECT_SHIELD = 10021;      // 能量护盾（百分比，直接加）
 const EFFECT_STRUCTURE_HP = 10;   // 舰船结构值提高（万分比，base × PARAM/10000）
+// 非装甲系统模块也带的面板属性 EID（之前 getBaseDefense 只查装甲系统漏掉了这些）
+const EFFECT_WEAPON_DAMAGE = 12020;   // 武器伤害提升（万分比，能源系统模块常见）
+const EFFECT_HIT = 12010;             // 命中提升（万分比，指挥/信息系统模块）
+const EFFECT_HIT_ANTI = 12012;        // 对舰/对空命中提升（万分比）
+const EFFECT_SPEED = 1;               // 常规移速提升（万分比，动力系统模块）
+const EFFECT_CURVATURE = 2;           // 曲率移速提升（万分比，动力系统模块）
+const EFFECT_CRIT = 12030;            // 暴击提升（万分比，武器系统模块）
+const EFFECT_REPAIR = 12050;          // 维修效率提升（万分比，维修系统模块）
 
 /**
  * ★受维修量提升系数（REPAIR_ADJUST_COEF），按舰种不同。
@@ -473,6 +481,78 @@ export function getBaseDefense(
   return { resistance, shield, structurePermille };
 }
 
+/** 所有启用系统的模块面板属性聚合（不限于装甲系统） */
+interface ModulePanelEffects {
+  resistance: number;        // EID=10033 绝对值
+  shield: number;            // EID=10021 百分比
+  structurePermille: number; // EID=10 万分比
+  weaponDamagePermille: number;  // EID=12020 武器伤害（万分比）
+  hitPermille: number;          // EID=12010/12012 命中（万分比）
+  speedPermille: number;        // EID=1 常规移速（万分比）
+  curvaturePermille: number;    // EID=2 曲率移速（万分比）
+  critPermille: number;         // EID=12030 暴击（万分比）
+  repairPermille: number;       // EID=12050 维修效率（万分比）
+}
+
+/**
+ * ★遍历所有启用系统的 cat=0 模块，按 EFFECT_ID 聚合面板属性加成。
+ * 之前 getBaseDefense 只查装甲系统(SYSTEM_TYPE=4)，漏掉了能源/指挥/动力/信息等系统的模块效果。
+ * 本函数补全：所有系统的模块自带面板属性都聚合进来。
+ */
+function getAllModuleEffects(
+  store: ClientDataStore,
+  shipId: string,
+  enabledSlots?: string[]
+): ModulePanelEffects {
+  const result: ModulePanelEffects = {
+    resistance: 0, shield: 0, structurePermille: 0,
+    weaponDamagePermille: 0, hitPermille: 0, speedPermille: 0,
+    curvaturePermille: 0, critPermille: 0, repairPermille: 0,
+  };
+  const moduleEffect = store.moduleEffect as Record<string, Record<string, unknown>> | undefined;
+  const slots = store.shipSlot as Record<string, unknown[]> | undefined;
+  const systems = store.shipSystem as Record<string, Record<string, unknown>> | undefined;
+  if (!moduleEffect || !slots || !systems) return result;
+
+  const enabledSysSet = resolveEnabledSystems(systems, shipId, enabledSlots);
+
+  // 收集所有启用系统的 cat=0 模块 ID
+  const moduleIds = new Set<string>();
+  for (const slotId in slots) {
+    if (!slotId.startsWith(shipId)) continue;
+    const row = slots[slotId];
+    if (Number(row[0]) !== 0) continue; // cat=0 模块槽
+    const modId = String(row[2]);
+    if (!modId || modId === '0') continue;
+    const sysId = slotId.slice(0, 7);
+    if (enabledSysSet && !enabledSysSet.has(sysId)) continue;
+    moduleIds.add(modId);
+  }
+
+  // 聚合每个模块的 module_effect
+  for (const modId of moduleIds) {
+    for (const key in moduleEffect) {
+      if (!key.startsWith(modId)) continue;
+      const eff = moduleEffect[key];
+      const eid = Number(eff.EFFECT_ID);
+      const param = Number(eff.EFFECT_PARAM) || 0;
+      switch (eid) {
+        case EFFECT_RESIST: result.resistance += param; break;
+        case EFFECT_SHIELD: result.shield += param; break;
+        case EFFECT_STRUCTURE_HP: result.structurePermille += param; break;
+        case EFFECT_WEAPON_DAMAGE: result.weaponDamagePermille += param; break;
+        case EFFECT_HIT:
+        case EFFECT_HIT_ANTI: result.hitPermille += param; break;
+        case EFFECT_SPEED: result.speedPermille += param; break;
+        case EFFECT_CURVATURE: result.curvaturePermille += param; break;
+        case EFFECT_CRIT: result.critPermille += param; break;
+        case EFFECT_REPAIR: result.repairPermille += param; break;
+      }
+    }
+  }
+  return result;
+}
+
 // ===== 4. 总入口 =====
 
 /**
@@ -494,29 +574,36 @@ export function resolveBlueprintPanel(
   const baseStructure = shipRow ? Number(shipRow[4]) : 0; // Layer0 出厂结构（cfg_ship[4]，不动）
   const baseSpeed = shipRow ? Number(shipRow[5]) : 0;
 
-  // Layer1 模块基础属性: 抵抗/护盾/结构加成（从装甲模块的 module_effect 取，按 enabledSlots 过滤）
-  const defense = getBaseDefense(store, shipId, enabledSlots);
-  const resistance = defense.resistance + (blueprint?.resistanceBonus ?? 0);
-  const shield = defense.shield; // module_effect EID=10021 PARAM 直接是百分比(15=15%)
+  // Layer1 模块基础属性: 所有系统的模块效果聚合（不限于装甲系统）
+  const modEffects = getAllModuleEffects(store, shipId, enabledSlots);
+  const resistance = modEffects.resistance + (blueprint?.resistanceBonus ?? 0);
+  const shield = modEffects.shield;
 
   // ★模块结构加成（Layer1）: EID=10 万分比 × 出厂基础值
-  // 只有特殊装甲模块（附加装甲/纳米修复类）带 EID=10，大多数装甲模块无结构加成
-  const moduleStructureBonus = Math.floor((baseStructure * defense.structurePermille) / PERCENTile);
+  const moduleStructureBonus = Math.floor((baseStructure * modEffects.structurePermille) / PERCENTile);
   // 骨架结构 = Layer0 + Layer1（强化系数作用于这个完整骨架）
   const skeletonStructure = baseStructure + moduleStructureBonus;
 
-  // 速度: 基础值 × (1 + 强化加成 + 巅峰常规移速加成)
-  const speed = Math.round(baseSpeed * (1 + (blueprint?.speedBonus ?? 0) / PERCENTile));
+  // ★速度: 基础值 × (1 + 模块移速加成 + 强化加成 + 巅峰常规移速加成)
+  const speedBonusTotal = modEffects.speedPermille + (blueprint?.speedBonus ?? 0);
+  const speed = Math.round(baseSpeed * (1 + speedBonusTotal / PERCENTile));
 
-  // ★曲率速度: 基础值 ship[8] × (1 + 强化曲率加成 + 巅峰曲率加成)
-  // 曲率基础值来自 cfg_ship[8]（FG300=1500, ST59=2500）
+  // ★曲率速度: 基础值 × (1 + 模块曲率加成 + 强化曲率加成 + 巅峰曲率加成)
   const baseCurvature = shipRow ? Number(shipRow[8]) : 0;
-  const curvatureBonusTotal = (blueprint?.curvatureSpeedBonus ?? 0) + (blueprint?.peakCurvatureSpeedBonus ?? 0);
+  const curvatureBonusTotal = modEffects.curvaturePermille + (blueprint?.curvatureSpeedBonus ?? 0) + (blueprint?.peakCurvatureSpeedBonus ?? 0);
   const curvatureSpeed = Math.round(baseCurvature * (1 + curvatureBonusTotal / PERCENTile));
 
   // 武器装配+火力（按 enabledSlots 过滤可选模块）
+  // ★模块武器伤害加成(EID=12020，能源系统模块)叠加到 weaponDamageBonus
   const weapons = resolveShipWeapons(store, shipId, enabledSlots);
-  const firepower = computeFirepower(weapons, blueprint);
+  let firepowerBlueprint = blueprint;
+  if (modEffects.weaponDamagePermille > 0 && blueprint) {
+    firepowerBlueprint = {
+      ...blueprint,
+      weaponDamageBonus: { ...blueprint.weaponDamageBonus, all: (blueprint.weaponDamageBonus?.all ?? 0) + modEffects.weaponDamagePermille },
+    };
+  }
+  const firepower = computeFirepower(weapons, firepowerBlueprint);
 
   // ★受维修量提升（百分比）= 装甲抵抗值 × 舰种系数(REPAIR_ADJUST_COEF)
   // 装甲抵抗 = 模块EID=10033 + 强化EID=10033（不含ship_type基础抵抗）
