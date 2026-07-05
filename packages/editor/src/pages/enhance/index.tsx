@@ -11,16 +11,18 @@ import {
 import {
   resolveEnhanceTreeVM,
   resolveSystemNav,
-  resolveTuneRow,
+  resolveTuneRowVM,
   renderEnhanceDesc,
   singleCost,
   fullCost,
   type EnhanceSheetVM,
+  type TuneSlotVM,
 } from "../../data/enhanceView";
 import { enhanceIcon, prefixIcon } from "../../data/iconResolver";
 import EnhanceTree from "../../components/EnhanceTree";
 import EnhanceSheet from "../../components/EnhanceSheet";
 import TuneRow from "../../components/TuneRow";
+import TuneSheet from "../../components/TuneSheet";
 import SystemNav from "../../components/SystemNav";
 import "./index.css";
 
@@ -60,6 +62,7 @@ export default function EnhancePage() {
     | null
   >(null);
   const [preview, setPreview] = useState(false); // 全部加强预览开关
+  const [tuneSlot, setTuneSlot] = useState<TuneSlotVM | null>(null); // 调校浮窗
 
   const sys = useMemo(() => {
     if (!store || !shipId) return null;
@@ -82,10 +85,10 @@ export default function EnhancePage() {
     return resolveEnhanceTreeVM(store, shipId, currentSlotId, acquired, selId, peakLevel);
   }, [store, shipId, currentSlotId, acquired, sheet, peakLevel]);
 
-  const tuneSlots = useMemo(() => {
+  const tuneRowVM = useMemo(() => {
     if (!store || !currentSlotId) return [];
-    return resolveTuneRow(store, shipId, currentSlotId);
-  }, [store, shipId, currentSlotId]);
+    return resolveTuneRowVM(store, shipId, currentSlotId, acquired);
+  }, [store, shipId, currentSlotId, acquired]);
 
   // 浮窗 VM
   const sheetVM: EnhanceSheetVM | null = useMemo(() => {
@@ -218,9 +221,8 @@ export default function EnhancePage() {
 
         {/* 区域② 调校 */}
         <TuneRow
-          tuneSlots={tuneSlots}
-          acquired={new Set(acquired.keys())}
-          onClick={() => {}}
+          slots={tuneRowVM}
+          onClick={(s) => setTuneSlot(s)}
         />
       </View>
 
@@ -247,6 +249,24 @@ export default function EnhancePage() {
           onAddOne={onAddOne}
           onAddFull={onAddFull}
           onSelectChoice={onSelectChoice}
+        />
+      )}
+
+      {/* 调校浮窗 */}
+      {tuneSlot && (
+        <TuneSheet
+          vm={tuneSlot}
+          onClose={() => setTuneSlot(null)}
+          onAddOne={() => {
+            const newLv = Math.min(tuneSlot.maxLevel, tuneSlot.currentLevel + 1);
+            updateAcquired((prev) => {
+              const m = new Map(prev);
+              if (newLv > 0) m.set(tuneSlot.enhanceId, newLv);
+              return m;
+            });
+            if (newLv >= tuneSlot.maxLevel) setTuneSlot(null);
+            else setTuneSlot({ ...tuneSlot, currentLevel: newLv, state: "active" });
+          }}
         />
       )}
     </View>

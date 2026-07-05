@@ -16,9 +16,9 @@ import {
   isEnhanceAvailable,
   type EnhanceSlot,
   type EnhanceSystemSlotInfo,
+  type TuneSlot,
 } from "@lagrange/engine";
-import type { TuneSlot } from "@lagrange/engine";
-
+import { prefixIcon } from "./iconResolver";
 /** 节点 UI 状态 */
 export type NodeState =
   | "locked"      // 前置未满足 或 空槽
@@ -284,6 +284,118 @@ export function resolveTuneRow(
 ): TuneSlot[] {
   const tune = resolveTuneSystem(store, shipId);
   return tune.tuneSlots.filter((t) => t.slotId === slotId);
+}
+
+// ===== 调校区 VM（三槽：解锁型×2 + 调校型×N）=====
+
+/** 调校区单个槽的 UI 数据 */
+export interface TuneSlotVM {
+  enhanceId: string;
+  slotId: string;
+  optIdx: number;
+  type: "unlock" | "tune";   // unlock=按钮解锁型(optIdx11/12), tune=10级调校(optIdx31-43)
+  name: string;
+  icon: string;
+  /** 解锁型: 固定效果描述; 调校型: 效果名 */
+  effectName: string;
+  effectId?: number;
+  param?: number;
+  /** 调校型: 10级成功率 */
+  adjustProb?: number[];
+  /** 调校型: 被调校的目标强化项 enhanceId */
+  targetEnhanceId?: string;
+  rarity?: number;
+  /** 当前状态 */
+  state: "locked" | "available" | "active";
+  currentLevel: number;
+  maxLevel: number;
+}
+
+/**
+ * 解析调校区：解锁型槽(optIdx 11/12, UNLOCK_TYPE=2) + 调校型槽(optIdx 31-43)
+ * 解锁顺序: 按列表顺序从左到右, 前一个是后一个的前置
+ */
+export function resolveTuneRowVM(
+  store: ClientDataStore,
+  shipId: string,
+  slotId: string,
+  acquired: Map<string, number>
+): TuneSlotVM[] {
+  const result: TuneSlotVM[] = [];
+  const sysEnh = store.systemEnhance as Record<string, Record<string, unknown>>;
+  const sysEff = store.systemEffect;
+  if (!sysEnh || !sysEff) return result;
+
+  // 1. 解锁型槽: optIdx 11-13, UNLOCK_TYPE=2, cost=[0]
+  const unlockIds: string[] = [];
+  for (const eid in sysEnh) {
+    if (!eid.startsWith(slotId) || eid.length !== 9) continue;
+    const oi = parseInt(eid.slice(7, 9), 10);
+    if (oi < 11 || oi > 13) continue;
+    const rec = sysEnh[eid];
+    if (rec.UNLOCK_TYPE !== 2) continue;
+    unlockIds.push(eid);
+  }
+  unlockIds.sort();
+
+  // 2. 调校型槽: resolveTuneSystem 按 slotId 过滤
+  const tuneSlots = resolveTuneSystem(store, shipId).tuneSlots.filter((t) => t.slotId === slotId);
+
+  // 3. 合并 + 构建 VM
+  // 解锁型
+  for (const eid of unlockIds) {
+    const rec = sysEnh[eid];
+    const oi = parseInt(eid.slice(7, 9), 10);
+    const pf = Number(rec.SYSTEM_EFFECT_PREFIX);
+    const eff = sysEff[String(pf) + "01"] as Record<string, unknown> | undefined;
+    const level = acquired.get(eid) ?? 0;
+    result.push({
+      enhanceId: eid,
+      slotId,
+      optIdx: oi,
+      type: "unlock",
+      name: String(eff?.NAME ?? eid),
+      icon: prefixIcon(pf),
+      effectName: String(eff?.NAME ?? ""),
+      effectId: Number(eff?.EFFECT_ID ?? 0),
+      param: Number(eff?.EFFECT_PARAM ?? 0),
+      state: level > 0 ? "active" : "available",
+      currentLevel: level,
+      maxLevel: 1,
+    });
+  }
+  // 调校型
+  for (const t of tuneSlots) {
+    const level = acquired.get(t.enhanceId) ?? 0;
+    // 门控: 目标强化项需已点
+    const targetAcquired = (acquired.get(t.targetEnhanceId) ?? 0) > 0;
+    result.push({
+      enhanceId: t.enhanceId,
+      slotId,
+      optIdx: t.optIdx,
+      type: "tune",
+      name: t.effect?.name ?? t.enhanceId,
+      icon: prefixIcon(t.effectPrefix),
+      effectName: t.effect?.name ?? "",
+      effectId: t.effect?.effectId,
+      param: t.effect?.param,
+      adjustProb: t.adjustProb,
+      targetEnhanceId: t.targetEnhanceId,
+      rarity: t.rarity,
+      state: !targetAcquired ? "locked" : level > 0 ? "active" : "available",
+      currentLevel: level,
+      maxLevel: 10,
+    });
+  }
+
+  // 4. 前置链: 列表内按顺序, 前一个未 active 则后一个 locked
+  for (let i = 1; i < result.length; i++) {
+    if (result[i - 1].state !== "active") {
+      result[i].state = "locked";
+    }
+  }
+
+  return result;
 }
 
 /**
