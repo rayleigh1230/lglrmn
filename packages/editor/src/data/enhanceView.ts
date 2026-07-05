@@ -277,13 +277,32 @@ export function renderEnhanceDesc(
     | undefined;
   const byLv = descTable?.[slot.enhanceId];
 
-  // 数值高亮：当前值白色（对应等级区 es-lv-cur），与描述文字区分
-  const highlight = (s: string) =>
-    s.replace(/(\d+(?:\.\d+)?%?)/g, '<b style="color:#e0e6f0">$1</b>');
-
+  // 颜色：当前值白(对应等级区 es-lv-cur)，下一级增量金(对应 es-lv-next)
+  const CUR_COLOR = "#e0e6f0";
+  const NEXT_COLOR = "#ffc857";
+  // 当前值高亮（白色）
+  const highlightCur = (s: string) =>
+    s.replace(/(\d+(?:\.\d+)?%?)/g, `<b style="color:${CUR_COLOR}">$1</b>`);
   // 从文本提取所有数字(含百分比), 返回数值数组(去%)
   const extractNums = (s: string): number[] =>
     (s.match(/\d+(?:\.\d+)?%?/g) ?? []).map((x) => Number(x.replace("%", "")));
+  // 算两段描述的增量(下一级-当前级), 返回 ["+2%", ...]
+  const computeDiffs = (curDesc: string, nextDesc: string): string[] => {
+    const curNums = extractNums(curDesc);
+    const nextNums = extractNums(nextDesc);
+    const diffs: string[] = [];
+    for (let i = 0; i < curNums.length && i < nextNums.length; i++) {
+      const d = nextNums[i] - curNums[i];
+      if (d > 0) {
+        const hasPct = /\d+(?:\.\d+)?%/.test(curDesc);
+        diffs.push(`+${d}${hasPct ? "%" : ""}`);
+      }
+    }
+    return diffs;
+  };
+  // 增量高亮（金色）
+  const highlightInc = (diffs: string[]) =>
+    diffs.length > 0 ? ` <b style="color:${NEXT_COLOR}">${diffs.join(" ")}</b>` : "";
 
   if (byLv && slot.maxLevel > 0) {
     const isMaxed = currentLevel >= slot.maxLevel;
@@ -291,28 +310,16 @@ export function renderEnhanceDesc(
     const nextDesc = !isMaxed ? (byLv[String(currentLevel + 1)] ?? "") : "";
 
     if (isMaxed) {
-      return highlight(curDesc);
+      // 满级：只有当前值，无增量（对应等级区 4/4 无 +1）
+      return highlightCur(curDesc);
     }
-    if (currentLevel === 0) {
-      return highlight(nextDesc);
-    }
-    // 部分强化：当前描述 + 增量（+Δ，对应等级区 +1 的"下一级增加量"语义）
-    const curNums = extractNums(curDesc);
-    const nextNums = extractNums(nextDesc);
-    const diffs: string[] = [];
-    for (let i = 0; i < curNums.length && i < nextNums.length; i++) {
-      const d = nextNums[i] - curNums[i];
-      if (d > 0) {
-        // 推断单位：原数字带%则增量也带%
-        const hasPct = (curDesc.match(/\d+(?:\.\d+)?%/) ?? [])[i] !== undefined
-          || /\d+(?:\.\d+)?%/.test(curDesc);
-        diffs.push(`+${d}${hasPct ? "%" : ""}`);
-      }
-    }
-    const incStr = diffs.length > 0
-      ? ` <b style="color:#ffc857">${diffs.join(" ")}</b>`
-      : "";
-    return `${highlight(curDesc)}${incStr}`;
+    // 未强化 + 部分强化：统一为"当前(白) + 增量(金)"
+    //   未强化时 curDesc 为空(不显示当前值，对应等级区不显示0)，只显示增量
+    const diffs = currentLevel > 0
+      ? computeDiffs(curDesc, nextDesc)
+      : computeDiffs("0", nextDesc);  // 未强化：当前值当0算增量(=1级值本身)
+    const curPart = currentLevel > 0 ? highlightCur(curDesc) : "";
+    return `${curPart}${highlightInc(diffs)}`;
   }
 
   // 回退：DESC_DETAIL 纯文字（无占位符）
