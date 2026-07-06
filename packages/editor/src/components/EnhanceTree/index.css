@@ -15,19 +15,25 @@
   border-radius: 4px;
 }
 
-/* 网格布局：X=BFS列号, Y=ui_level行号（高度降序） */
+/* 网格布局：X=BFS列号, Y=ui_level行号（高度降序）
+   ★间距统一：gap 与 padding 四周均为 30px（设计稿），上下左右一致。
+   节点 140px（设计稿）；列宽用 minmax 让窄屏 4 列填满、宽屏紧凑居中。 */
 .et-grid {
   position: relative; /* ★让 SVG 连线层锚定到 grid */
   display: grid;
-  gap: 14px 8px; /* 行间距(收紧) 列间距 */
-  padding: 36px 12px 20px;
+  gap: 30px; /* 行间距=列间距，四周一致 */
+  padding: 30px; /* 上下左右内边距统一 */
   justify-items: center;
   align-items: center;
-  width: max-content; /* 宽度随内容撑开，触发横向滚动 */
-  min-width: 100%;
+  width: 100%; /* 填满滚动容器宽度 */
+  max-width: 100%;
+  margin: 0 auto; /* 宽屏居中 */
+  box-sizing: border-box;
 }
 
-/* ★SVG 连线层（绝对定位覆盖在 grid 上） */
+/* ★SVG 连线层（绝对定位覆盖在 grid 上）
+   连线坐标在渲染后用 getBoundingClientRect 测量真实节点中心，
+   因此无论 H5 的 rem 响应式缩放如何变化，连线都精准对齐节点中心。 */
 .et-edges {
   position: absolute;
   top: 0;
@@ -36,6 +42,12 @@
   height: 100%;
   pointer-events: none; /* 不挡节点点击 */
   z-index: 0;
+}
+.et-edges__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 .et-edge {
   stroke: #2a3458; /* 未点亮：暗灰 */
@@ -49,16 +61,19 @@
 .et-node {
   position: relative;
   z-index: 1; /* ★高于 SVG 连线层 */
-  width: 100px;
-  height: 100px;
-  border-radius: 14px;
+  width: 140px;
+  height: 140px;
+  border-radius: 16px;
   border: 3px solid #2a3458;
   background: #131a2e;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* ★顶部留给分类标签（绝对定位），图标整体下移避开标签、与底部等级区不重叠 */
+  padding-top: 22px;
+  box-sizing: border-box;
 }
-.et-icon { width: 76px; height: 76px; }
+.et-icon { width: 88px; height: 88px; }
 .et-icon--ph {
   display: flex;
   align-items: center;
@@ -108,16 +123,17 @@
   color: #8a7430;
   white-space: nowrap;
 }
-/* 分类标签（预警/伤害/频率/命中，图标上方） */
+/* 分类标签（预警/伤害/频率/命中）—— 位于槽内顶部，图标上方 */
 .et-label {
   position: absolute;
-  top: -22px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 20px;
+  font-size: 18px;
   color: #8a96b0;
   white-space: nowrap;
   line-height: 1;
+  z-index: 2;
 }
 /* 巅峰扩展标志（ADV 图标，左上角） */
 .et-adv {

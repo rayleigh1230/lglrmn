@@ -1,5 +1,6 @@
 import { View, Text, Image } from "@tarojs/components";
-import { useRef, useEffect } from "react";
+import Taro from "@tarojs/taro";
+import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
 import type { EnhanceNodeVM, ChoiceGroup } from "../../data/enhanceView";
 import { enhanceIcon, iconUrl } from "../../data/iconResolver";
 import "./index.css";
@@ -13,30 +14,28 @@ interface Props {
   onOpenChoice: (choiceKey: string) => void;
 }
 
-/** ★网格几何参数（必须与 index.css 的 grid-template / gap / padding 严格对应，否则连线错位）
- *   CSS grid 布局：cell 宽 COL_W、行高 ROW_H，cell 间有 gap，节点在 cell 内居中。
- *   节点中心坐标 = col*(COL_W+COL_GAP) + COL_W/2 + PAD_X（Y 同理）
- *   ★纵向收紧（截图实证：纵向一般 3 节点，行高/行距适中，不拉远） */
-const COL_W = 130;      // grid-template-columns 单元宽（px）
-const ROW_H = 108;      // grid-template-rows 单元高（节点100在cell内，留8余量）
-const COL_GAP = 8;      // grid gap 列间距（= gap 的第二个值）
-const ROW_GAP = 14;     // grid gap 行间距（= gap 的第一个值，收紧）
-const NODE_W = 100;     // 节点宽（cell 内居中）
-const NODE_H = 100;     // 节点高（cell 内居中）
-const PAD_X = 12;       // grid padding 左右
-const PAD_TOP = 36;     // grid padding 上
-const PAD_BOTTOM = 20;  // grid padding 下
+/** ★cell 尺寸（设计稿 px）。行高=列宽=节点高 140，cell 紧贴节点，
+ *   横向/纵向间距完全由 grid gap(30) 决定 → 上下左右严格一致。
+ *   用 Taro.pxTransform 转 rem，保证窄屏等比缩放。 */
+const CELL = 140;       // grid 单元尺寸（=节点尺寸）
+
+/** 一条连线（真实像素坐标，相对于 grid 容器左上角） */
+interface Edge { x1: number; y1: number; x2: number; y2: number; lit: boolean; key: string; }
 
 export default function EnhanceTree({ columns, choiceGroups, linkedEnhanceIds, onSelectNode, onOpenChoice }: Props) {
   const colKeys = Object.keys(columns).map(Number).sort((a, b) => a - b);
-  // 收集所有节点 + 算网格尺寸
-  const allNodes: EnhanceNodeVM[] = [];
-  for (const col of colKeys) allNodes.push(...columns[col]);
+  // 收集所有节点 + 算网格列/行数（决定 grid-template 的 repeat 数）
+  // ★用 useMemo 稳定引用：measure/effect 依赖它，避免每次渲染都产生新数组触发循环
+  const allNodes = useMemo<EnhanceNodeVM[]>(() => {
+    const arr: EnhanceNodeVM[] = [];
+    for (const col of colKeys) arr.push(...columns[col]);
+    return arr;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columns]);
   const maxCol = Math.max(...allNodes.map((n) => n.gridCol), 0);
   const maxRow = Math.max(...allNodes.map((n) => n.gridRow), 0);
 
   // 鼠标拖曳滚动（H5 桌面端）：mousedown 记录起点，mousemove 用增量 scrollBy，mouseup/leave 结束
-  // 不用 Taro ScrollView 的 scrollX（会和原生滚动冲突），改用原生 overflow-x:auto + window 监听
   const scrollRef = useRef<HTMLElement>(null);
   const drag = useRef<{ x: number; dragging: boolean; moved: boolean }>({ x: 0, dragging: false, moved: false });
 
@@ -44,7 +43,7 @@ export default function EnhanceTree({ columns, choiceGroups, linkedEnhanceIds, o
     const onMove = (e: MouseEvent) => {
       if (!drag.current.dragging || !scrollRef.current) return;
       const dx = e.clientX - drag.current.x;
-      if (Math.abs(dx) > 3) drag.current.moved = true; // 标记发生了拖动（区分点击）
+      if (Math.abs(dx) > 3) drag.current.moved = true;
       drag.current.x = e.clientX;
       scrollRef.current.scrollLeft -= dx;
     };
@@ -69,47 +68,74 @@ export default function EnhanceTree({ columns, choiceGroups, linkedEnhanceIds, o
 
   // 拖动后松开如果是拖动(moved=true)则阻止点击，避免误触节点
   const swallowClickIfDragged = (fn: () => void) => () => {
-    if (drag.current.moved) return; // 这次是拖动，不触发点击
+    if (drag.current.moved) return;
     fn();
   };
 
-  // ★计算节点中心像素坐标（用于画连线），必须与 CSS grid 几何严格对应
-  //   节点在 cell 内居中（justify-items/align-items: center）
-  //   X = 第col列cell左边缘 + cell宽/2 + padding左
-  //       第col列cell左边缘(内容区内) = col * (COL_W + COL_GAP)
-  //   Y 同理用 ROW_H + ROW_GAP
-  const centerX = (col: number) => col * (COL_W + COL_GAP) + COL_W / 2 + PAD_X;
-  const centerY = (row: number) => row * (ROW_H + ROW_GAP) + ROW_H / 2 + PAD_TOP;
+  // ★节点 DOM 引用表：enhanceId → HTMLElement（用于测量真实中心坐标画连线）
+  const nodeEls = useRef<Map<string, HTMLElement>>(new Map());
+  const gridRef = useRef<HTMLElement>(null);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
 
-  // ★构建节点查找表（enhanceId → VM）+ 边列表
-  const nodeByEnhanceId = new Map<string, EnhanceNodeVM>();
-  for (const n of allNodes) nodeByEnhanceId.set(n.slot.enhanceId, n);
+  // ★渲染后测量真实 DOM 位置，计算连线坐标。这样无论 rem/rpx 怎么缩放，连线都精准对齐节点中心。
+  //   H5 端可靠；小程序端拿不到 DOM（SVG 方案本身也不支持小程序，此组件当前仅 H5 使用）。
+  const measure = useCallback(() => {
+    const grid = gridRef.current;
+    if (!grid) { return; }
+    const gridRect = grid.getBoundingClientRect();
+    setSvgSize({ w: gridRect.width, h: gridRect.height });
 
-  // 边：遍历每个可见节点的 prerequisites，每条构成「父→子」边
-  //   lit = 父节点 acquired 且 子节点 acquired（已点亮路径）
-  interface Edge { x1: number; y1: number; x2: number; y2: number; lit: boolean; }
-  const edges: Edge[] = [];
-  const seenEdge = new Set<string>();
-  for (const n of allNodes) {
-    for (const parentId of n.slot.prerequisites) {
-      const parent = nodeByEnhanceId.get(parentId);
-      if (!parent) continue; // 父节点可能被二选一 hiddenByChoice 隐藏，跳过
-      const key = `${parentId}->${n.slot.enhanceId}`;
-      if (seenEdge.has(key)) continue;
-      seenEdge.add(key);
-      edges.push({
-        x1: centerX(parent.gridCol),
-        y1: centerY(parent.gridRow),
-        x2: centerX(n.gridCol),
-        y2: centerY(n.gridRow),
-        lit: parent.currentLevel > 0 && n.currentLevel > 0,
-      });
+    // 构建 enhanceId → 节点中心(相对 grid 左上角) 的映射
+    const centerOf = (el: HTMLElement | undefined) => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width / 2 - gridRect.left, y: r.top + r.height / 2 - gridRect.top };
+    };
+
+    // 节点查找表
+    const nodeByEnhanceId = new Map<string, EnhanceNodeVM>();
+    for (const n of allNodes) nodeByEnhanceId.set(n.slot.enhanceId, n);
+
+    const result: Edge[] = [];
+    const seen = new Set<string>();
+    for (const n of allNodes) {
+      for (const parentId of n.slot.prerequisites) {
+        const parent = nodeByEnhanceId.get(parentId);
+        if (!parent) continue; // 父节点可能被二选一 hiddenByChoice 隐藏，跳过
+        const key = `${parentId}->${n.slot.enhanceId}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const a = centerOf(nodeEls.current.get(parentId));
+        const b = centerOf(nodeEls.current.get(n.slot.enhanceId));
+        if (!a || !b) continue;
+        result.push({
+          x1: a.x, y1: a.y, x2: b.x, y2: b.y,
+          lit: parent.currentLevel > 0 && n.currentLevel > 0,
+          key,
+        });
+      }
     }
-  }
+    setEdges(result);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allNodes]);
 
-  // SVG 画布尺寸（与 grid 实际占据尺寸一致：N 个 cell + (N-1) 个 gap + padding）
-  const svgW = (maxCol + 1) * COL_W + maxCol * COL_GAP + PAD_X * 2;
-  const svgH = (maxRow + 1) * ROW_H + maxRow * ROW_GAP + PAD_TOP + PAD_BOTTOM;
+  // ★用 ResizeObserver 监听 grid 容器：窗口缩放、图片加载、1fr 重排 任何尺寸变化都重测。
+  //   这能覆盖 useLayoutEffect 单次测量漏掉的场景（异步图片加载改变节点位置）。
+  useLayoutEffect(() => {
+    measure();
+    const grid = gridRef.current;
+    if (!grid || typeof ResizeObserver === "undefined") return;
+    let raf = 0;
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(measure); // 节流：一帧内只测一次
+    });
+    ro.observe(grid);
+    // 也观察每个节点（图标加载改变节点尺寸时触发）
+    nodeEls.current.forEach((el) => ro.observe(el));
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, [measure, columns, choiceGroups]);
 
   return (
     <View
@@ -118,16 +144,18 @@ export default function EnhanceTree({ columns, choiceGroups, linkedEnhanceIds, o
       onMouseDown={onMouseDown}
     >
       <View
+        ref={gridRef as any}
         className="et-grid"
-        style={`grid-template-columns: repeat(${maxCol + 1}, ${COL_W}px); grid-template-rows: repeat(${maxRow + 1}, ${ROW_H}px);`}
+        style={`grid-template-columns: repeat(${maxCol + 1}, ${Taro.pxTransform(CELL)}); grid-template-rows: repeat(${maxRow + 1}, ${Taro.pxTransform(CELL)});`}
       >
-        {/* ★SVG 连线层（绝对定位覆盖在 grid 上，pointer-events:none 不挡点击） */}
-        {edges.length > 0 && (
+        {/* ★SVG 连线层（绝对定位覆盖在 grid 上，pointer-events:none 不挡点击）
+            坐标用渲染后测量的真实节点中心，任何缩放都对齐 */}
+        {edges.length > 0 && svgSize.w > 0 && (
           <View className="et-edges">
-            <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} xmlns="http://www.w3.org/2000/svg">
-              {edges.map((e, i) => (
+            <svg width={svgSize.w} height={svgSize.h} className="et-edges__svg" xmlns="http://www.w3.org/2000/svg">
+              {edges.map((e) => (
                 <line
-                  key={i}
+                  key={e.key}
                   x1={e.x1}
                   y1={e.y1}
                   x2={e.x2}
@@ -147,6 +175,7 @@ export default function EnhanceTree({ columns, choiceGroups, linkedEnhanceIds, o
             return (
               <View
                 key={node.slot.enhanceId}
+                ref={(el: any) => { registerEl(node.slot.enhanceId, el); }}
                 className="et-node et-node--choice"
                 style={`grid-column: ${node.gridCol + 1}; grid-row: ${node.gridRow + 1};`}
                 onClick={swallowClickIfDragged(() => onOpenChoice(node.choiceGroupId!))}
@@ -172,6 +201,7 @@ export default function EnhanceTree({ columns, choiceGroups, linkedEnhanceIds, o
           return (
             <View
               key={node.slot.enhanceId}
+              ref={(el: any) => { registerEl(node.slot.enhanceId, el); }}
               className={`et-node et-node--${node.state}`}
               style={`grid-column: ${node.gridCol + 1}; grid-row: ${node.gridRow + 1};`}
               onClick={swallowClickIfDragged(() => onSelectNode(node.slot.enhanceId))}
@@ -206,4 +236,10 @@ export default function EnhanceTree({ columns, choiceGroups, linkedEnhanceIds, o
       </View>
     </View>
   );
+
+  // ★ref 注册函数：null 时删除，避免卸载的节点残留
+  function registerEl(id: string, el: HTMLElement | null) {
+    if (el) nodeEls.current.set(id, el);
+    else nodeEls.current.delete(id);
+  }
 }

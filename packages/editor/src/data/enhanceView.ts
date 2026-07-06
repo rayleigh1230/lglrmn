@@ -575,16 +575,16 @@ export function renderEnhanceDesc(
 
     // 默认模式 + 预览模式 共用"当前值(+差值)"规则
     //   差值来源: 默认=下一级(currentLevel+1), 预览=满级(maxLevel)
-    //   单级强化(maxLevel=1)不加 + 前缀
+    //   未强化(currentLevel=0)不加 + 前缀，已强化加 + 表示"再加一级的增量"
     const targetLevel = preview ? slot.maxLevel : currentLevel + 1;
     const targetDesc = byLv[String(targetLevel)] ?? nextDesc;
-    const isSingleLevel = slot.maxLevel === 1;
 
     const curNums = currentLevel > 0 ? extractNums(curDesc) : [];
     const targetNums = extractNums(targetDesc);
     // 模板: 部分强化用 curDesc(显示当前值), 未强化用 targetDesc(不显示当前值只显示差值)
     const template = currentLevel > 0 ? curDesc : targetDesc;
     // 差值数组: targetNums[i] - curNums[i] (未强化 curNums 当0)
+    // ★是否加 "+" 前缀按强化状态判定：未强化(currentLevel=0)不加 "+"，已强化加 "+"(表示再加一级的增量)
     const incArr: string[] = [];
     for (let i = 0; i < targetNums.length; i++) {
       const cv = currentLevel > 0 ? (curNums[i] ?? 0) : 0;
@@ -592,7 +592,7 @@ export function renderEnhanceDesc(
       if (d > 0) {
         const raw = (targetDesc.match(NUM_RE) ?? [])[i] ?? "";
         const unit = raw.includes("%") ? "%" : "";
-        incArr.push(isSingleLevel ? `${d}${unit}` : `+${d}${unit}`);
+        incArr.push(currentLevel > 0 ? `+${d}${unit}` : `${d}${unit}`);
       } else {
         incArr.push("");
       }
