@@ -1,5 +1,6 @@
 export default {
   pages: [
+    'pages/loadouts/index',
     'pages/ship-list/index',
     'pages/blueprint-design/index',
     'pages/enhance/index'

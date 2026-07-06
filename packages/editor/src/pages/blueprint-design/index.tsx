@@ -3,6 +3,7 @@ import { View, Text, Image } from "@tarojs/components";
 import Taro, { useRouter } from "@tarojs/taro";
 import { useEditorData } from "../../state/useEditorData";
 import { useEnhanceState } from "../../state/enhanceStore";
+import { useLoadoutStore } from "../../state/loadoutStore";
 import {
   getShipPanel,
   getVariants,
@@ -18,11 +19,8 @@ export default function BlueprintDesign() {
   const bpId = (router.params.bpId || "") as string;
   const { store, loading, error } = useEditorData();
   const enhanceState = useEnhanceState();
+  const loadoutStore = useLoadoutStore();
 
-  // 巅峰等级（本地状态，0-20，+/- 按钮调节）
-  const [peakLevel, setPeakLevel] = useState(0);
-  // 启用的可选模块（超主力舰模块选择）
-  const [enabledSlots, setEnabledSlots] = useState<string[]>([]);
   // 下拉框展开状态（哪个GROUP展开）
   const [dropdownOpen, setDropdownOpen] = useState("");
 
@@ -32,11 +30,14 @@ export default function BlueprintDesign() {
     const wl = (store as any).shipWhitelist ?? {};
     return (wl[bpId]?.shipId ?? "") as string;
   }, [store, bpId]);
-  const enhanceLevels = useMemo(
-    () => (shipId ? enhanceState.getLevels(shipId) : {}),
+  const shipConfig = useMemo(
+    () => (shipId ? enhanceState.getShipConfig(shipId) : { enhanceLevels: {}, peakLevel: 0, enabledSlots: [] }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [shipId, enhanceState.version]
   );
+  const enhanceLevels = shipConfig.enhanceLevels;
+  const peakLevel = shipConfig.peakLevel;
+  const enabledSlots = shipConfig.enabledSlots;
 
   const panel = useMemo(() => {
     if (!store) return null;
@@ -100,26 +101,25 @@ export default function BlueprintDesign() {
 
   // 切换模块：同 GROUP 互斥（选一个自动取消同组其他，含初始默认项）
   // 切换组里所有成员(含固定初始项)等价可选；选中态完全由 enabledSlots 驱动
+  // ★enabledSlots 已提升到全局 store（支持存档保存/切换）
   const toggleModule = (sys: { systemId: string; group: number | null; isSwitchable: boolean }) => {
     if (!sys.isSwitchable) return;
-    setEnabledSlots((prev) => {
-      const enabledSet = new Set(prev);
-      if (enabledSet.has(sys.systemId)) {
-        // 已选中 → 取消(回到默认项, 由 getShipSystems 重算)
-        enabledSet.delete(sys.systemId);
-      } else {
-        // 选中此项，同 GROUP 互斥（取消同组其他所有，含默认项）
-        if (sys.group !== null) {
-          for (const s of systems) {
-            if (s.group === sys.group && s.systemId !== sys.systemId) {
-              enabledSet.delete(s.systemId);
-            }
+    const enabledSet = new Set(enabledSlots);
+    if (enabledSet.has(sys.systemId)) {
+      // 已选中 → 取消(回到默认项, 由 getShipSystems 重算)
+      enabledSet.delete(sys.systemId);
+    } else {
+      // 选中此项，同 GROUP 互斥（取消同组其他所有，含默认项）
+      if (sys.group !== null) {
+        for (const s of systems) {
+          if (s.group === sys.group && s.systemId !== sys.systemId) {
+            enabledSet.delete(s.systemId);
           }
         }
-        enabledSet.add(sys.systemId);
       }
-      return Array.from(enabledSet);
-    });
+      enabledSet.add(sys.systemId);
+    }
+    enhanceState.setEnabledSlots(shipId, Array.from(enabledSet));
   };
 
   const onBack = () => {
@@ -132,6 +132,12 @@ export default function BlueprintDesign() {
   };
   const onVariantClick = (id: string) => {
     Taro.navigateTo({ url: `/pages/blueprint-design/index?bpId=${id}` });
+  };
+
+  // ★保存：把当前 enhanceStore 全量快照写回当前激活存档（整个蓝图状态快照）
+  const onSave = () => {
+    loadoutStore.saveActive(enhanceState.snapshotAll());
+    Taro.showToast({ title: "已保存", icon: "success" });
   };
 
   if (loading) {
@@ -148,7 +154,7 @@ export default function BlueprintDesign() {
 
   return (
     <View className="bp">
-      {/* 顶部栏: 返回 + 指挥值 */}
+      {/* 顶部栏: 返回 + 指挥值 + 保存 */}
       <View className="bp-topbar">
         <View className="bp-back" onClick={onBack}>
           <Text className="bp-back__icon">‹</Text>
@@ -156,6 +162,9 @@ export default function BlueprintDesign() {
         <View className="bp-command">
           <Text className="bp-command__label">指挥值</Text>
           <Text className="bp-command__value">{panel.command}</Text>
+        </View>
+        <View className="bp-save" onClick={onSave}>
+          <Text className="bp-save__label">保存</Text>
         </View>
       </View>
 
@@ -194,11 +203,11 @@ export default function BlueprintDesign() {
             <View className="bp-peak__arrows">
               <Text
                 className="bp-peak__arrow bp-peak__arrow--up"
-                onClick={() => setPeakLevel((v) => Math.min(20, v + 1))}
+                onClick={() => enhanceState.setPeakLevel(shipId, Math.min(20, peakLevel + 1))}
               >▲</Text>
               <Text
                 className="bp-peak__arrow bp-peak__arrow--down"
-                onClick={() => setPeakLevel((v) => Math.max(0, v - 1))}
+                onClick={() => enhanceState.setPeakLevel(shipId, Math.max(0, peakLevel - 1))}
               >▼</Text>
             </View>
           </View>
@@ -388,12 +397,11 @@ export default function BlueprintDesign() {
       <Text
         className="bp-enhance-fab"
         onClick={() => {
-          // ★把蓝图页当前装配清单传给强化页，使强化页系统排与蓝图页强关联
-          //   序列化所有 enabled=true 的系统（固定系统 + 切换组选中成员 + 默认项），
-          //   这样强化页能精确知道哪些系统是装配好的，避免显示切换组未选中成员
+          // ★强化页是蓝图属性页的子页面：peakLevel/enabledSlots 由全局 store 传递
+          //   同步当前装配清单（enabled=true 的 systemId）到全局 store
           const enabledSystemIds = systems.filter((s) => s.enabled).map((s) => s.systemId);
-          const slotsParam = enabledSystemIds.length > 0 ? `&slots=${enabledSystemIds.join(",")}` : "";
-          Taro.navigateTo({ url: `/pages/enhance/index?shipId=${panel.shipId}&peakLevel=${peakLevel}${slotsParam}` });
+          enhanceState.setEnabledSlots(shipId, enabledSystemIds);
+          Taro.navigateTo({ url: `/pages/enhance/index?shipId=${panel.shipId}` });
         }}
       >
         蓝图强化

@@ -19,27 +19,28 @@ import {
   type TuneSlotVM,
 } from "../../data/enhanceView";
 import { enhanceIcon } from "../../data/iconResolver";
+import { exportMarkdown } from "../../data/schemeMarkdown";
 import EnhanceTree from "../../components/EnhanceTree";
 import EnhanceSheet from "../../components/EnhanceSheet";
 import TuneRow from "../../components/TuneRow";
 import TuneSheet from "../../components/TuneSheet";
 import SystemNav from "../../components/SystemNav";
+import SchemeImportSheet from "../../components/SchemeImportSheet";
 import "./index.css";
 
 export default function EnhancePage() {
   const router = useRouter();
   const shipId = (router.params.shipId || "") as string;
-  const peakLevel = Number(router.params.peakLevel || 0);
-  // ★从蓝图页传来的装配选择（超主力舰切换组成员 systemId，逗号分隔）
-  //   强化页系统排与蓝图页强关联：只显示并强化已装配的系统
-  const enabledSlots = (() => {
-    const raw = (router.params.slots || "") as string;
-    return raw ? raw.split(",").filter(Boolean) : undefined;
-  })();
   const { store, loading, error } = useEditorData();
 
   const [currentSlotId, setCurrentSlotId] = useState("");
+  // 导入方案浮窗开关
+  const [importSheet, setImportSheet] = useState(false);
   const enhanceState = useEnhanceState();
+  // ★peakLevel / enabledSlots 改由全局 store 传递（已提升，支持存档）
+  const shipConfig = enhanceState.getShipConfig(shipId);
+  const peakLevel = shipConfig.peakLevel;
+  const enabledSlots = shipConfig.enabledSlots.length > 0 ? shipConfig.enabledSlots : undefined;
   // acquired: 本地 state 驱动 UI，初始化从全局 store 取，变更时同步回全局
   const [acquired, setAcquired] = useState<Map<string, number>>(() => {
     const globalLevels = enhanceState.getLevels(shipId);
@@ -248,9 +249,39 @@ export default function EnhancePage() {
     });
   };
 
-  // ★占位按钮（存档系统下一轮实现）
-  const onPlaceholder = (name: string) => {
-    Taro.showToast({ title: `${name}功能开发中`, icon: "none" });
+  // ★分享码导入/导出：游戏16字符短码经证实是服务器端编解码（客户端无算法），
+  //   改用 markdown 方案文本导入/导出（用户从游戏「复制方案」得到的就是这种格式，完全本地解析）。
+  // 导出：把当前加点序列化为 markdown 复制到剪贴板
+  // ★H5优先用 navigator.clipboard.writeText()（Taro的setClipboardData在H5会强制弹"内容已复制"Toast与我们的Toast冲突）
+  const onExport = async () => {
+    if (!store || !shipId) return;
+    const md = exportMarkdown(store, shipId, enhanceState.getLevels(shipId), enabledSlots);
+    if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(md);
+        Taro.showToast({ title: "已复制到剪贴板", icon: "success" });
+        return;
+      } catch (e) {
+        console.warn("[clipboard] navigator.clipboard.writeText 失败，降级 Taro", e);
+      }
+    }
+    // 降级：Taro.setClipboardData（weapp主用；H5会额外弹"内容已复制"，忽略）
+    Taro.setClipboardData({
+      data: md,
+      fail: () => Taro.showToast({ title: "复制失败", icon: "none" }),
+    });
+  };
+  // 导入应用：整批替换（绕开 updateAcquired，让 useEffect 自动同步本地 state）
+  // - "仅加点"：只替换 levels（装配/巅峰不动）
+  // - "对齐并应用"(带enabledSlots)：重置系统装配+强化/调校加点到初始值，再写入方案（确定性）
+  //   ★巅峰等级不动（它是整船属性，独立于系统装配，方案markdown也不含巅峰信息）
+  const onApplyImport = (payload: { levels: Record<string, number>; enabledSlots?: string[] }) => {
+    enhanceState.setLevels(shipId, payload.levels);
+    if (payload.enabledSlots) {
+      enhanceState.setEnabledSlots(shipId, payload.enabledSlots);
+    }
+    setImportSheet(false);
+    Taro.showToast({ title: "导入成功", icon: "success" });
   };
 
   if (loading) return <View className="en-loading"><Text>加载中...</Text></View>;
@@ -298,19 +329,18 @@ export default function EnhancePage() {
         />
       </View>
 
-      {/* 区域④ 功能区：重置 + 保存/导入/分享（占位），固定页面最底部 */}
+      {/* 区域④ 功能区：重置 + 方案导入/导出，固定页面最底部
+          ★保存按钮已移至蓝图属性页（保存整个蓝图状态快照）；强化页是子页面
+          ★导入/导出用 markdown 方案文本（游戏16字符短码是服务器端编解码，本地不可行） */}
       <View className="en-actions">
         <View className="en-action en-action--reset" onClick={onReset}>
           <Text className="en-action__label">重置</Text>
         </View>
-        <View className="en-action en-action--save" onClick={() => onPlaceholder("保存")}>
-          <Text className="en-action__label">保存</Text>
-        </View>
-        <View className="en-action en-action--import" onClick={() => onPlaceholder("导入")}>
+        <View className="en-action en-action--import" onClick={() => setImportSheet(true)}>
           <Text className="en-action__label">导入</Text>
         </View>
-        <View className="en-action en-action--share" onClick={() => onPlaceholder("分享")}>
-          <Text className="en-action__label">分享</Text>
+        <View className="en-action en-action--share" onClick={onExport}>
+          <Text className="en-action__label">导出</Text>
         </View>
       </View>
 
@@ -352,6 +382,15 @@ export default function EnhancePage() {
             });
             setTuneSlot(null);
           }}
+        />
+      )}
+
+      {/* 导入方案浮窗 */}
+      {importSheet && (
+        <SchemeImportSheet
+          shipId={shipId}
+          onApply={onApplyImport}
+          onClose={() => setImportSheet(false)}
         />
       )}
     </View>

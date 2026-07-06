@@ -1,0 +1,257 @@
+/* 导入方案浮窗 —— 暗色系，参照 EnhanceSheet */
+.si-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* ★浮窗用 flex 列布局：头部 + 内容区(flex:1,滚动) + 底部按钮(固定) */
+.si-sheet {
+  width: 90%;
+  max-width: 640px;
+  height: 85vh;
+  max-height: 85vh;
+  background: #0f1424;
+  border: 1px solid #1e2942;
+  border-radius: 16px;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 顶部（固定，不滚动） */
+.si-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+.si-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #e6ecf5;
+}
+.si-close {
+  font-size: 40px;
+  color: #6b7891;
+  line-height: 1;
+  padding: 4px 12px;
+}
+
+/* 编辑态：粘贴按钮 + 提示 + 文本框 + 解析按钮 */
+.si-edit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.si-paste-btn {
+  padding: 16px;
+  border: 1px solid #4fc3f7;
+  border-radius: 10px;
+  background: rgba(79, 195, 247, 0.12);
+  text-align: center;
+}
+.si-paste-label {
+  font-size: 26px;
+  color: #4fc3f7;
+  font-weight: 600;
+}
+.si-hint {
+  font-size: 22px;
+  color: #6b7891;
+  line-height: 1.4;
+}
+/* ★Textarea 明确大高度，内部滚动（不用flex，Taro H5的Textarea是原生包裹，flex高度传不进去） */
+.si-textarea {
+  width: 100%;
+  height: 420px;
+  background: #0a0e1a;
+  border: 1px solid #1e2942;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 22px;
+  color: #e6ecf5;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+.si-ph {
+  color: #3a4458;
+}
+.si-parse-btn {
+  padding: 16px;
+  border-radius: 10px;
+  background: #4fc3f7;
+  text-align: center;
+}
+.si-parse-label {
+  font-size: 28px;
+  color: #0a0e1a;
+  font-weight: 700;
+}
+
+/* 预览态：内容滚动区 */
+.si-preview {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+.si-shipcheck {
+  padding: 12px 16px;
+  background: rgba(79, 195, 247, 0.08);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.si-shipcheck-text {
+  font-size: 22px;
+  color: #4fc3f7;
+}
+
+/* 统计 */
+.si-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.si-stat {
+  flex: 1;
+  padding: 16px;
+  border-radius: 10px;
+  text-align: center;
+}
+.si-stat--ok {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+.si-stat--warn {
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+}
+.si-stat--err {
+  background: rgba(244, 67, 54, 0.15);
+  border: 1px solid rgba(244, 67, 54, 0.4);
+}
+.si-stat-num {
+  display: block;
+  font-size: 40px;
+  font-weight: 700;
+  color: #e6ecf5;
+}
+.si-stat-label {
+  display: block;
+  font-size: 20px;
+  color: #6b7891;
+  margin-top: 4px;
+}
+
+/* 未匹配明细 */
+.si-unmatched {
+  padding: 12px 16px;
+  background: rgba(244, 67, 54, 0.08);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.si-unmatched-title {
+  display: block;
+  font-size: 22px;
+  color: #f44336;
+  margin-bottom: 8px;
+}
+.si-unmatched-item {
+  display: block;
+  font-size: 20px;
+  color: #8a96b0;
+  line-height: 1.6;
+}
+.si-unmatched-more {
+  display: block;
+  font-size: 20px;
+  color: #6b7891;
+  margin-top: 4px;
+}
+
+/* 装配不符提示 */
+.si-conflict {
+  padding: 16px;
+  background: rgba(255, 152, 0, 0.12);
+  border: 1px solid rgba(255, 152, 0, 0.4);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.si-conflict-title {
+  display: block;
+  font-size: 24px;
+  color: #ff9822;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.si-conflict-item {
+  display: block;
+  font-size: 22px;
+  color: #c8a878;
+  line-height: 1.6;
+  padding-left: 16px;
+}
+.si-conflict-hint {
+  display: block;
+  font-size: 20px;
+  color: #8a96b0;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* ★底部操作区：固定在浮窗底部，永不被遮挡 */
+.si-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-shrink: 0;
+  padding-top: 12px;
+  border-top: 1px solid #1e2942;
+}
+.si-btn {
+  flex: 1;
+  padding: 16px 8px;
+  border-radius: 10px;
+  text-align: center;
+}
+.si-btn--cancel {
+  background: #1e2942;
+}
+.si-btn--cancel .si-btn-label {
+  color: #6b7891;
+  font-size: 26px;
+}
+.si-btn--secondary {
+  background: #2a3550;
+  border: 1px solid #4a566f;
+}
+.si-btn--secondary .si-btn-label {
+  color: #b0bcd8;
+  font-size: 26px;
+}
+.si-btn--apply {
+  background: #4fc3f7;
+}
+.si-btn--apply .si-btn-label {
+  color: #0a0e1a;
+  font-size: 26px;
+  font-weight: 700;
+}
+.si-btn--disabled {
+  background: #1e2942;
+}
+.si-btn--disabled .si-btn-label {
+  color: #3a4458;
+}

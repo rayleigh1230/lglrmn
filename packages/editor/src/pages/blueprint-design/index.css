@@ -52,6 +52,18 @@
   color: #ffc857;
   font-weight: 700;
 }
+/* 保存按钮（写回当前激活存档） */
+.bp-save {
+  padding: 8px 24px;
+  border: 1px solid #4fc3f7;
+  border-radius: 8px;
+  background: rgba(79, 195, 247, 0.12);
+}
+.bp-save__label {
+  font-size: 24px;
+  color: #4fc3f7;
+  font-weight: 600;
+}
 
 .bp-scroll {
   display: block;
