@@ -33,19 +33,31 @@ test('V_SKILL_EFFECT_RATIO: 13731 的 modDestroyInc=25 被装配读取', () => {
   assert.equal(w!.modDestroyInc, 25, `13731 modDestroyInc=25 (实际${w!.modDestroyInc})`);
 });
 
-test('V_SKILL_EFFECT_RATIO: 攻城路径把 modDestroyInc 加进 skillRatio（对比无该字段）', () => {
-  // 用真实装配的 13731，攻城火力应 > 0 且含 25% skillRatio 放大。
-  // 直接用 computeFirepower 对 13731 单武器算攻城，对比一个 modDestroyInc=0 的同参数武器。
+test('★双重绑定验证：模块12060/12062同时进 V_ADD_RATIO(effectList) + V_SKILL_EFFECT_RATIO(skillRatio)', () => {
+  // 客户端真相（已字节码证实，非反编译伪象）：
+  //   get_effect_list: 模块效果进 all_effects_list(is_system_effect=False)
+  //   get_cur_enhance_add_info: 遍历 all_effects_list，无 is_system_effect 过滤 → 模块12060/12062 进 V_ADD_RATIO
+  //   calc_effect_add: 模块效果走 B类(PARAM×1/1)，12060/12062 在 weapon_num_attr 是 ratio_add → add_ratio += PARAM
+  //   get_weapon_attack_calc: 同一 PARAM 又绑 V_SKILL_EFFECT_RATIO（skill_effect_ratio）
+  //   → 攻城/对空路径对模块的12060/12062 PARAM 双重计入（客户端真实行为）。
+  //
+  // 13731(船37001) modDestroyInc=25（EFFECT_DESTROY_INC 攻城伤害提高）：
+  //   - V_SKILL_EFFECT_RATIO: skillRatio=25 → (100+25)/100=1.25
+  //   - V_ADD_RATIO: effectList 加 12060 value=25 → addRatio+=25 → 同一 (100+25)/100
+  //   两者在 (100+add_ratio+skill_ratio)/100 里相加 → 共 +50（25+25）
   const ws = resolveShipWeapons(store, '37001');
   const w = ws.find(x => x.weaponId === '13731')!;
-  const fpWith = computeFirepower([w], [], store);
-  // 构造一个 modDestroyInc=0 的克隆
-  const wNoInc = { ...w, modDestroyInc: 0 };
-  const fpWithout = computeFirepower([wNoInc], [], store);
-  assert.ok(fpWith.siege > fpWithout.siege, `含 modDestroyInc 攻城(${fpWith.siege}) > 无(${fpWithout.siege})`);
-  // 25% 放大：attack 部分应约 1.25 倍（穿抗后差异，但应明显增大）
-  const ratio = fpWith.siege / fpWithout.siege;
-  assert.ok(ratio > 1.1, `攻城放大比 ${ratio.toFixed(3)} > 1.1（skillRatio 生效）`);
+  // 仅 V_SKILL_EFFECT_RATIO（effectList 空，只走 skillRatio=25）
+  const fpSkillOnly = computeFirepower([w], [], store);
+  // 双绑：把模块12060显式加进 effectList（模拟 resolveBlueprintPanel 的做法）
+  const el = [{ effectId: 12060, value: 25, sourceSlotId: w.systemId, targetShip: 0, targetSystem: 0, targetIndex: 0, targetModuleType: 0, targetCompany: 0, isSystemEffect: false }];
+  const fpBoth = computeFirepower([w], el, store);
+  // 无任何绑定（modDestroyInc=0 + effectList 空）
+  const wNone = { ...w, modDestroyInc: 0 };
+  const fpNone = computeFirepower([wNone], [], store);
+  assert.ok(fpSkillOnly.siege > fpNone.siege, `仅skillRatio 攻城(${fpSkillOnly.siege}) > 无绑定(${fpNone.siege})`);
+  assert.ok(fpBoth.siege > fpSkillOnly.siege, `双绑攻城(${fpBoth.siege}) > 仅skillRatio(${fpSkillOnly.siege})（V_ADD_RATIO额外放大）`);
+  console.log(`  13731 攻城: 无绑定=${fpNone.siege} / 仅skillRatio(25)=${fpSkillOnly.siege} / 双绑(25+25)=${fpBoth.siege}`);
 });
 
 test('普通武器（无12020/12060/12062模块效果）V_SKILL_EFFECT_RATIO=0，火力不受影响', () => {

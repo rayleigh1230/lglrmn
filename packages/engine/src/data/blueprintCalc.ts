@@ -594,6 +594,24 @@ export function resolveBlueprintPanel(
     else if (k === "dt:energy") tmt = 20200;
     effectList.push({ effectId: 12020, value: val, sourceSlotId: shipId + "00", targetShip: 0, targetSystem: 0, targetIndex: 0, targetModuleType: tmt, targetCompany: 0, isSystemEffect: false });
   }
+  // ★模块 EFFECT_DAMAGE_INC(12020)/AIRCRAFT_INC(12062)/DESTROY_INC(12060) 进 effectList（V_ADD_RATIO 通道）
+  //   对齐客户端 get_effect_list 把模块效果收入 all_effects_list + get_cur_enhance_add_info 无 is_system_effect 过滤
+  //   + calc_effect_add 对模块效果走 B类(PARAM×1/1) → 这些 EID 在 weapon_num_attr 是 ratio_add → 进 add_ratio。
+  //   客户端对 12062(对空)/12060(攻城) 同时绑 V_ADD_RATIO(此处) + V_SKILL_EFFECT_RATIO(evalAttack 的 skillRatio)，
+  //   这是客户端真实双绑（已由 get_cur_enhance_add_info 源码 + calc_effect_add disasm 证实，非反编译伪象）。
+  for (const w of weapons) {
+    // 每个模块效果用该武器的 slotId 作 scope（对齐客户端 per-weapon all_effects_list）
+    const sysId = w.systemId;
+    if (w.modDamageInc) {
+      effectList.push({ effectId: 12020, value: w.modDamageInc, sourceSlotId: sysId, targetShip: 0, targetSystem: 0, targetIndex: 0, targetModuleType: 0, targetCompany: 0, isSystemEffect: false });
+    }
+    if (w.modAircraftInc) {
+      effectList.push({ effectId: 12062, value: w.modAircraftInc, sourceSlotId: sysId, targetShip: 0, targetSystem: 0, targetIndex: 0, targetModuleType: 200, targetCompany: 0, isSystemEffect: false });
+    }
+    if (w.modDestroyInc) {
+      effectList.push({ effectId: 12060, value: w.modDestroyInc, sourceSlotId: sysId, targetShip: 0, targetSystem: 0, targetIndex: 0, targetModuleType: 0, targetCompany: 0, isSystemEffect: false });
+    }
+  }
   const firepower = computeFirepower(weapons, effectList, store);
 
   // ★受维修量提升（百分比）= 装甲抵抗值 × 舰种系数(REPAIR_ADJUST_COEF)
