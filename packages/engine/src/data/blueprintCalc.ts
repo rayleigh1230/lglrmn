@@ -39,7 +39,18 @@ export interface AssembledWeapon {
   canTargetShip: boolean;     // ★是否对舰(weapon_priority_target_ship)
   canTargetAircraft: boolean; // ★是否防空(weapon_priority_target_aircraft)
   canTargetDestroy: boolean;  // ★是否攻城(weapon_priority_target_destroy)
+  slotId: string;         // ★完整9位槽位（scope判定用）
+  shipType: number;       // ★所属舰船 ship_type（cfg_ship[11]，防空固定命中率判定用）
+  tmt: number;            // ★武器 TARGET_MODULE_TYPE（scope判定用，由 WEAPON_TYPE 推导）
+  actionType: number;     // ★cfg_weapon_action[1] = ACTION（1=能量 / 2=实弹 / 7=OPERATION探测）
+  moduleType: number;     // ★cfg_module[0] = MODULE_TYPE（TMT 6位编码中位判定用）
+  flightBefore: number;   // ★飞行前摇秒（cfg_weapon.FLIGHT_TIME_BEFORE_CD /1000，投射武器有值）
+  flightAfter: number;    // ★飞行后摇秒（cfg_weapon.FLIGHT_TIME_AFTER_CD /1000，投射武器有值）
   category: WeaponCategory; // 火力归类(对舰/防空/攻城)
+  // ★V_SKILL_EFFECT_RATIO 通道（模块自带 cfg_module_effect 原值，对齐 get_module_effect_ori_value_info）
+  modDamageInc: number;   // EFFECT_DAMAGE_INC(12020) 原值（所有 dpsType 基底）
+  modAircraftInc: number; // EFFECT_AIRCRAFT_INC(12062) 原值（对空追加）
+  modDestroyInc: number;  // EFFECT_DESTROY_INC(12060) 原值（攻城追加）
 }
 
 // ===== 蓝图面板 =====
@@ -152,6 +163,10 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
   const systems = store.shipSystem as Record<string, Record<string, unknown>> | undefined;
   if (!slots || !weapons || !actions) return [];
 
+  // ★所属舰船 ship_type（cfg_ship[11]，防空固定命中率判定用）
+  const shipRow = store.ship?.[shipId] as unknown[] | undefined;
+  const shipType = shipRow ? Number(shipRow[11] ?? 0) : 0;
+
   // 启用系统集合（切换组互斥：固定项被换掉时不装配）
   const enabledSysSet = systems ? resolveEnabledSystems(systems, shipId, enabledSlots) : null;
 
@@ -189,7 +204,13 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
     const installNum = Number(row[1]) || 1;         // slot[1]: 安装数量
     const antiaircraftRatio = Number(row[4]) || 0;  // slot[4]: 防空比例
     const cdTime = Number(w.CD_TIME) || Number(w.ATTACK_INTERVAL) || 3000; // CD缺失时默认3000ms(防空武器等)
+    const flightBeforeMs = Number(w.FLIGHT_TIME_BEFORE_CD) || 0;
+    const flightAfterMs = Number(w.FLIGHT_TIME_AFTER_CD) || 0;
+    const actionType = Number(action[1]) || 0; // action[1] = ACTION
+    // MODULE_TYPE（cfg_module[0]，TMT 6位编码中位判定用）
+    const moduleTypeVal = (store as any).cfgModule?.[weaponId]?.[0] ?? 0;
     const weaponType = Number(w.WEAPON_TYPE) || 0;
+    const tmt = WEAPON_TYPE_TO_TMT[weaponType] ?? 0;
     const specialTargetLogic = Number(w.SPECIAL_TARGET_LOGIC) || 0;
     const destroyCoef = Number(w.DESTROY_COEF) || 0;
     const aircraftCoef = Number(w.AIRCRAFT_COEF) || 0;
@@ -197,10 +218,17 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
     // 对空基础单发增加（module_effect EID=12300，防空专用固定增伤词条）
     // 对空冷却时间下降（EID=12306，防空高速高效循环）
     // 对空攻击持续时间下降（EID=12311，防空高效打击）
+    // ★V_SKILL_EFFECT_RATIO 通道（对齐 get_weapon_attack_calc 的 get_module_effect_ori_value_info）：
+    //   EFFECT_DAMAGE_INC(12020, 所有 dpsType) + EFFECT_AIRCRAFT_INC(12062, 对空) + EFFECT_DESTROY_INC(12060, 攻城)
+    //   这些是武器**模块自带**的 cfg_module_effect 原值（不缩放），绑到 V_SKILL_EFFECT_RATIO。
+    //   普通武器无此3类模块效果 → 0（锚点武器不受影响）。
     // key = weaponId + 序号(01/02/03...)，遍历该武器的所有 module_effect
     let airBaseBonus = 0;
     let airCdReduction = 0;
     let airDurReduction = 0;
+    let modDamageInc = 0;   // EFFECT_DAMAGE_INC(12020) 模块原值（所有 dpsType 的 V_SKILL_EFFECT_RATIO 基底）
+    let modAircraftInc = 0; // EFFECT_AIRCRAFT_INC(12062) 模块原值（对空 V_SKILL_EFFECT_RATIO 追加）
+    let modDestroyInc = 0;  // EFFECT_DESTROY_INC(12060) 模块原值（攻城 V_SKILL_EFFECT_RATIO 追加）
     const moduleEffect = store.moduleEffect as Record<string, Record<string, unknown>> | undefined;
     if (moduleEffect) {
       for (const meKey in moduleEffect) {
@@ -211,6 +239,9 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
         if (eid === 12300) airBaseBonus = param;        // 对空基础单发增加
         else if (eid === 12306) airCdReduction = param; // 对空冷却时间下降(%)
         else if (eid === 12311) airDurReduction = param;// 对空攻击持续时间下降(%)
+        else if (eid === 12020) modDamageInc = param;   // ★EFFECT_DAMAGE_INC（伤害提升，模块自带）
+        else if (eid === 12062) modAircraftInc = param; // ★EFFECT_AIRCRAFT_INC（对空伤害提高，模块自带）
+        else if (eid === 12060) modDestroyInc = param;  // ★EFFECT_DESTROY_INC（攻城伤害提高，模块自带）
       }
     }
 
@@ -238,9 +269,16 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
       installNum,
       antiaircraftRatio,
       shotsPerCycle: attackCount,
+      slotId,
+      shipType,
+      tmt,
       fireDuration: fireDurationMs / 1000,
       cooldown: cdTime / 1000,
+      flightBefore: flightBeforeMs / 1000,
+      flightAfter: flightAfterMs / 1000,
       weaponType,
+      actionType,
+      moduleType: moduleTypeVal,
       specialTargetLogic,
       destroyCoef,
       aircraftCoef,
@@ -253,135 +291,19 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
       canTargetAircraft: _priorityAir.has(Number(weaponId)),
       canTargetDestroy: _priorityDestroy.has(Number(weaponId)),
       category,
+      modDamageInc,
+      modAircraftInc,
+      modDestroyInc,
     });
   }
   return result;
 }
 
-// ===== 2. 火力计算 =====
 
-/** 默认物理抵抗值（面板口径，用于计算穿透后的单发伤害） */
-const DEFAULT_ARMOR = 10;
+import { computeFirepower } from './effectList.js';
+// Re-export for backward compatibility (index.ts)
+export { computeFirepower } from './effectList.js';
 
-/**
- * 计算面板火力（对舰/防空/攻城）—— 单位：每分钟伤害（DPM）
- *
- * ★ 单发攻击力公式（对齐反编译 AttackCalculator.expression）：
- *
- *   attack = (C_RATIO/100) × (
- *              (C_BASE_NUM + V_ADD_BASE_NUM + V_SKILL_EFFECT)
- *              × (100 + V_ADD_RATIO + V_SKILL_EFFECT_RATIO) / 100
- *              + V_ADD_NUM
- *            )
- *
- * 三条强化通道（客户端 EffectAdd.enhance_name 区分）：
- *   V_ADD_BASE_NUM  → baseDamageBonus（绝对值，会被百分比放大）
- *   V_ADD_RATIO     → weaponDamageBonus（万分比，放大 base + add_base）
- *   V_ADD_NUM       → flatDamageBonus（绝对值，在乘法外，不被放大）
- *
- *   engine 等价实现：effectiveDph = (dph + baseDmgBonus) × (1 + weaponDmgBonus) + flatDmgBonus
- *   其中 dph = C_BASE_NUM（weapon_action.ACTION_PARAM），C_RATIO 按 category 外层应用：
- *     对舰 C_RATIO=100（隐式）/ 攻城 C_RATIO=DESTROY_COEF / 防空 C_RATIO=AIRCRAFT_COEF
- *
- * ★ 周期与每分钟聚合：
- *   period = fireDuration + cooldown
- *
- * 【对舰火力】每门武器贡献 =
- *   attackRounds(act0) × 单发穿抗伤害 × attackCount(act3) × 60 × installNum / period
- *   单发穿抗伤害 = max(effectiveDph - DEFAULT_ARMOR, effectiveDph × 0.1)
- *
- * 【攻城火力】每门武器贡献 =
- *   attackRounds × 单发攻城伤害 × attackCount × 60 × installNum / period
- *   单发攻城伤害 = effectiveDph × DESTROY_COEF / 100
- *   （DESTROY_COEF=0 的武器无攻城火力）
- *
- * 【防空火力】每门武器贡献 =
- *   单发防空伤害 × attackRounds × attackCount × 60 × installNum / period
- *   / 100 × antiaircraftRatio(slot[4]) × fixedHitRate(0.15)
- *   （antiaircraftRatio=0 的武器无防空火力）
- *
- * 锚点验证（FG300 主炮13011）：
- *   action=(3,2,30,1,3000), slot=(1,3,...,200,...), DC=14, cd=4
- *   period=3+4=7, 单发穿抗=max(30-10,3)=20
- *   对舰 = 3×20×1×60×3/7 = 1542.86 ✓ (面板1542)
- *   攻城 = 3×(30×14/100)×1×60×3/7 = 324 ✓
- *   防空 = 单发防空×3×1×60×3/7/100×200×0.15 = 1851.43 ✓
- */
-export function computeFirepower(
-  weapons: AssembledWeapon[],
-  blueprint?: ResolvedBlueprint | null
-): { antiShip: number; antiAir: number; siege: number } {
-  let antiShip = 0;
-  let antiAir = 0;
-  let siege = 0;
-
-  for (const w of weapons) {
-    if (w.dph <= 0) continue;
-    const period = w.fireDuration + w.cooldown;
-    if (period <= 0) continue;
-
-    // 强化加成系数（万分比 → 倍率）
-    // 按 wt:WEAPON_TYPE + dt:damageType + systemLabel + all 四层取加成
-    const dmgBonus = blueprint?.weaponDamageBonus ?? {};
-    const weaponDmgBonus = (
-      (dmgBonus['wt:' + w.weaponType] ?? 0) +   // 按武器类型(模块 TARGET_MODULE_TYPE=201-206)
-      (dmgBonus['dt:' + w.damageType] ?? 0) +   // 按伤害类型(模块 TARGET_MODULE_TYPE=20200 能量武器)
-      (dmgBonus[w.systemLabel] ?? 0) +           // 按系统标签(强化项 TARGET_MODULE_TYPE)
-      (dmgBonus['all'] ?? 0)                     // 通用
-    ) / PERCENTile;
-    const baseDmgBonus = blueprint?.baseDamageBonus ?? 0; // V_ADD_BASE_NUM（会被放大）
-    const flatDmgBonus = blueprint?.flatDamageBonus ?? 0; // V_ADD_NUM（不被放大）
-    // 对齐反编译 AttackCalculator.expression:
-    //   attack = (C_RATIO/100) × ((base + V_ADD_BASE_NUM) × (100 + V_ADD_RATIO)/100 + V_ADD_NUM)
-    // 其中 C_RATIO 在 per-category 外层应用（对舰=1, 攻城=DESTROY_COEF, 防空=AIRCRAFT_COEF）
-    const effectiveDph = (w.dph + baseDmgBonus) * (1 + weaponDmgBonus) + flatDmgBonus;
-
-    // 通用因子: attackRounds × attackCount × 60 × installNum / period
-    const cycleFactor = (w.attackRounds * w.attackCount * 60 * w.installNum) / period;
-
-    // === 对舰火力（按 weapon_priority_target_ship 判定）===
-    if (w.canTargetShip) {
-      const perHitShip = Math.max(effectiveDph - DEFAULT_ARMOR, effectiveDph * 0.1);
-      antiShip += perHitShip * cycleFactor;
-    }
-
-    // === 攻城火力（按 weapon_priority_target_destroy + DESTROY_COEF > 0）===
-    if (w.canTargetDestroy && w.destroyCoef > 0) {
-      const siegeBonus = 1 + (blueprint?.siegeDamageBonus ?? 0) / PERCENTile;
-      const perHitSiege = (effectiveDph * w.destroyCoef) / 100;
-      siege += perHitSiege * cycleFactor * siegeBonus;
-    }
-
-    // === 防空火力（按 weapon_priority_target_aircraft + antiaircraftRatio > 0）===
-    if (w.canTargetAircraft && w.antiaircraftRatio > 0) {
-      const aaBonus = 1 + (blueprint?.antiAirDamageBonus ?? 0) / PERCENTile;
-      const fixedHitRate = 0.15; // 防空固定命中率
-      // ★防空单发 = base(dph) + 对空基础单发增加(airBaseBonus, module_effect EID=12300)
-      // 与对舰不同：防空不穿抗（不减抵抗值），直接用 base + 固定增伤词条
-      // 实测：FG300 base=30 + airBaseBonus=50 = 80 ✓
-      //       澄海13124 base=20 + airBaseBonus=60 = 80 ✓
-      const perHitAir = effectiveDph + w.airBaseBonus;
-      // ★防空专用 period：受"防空高速高效循环(EID=12306降CD)"和"防空高效打击(EID=12311降duration)"缩放
-      // 防空duration' = duration × (1 - airDurReduction/100)
-      // 防空cd' = cooldown × (1 - airCdReduction/100)
-      // 防空period = 防空duration' + 防空cd'
-      // 实测：澄海13124 dur=4×(1-0.4)=2.4, cd=6×(1-0.4)=3.6, period=6.0 ✓
-      //       澄海13122 dur=3×(1-0.1)=2.7, cd=3×(1-0.1)=2.7, period=5.4 ✓
-      const airPeriod = w.fireDuration * (1 - w.airDurReduction / 100) +
-                        w.cooldown * (1 - w.airCdReduction / 100);
-      if (airPeriod > 0) {
-        const airCycleFactor = (w.attackRounds * w.attackCount * 60 * w.installNum) / airPeriod;
-        antiAir += (perHitAir * airCycleFactor / 100) * w.antiaircraftRatio * fixedHitRate * aaBonus;
-      }
-    }
-  }
-
-  return {
-    antiShip: Math.round(antiShip),
-    antiAir: Math.round(antiAir),
-    siege: Math.round(siege),
-  };
-}
 
 // ===== 3. 防御属性 =====
 
@@ -615,6 +537,17 @@ function getAllModuleEffects(
  * @param shipName 舰名（用于推断ship_type取抵抗）
  * @param blueprint resolveBlueprint的结果（含强化加成，可选）
  */
+
+/** WEAPON_TYPE → TARGET_MODULE_TYPE 反向映射 */
+const WEAPON_TYPE_TO_TMT: Record<number, number> = {
+  3: 201,   // 火炮
+  4: 202,   // 轨道炮
+  7: 203,   // 离子炮
+  5: 204,   // 脉冲炮
+  2: 205,   // 导弹
+  6: 206,   // 鱼雷/投射
+};
+
 export function resolveBlueprintPanel(
   store: ClientDataStore,
   shipId: string,
@@ -649,16 +582,19 @@ export function resolveBlueprintPanel(
   // 武器装配+火力（按 enabledSlots 过滤可选模块）
   // ★模块武器伤害加成(EID=12020)按 TARGET_MODULE_TYPE 分发到对应武器类型
   const weapons = resolveShipWeapons(store, shipId, enabledSlots);
-  let firepowerBlueprint = blueprint;
-  const dmgKeys = Object.keys(modEffects.weaponDamagePermille);
-  if (dmgKeys.length > 0 && blueprint) {
-    const merged = { ...blueprint.weaponDamageBonus };
-    for (const k of dmgKeys) {
-      merged[k] = (merged[k] ?? 0) + modEffects.weaponDamagePermille[k];
-    }
-    firepowerBlueprint = { ...blueprint, weaponDamageBonus: merged };
+  // 构建 effectList（蓝图强化 + 模块效果）
+  const effectList = (blueprint?.effectList ?? []).slice();
+  // 模块武器伤害加成转为 EffectEntry
+  for (const k of Object.keys(modEffects.weaponDamagePermille)) {
+    const val = modEffects.weaponDamagePermille[k];
+    if (!val) continue;
+    const WTT: Record<number,number> = {3:201,4:202,7:203,5:204,2:205,6:206};
+    let tmt = 0;
+    if (k.startsWith("wt:")) tmt = WTT[parseInt(k.slice(3))] ?? 0;
+    else if (k === "dt:energy") tmt = 20200;
+    effectList.push({ effectId: 12020, value: val, sourceSlotId: shipId + "00", targetShip: 0, targetSystem: 0, targetIndex: 0, targetModuleType: tmt, targetCompany: 0, isSystemEffect: false });
   }
-  const firepower = computeFirepower(weapons, firepowerBlueprint);
+  const firepower = computeFirepower(weapons, effectList, store);
 
   // ★受维修量提升（百分比）= 装甲抵抗值 × 舰种系数(REPAIR_ADJUST_COEF)
   // 装甲抵抗 = 模块EID=10033 + 强化EID=10033（不含ship_type基础抵抗）
