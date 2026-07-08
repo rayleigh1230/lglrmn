@@ -10,9 +10,12 @@
  */
 import Taro from "@tarojs/taro";
 import type { Loadout, LoadoutRepository, LocalStoreShape } from "./types";
+import { CURRENT_VERSION } from "./types";
+import { migrate } from "./migrate";
 
 const STORAGE_KEY = "lagrange_loadouts";
-const CURRENT_VERSION = 1;
+/** v1 旧存档备份 key（迁移时写入，防回滚丢数据） */
+const BACKUP_KEY_V1 = "lagrange_loadouts_backup_v1";
 
 const EMPTY_STORE: LocalStoreShape = {
   version: CURRENT_VERSION,
@@ -20,7 +23,7 @@ const EMPTY_STORE: LocalStoreShape = {
   loadouts: [],
 };
 
-/** 读整体结构（容错：损坏时回退空） */
+/** 读整体结构（容错：损坏时回退空；版本落后自动迁移） */
 export function readStore(): LocalStoreShape {
   try {
     const raw = Taro.getStorageSync(STORAGE_KEY);
@@ -29,14 +32,30 @@ export function readStore(): LocalStoreShape {
     if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.loadouts)) {
       return { ...EMPTY_STORE };
     }
-    return {
-      version: parsed.version ?? CURRENT_VERSION,
+    let shape: LocalStoreShape = {
+      version: parsed.version ?? 1,
       activeId: parsed.activeId ?? null,
       loadouts: parsed.loadouts,
     };
+    // 版本落后：先备份再迁移，写回升级后的 store
+    if (shape.version < CURRENT_VERSION) {
+      backupV1(raw);
+      shape = migrate(shape);
+      writeStore(shape);
+    }
+    return shape;
   } catch (e) {
     console.error("[localRepo] readStore 失败，回退空:", e);
     return { ...EMPTY_STORE };
+  }
+}
+
+/** 迁移前备份 v1 原始数据（防回滚/迁移 bug 丢数据） */
+function backupV1(raw: unknown): void {
+  try {
+    Taro.setStorageSync(BACKUP_KEY_V1, raw);
+  } catch (e) {
+    console.warn("[localRepo] v1 备份失败（忽略）：", e);
   }
 }
 

@@ -266,17 +266,33 @@ const DEFAULT_ARMOR = 10;
 /**
  * 计算面板火力（对舰/防空/攻城）—— 单位：每分钟伤害（DPM）
  *
- * ★ 精确公式（2026-07-03 从游戏 data.ship_attr_calc 表达式树 AST 还原，4武器全匹配）：
+ * ★ 单发攻击力公式（对齐反编译 AttackCalculator.expression）：
  *
- * 周期秒 period = fireDuration + cooldown
+ *   attack = (C_RATIO/100) × (
+ *              (C_BASE_NUM + V_ADD_BASE_NUM + V_SKILL_EFFECT)
+ *              × (100 + V_ADD_RATIO + V_SKILL_EFFECT_RATIO) / 100
+ *              + V_ADD_NUM
+ *            )
+ *
+ * 三条强化通道（客户端 EffectAdd.enhance_name 区分）：
+ *   V_ADD_BASE_NUM  → baseDamageBonus（绝对值，会被百分比放大）
+ *   V_ADD_RATIO     → weaponDamageBonus（万分比，放大 base + add_base）
+ *   V_ADD_NUM       → flatDamageBonus（绝对值，在乘法外，不被放大）
+ *
+ *   engine 等价实现：effectiveDph = (dph + baseDmgBonus) × (1 + weaponDmgBonus) + flatDmgBonus
+ *   其中 dph = C_BASE_NUM（weapon_action.ACTION_PARAM），C_RATIO 按 category 外层应用：
+ *     对舰 C_RATIO=100（隐式）/ 攻城 C_RATIO=DESTROY_COEF / 防空 C_RATIO=AIRCRAFT_COEF
+ *
+ * ★ 周期与每分钟聚合：
+ *   period = fireDuration + cooldown
  *
  * 【对舰火力】每门武器贡献 =
  *   attackRounds(act0) × 单发穿抗伤害 × attackCount(act3) × 60 × installNum / period
- *   单发穿抗伤害 = max(dph - DEFAULT_ARMOR, dph × 0.1)
+ *   单发穿抗伤害 = max(effectiveDph - DEFAULT_ARMOR, effectiveDph × 0.1)
  *
  * 【攻城火力】每门武器贡献 =
  *   attackRounds × 单发攻城伤害 × attackCount × 60 × installNum / period
- *   单发攻城伤害 = dph × DESTROY_COEF / 100
+ *   单发攻城伤害 = effectiveDph × DESTROY_COEF / 100
  *   （DESTROY_COEF=0 的武器无攻城火力）
  *
  * 【防空火力】每门武器贡献 =
@@ -313,8 +329,12 @@ export function computeFirepower(
       (dmgBonus[w.systemLabel] ?? 0) +           // 按系统标签(强化项 TARGET_MODULE_TYPE)
       (dmgBonus['all'] ?? 0)                     // 通用
     ) / PERCENTile;
-    const baseDmgBonus = blueprint?.baseDamageBonus ?? 0; // 绝对值 +dph
-    const effectiveDph = (w.dph + baseDmgBonus) * (1 + weaponDmgBonus);
+    const baseDmgBonus = blueprint?.baseDamageBonus ?? 0; // V_ADD_BASE_NUM（会被放大）
+    const flatDmgBonus = blueprint?.flatDamageBonus ?? 0; // V_ADD_NUM（不被放大）
+    // 对齐反编译 AttackCalculator.expression:
+    //   attack = (C_RATIO/100) × ((base + V_ADD_BASE_NUM) × (100 + V_ADD_RATIO)/100 + V_ADD_NUM)
+    // 其中 C_RATIO 在 per-category 外层应用（对舰=1, 攻城=DESTROY_COEF, 防空=AIRCRAFT_COEF）
+    const effectiveDph = (w.dph + baseDmgBonus) * (1 + weaponDmgBonus) + flatDmgBonus;
 
     // 通用因子: attackRounds × attackCount × 60 × installNum / period
     const cycleFactor = (w.attackRounds * w.attackCount * 60 * w.installNum) / period;

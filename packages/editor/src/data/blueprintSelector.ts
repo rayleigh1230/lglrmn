@@ -8,7 +8,7 @@
 import type { ClientDataStore } from "@lagrange/engine";
 import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense } from "@lagrange/engine";
 import type { BlueprintPanel } from "@lagrange/engine";
-import { levelsToTechStr } from "../state/useBlueprintDesign";
+import { levelsToTechStr } from "./codec";
 
 // ===== 舰型分类(顺序即底部图标栏顺序) =====
 export interface ShipCategory {

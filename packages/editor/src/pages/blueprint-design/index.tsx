@@ -31,7 +31,10 @@ export default function BlueprintDesign() {
     return (wl[bpId]?.shipId ?? "") as string;
   }, [store, bpId]);
   const shipConfig = useMemo(
-    () => (shipId ? enhanceState.getShipConfig(shipId) : { enhanceLevels: {}, peakLevel: 0, enabledSlots: [] }),
+    () =>
+      shipId
+        ? enhanceState.getShipConfig(shipId)
+        : { uid: "", shipId: "", enhanceLevels: {}, peakLevel: 0, enabledSlots: [] },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [shipId, enhanceState.version]
   );

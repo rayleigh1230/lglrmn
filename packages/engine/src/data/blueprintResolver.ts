@@ -376,8 +376,15 @@ export interface ResolvedBlueprint {
   /** 受指定武器类型闪避提升（按武器类别，万分比） */
   dodgeByWeaponType: Record<string, number>;
 
-  /** 单发基础攻击力提升（绝对值，+dph） */
+  /** 单发基础攻击力提升（绝对值，+dph，会被 weaponDamageBonus 放大）。对应客户端 V_ADD_BASE_NUM */
   baseDamageBonus: number;
+  /**
+   * 单发固定攻击力加成（绝对值，+dph，不被 weaponDamageBonus 放大）。对应客户端 V_ADD_NUM。
+   * 反编译公式 AttackCalculator.expression:
+   *   attack = (C_RATIO/100) × ((base + V_ADD_BASE_NUM) × (100 + V_ADD_RATIO)/100 + V_ADD_NUM)
+   * 当前无 EID 显式映射到此字段（初始 0），结构与源码对齐。
+   */
+  flatDamageBonus: number;
   /** 攻城伤害提升（万分比） */
   siegeDamageBonus: number;
   /** 对空伤害提升（万分比） */
@@ -598,6 +605,7 @@ export function resolveBlueprint(
   const dodgeByWeaponType: Record<string, number> = {};
   // 伤害类
   let baseDamageBonus = 0;
+  let flatDamageBonus = 0; // V_ADD_NUM（不被 weaponDamageBonus 放大的固定值加成）
   let siegeDamageBonus = 0;
   let antiAirDamageBonus = 0;
   let systemStructureBonus = 0;
@@ -944,6 +952,7 @@ export function resolveBlueprint(
     physicalDamageReduction,
     dodgeByWeaponType,
     baseDamageBonus,
+    flatDamageBonus,
     siegeDamageBonus,
     antiAirDamageBonus,
     systemStructureBonus,

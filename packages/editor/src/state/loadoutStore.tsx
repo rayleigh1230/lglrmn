@@ -11,7 +11,14 @@
  */
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 import { createLocalRepo, readStore, writeStore } from "./loadout/localRepo";
-import { createLoadout, type Loadout, type ShipConfig } from "./loadout/types";
+import {
+  createLoadout,
+  CURRENT_VERSION,
+  type Loadout,
+  type ShipRecord,
+  type TeamConfig,
+} from "./loadout/types";
+import { genId } from "./loadout/types";
 
 const DEFAULT_LOADOUT_NAME = "默认存档";
 
@@ -28,8 +35,14 @@ interface LoadoutContextValue {
   renameLoadout: (id: string, name: string) => void;
   /** 删除存档（若删的是激活项，自动切到第一个；全空则重建默认） */
   deleteLoadout: (id: string) => void;
-  /** 保存快照到当前激活存档（更新 ships + updatedAt） */
-  saveActive: (ships: Record<string, ShipConfig>) => void;
+  /** 保存快照到当前激活存档（更新 ships + updatedAt，teams 保持不变） */
+  saveActive: (ships: Record<string, ShipRecord>) => void;
+  /** 新增编队到当前激活存档 */
+  addTeam: (team: Omit<TeamConfig, "id">) => TeamConfig;
+  /** 更新编队（按 id） */
+  updateTeam: (id: string, patch: Partial<Omit<TeamConfig, "id">>) => void;
+  /** 删除编队（按 id） */
+  removeTeam: (id: string) => void;
 }
 
 const LoadoutContext = createContext<LoadoutContextValue | null>(null);
@@ -57,7 +70,7 @@ export function LoadoutProvider({ children }: { children: ReactNode }) {
   );
 
   const persist = useCallback((next: Loadout[], nextActiveId: string | null) => {
-    writeStore({ version: 1, activeId: nextActiveId, loadouts: next });
+    writeStore({ version: CURRENT_VERSION, activeId: nextActiveId, loadouts: next });
   }, []);
 
   const create = useCallback(
@@ -112,10 +125,58 @@ export function LoadoutProvider({ children }: { children: ReactNode }) {
   );
 
   const saveActive = useCallback(
-    (ships: Record<string, ShipConfig>) => {
+    (ships: Record<string, ShipRecord>) => {
       if (!activeId) return;
       const next = loadouts.map((l) =>
         l.id === activeId ? { ...l, ships, updatedAt: Date.now() } : l
+      );
+      setLoadouts(next);
+      persist(next, activeId);
+    },
+    [loadouts, activeId, persist]
+  );
+
+  const addTeam = useCallback(
+    (team: Omit<TeamConfig, "id">): TeamConfig => {
+      const newTeam: TeamConfig = { ...team, id: genId() };
+      if (!activeId) return newTeam;
+      const next = loadouts.map((l) =>
+        l.id === activeId
+          ? { ...l, teams: [...l.teams, newTeam], updatedAt: Date.now() }
+          : l
+      );
+      setLoadouts(next);
+      persist(next, activeId);
+      return newTeam;
+    },
+    [loadouts, activeId, persist]
+  );
+
+  const updateTeam = useCallback(
+    (id: string, patch: Partial<Omit<TeamConfig, "id">>) => {
+      if (!activeId) return;
+      const next = loadouts.map((l) =>
+        l.id === activeId
+          ? {
+              ...l,
+              teams: l.teams.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+              updatedAt: Date.now(),
+            }
+          : l
+      );
+      setLoadouts(next);
+      persist(next, activeId);
+    },
+    [loadouts, activeId, persist]
+  );
+
+  const removeTeam = useCallback(
+    (id: string) => {
+      if (!activeId) return;
+      const next = loadouts.map((l) =>
+        l.id === activeId
+          ? { ...l, teams: l.teams.filter((t) => t.id !== id), updatedAt: Date.now() }
+          : l
       );
       setLoadouts(next);
       persist(next, activeId);
@@ -132,6 +193,9 @@ export function LoadoutProvider({ children }: { children: ReactNode }) {
     renameLoadout,
     deleteLoadout,
     saveActive,
+    addTeam,
+    updateTeam,
+    removeTeam,
   };
 
   return <LoadoutContext.Provider value={value}>{children}</LoadoutContext.Provider>;
