@@ -1,0 +1,548 @@
+{
+  "BEFORE_ASYNC_WITH": {
+    "cache": 0,
+    "count": 1,
+    "total": 1,
+    "confidence": 1.0
+  },
+  "BEFORE_WITH": {
+    "cache": 0,
+    "count": 33,
+    "total": 33,
+    "confidence": 1.0
+  },
+  "BINARY_OP": {
+    "cache": 1,
+    "count": 34806,
+    "total": 34806,
+    "confidence": 1.0
+  },
+  "BINARY_SUBSCR": {
+    "cache": 4,
+    "count": 87498,
+    "total": 87498,
+    "confidence": 1.0
+  },
+  "BUILD_CONST_KEY_MAP": {
+    "cache": 0,
+    "count": 1179,
+    "total": 1179,
+    "confidence": 1.0
+  },
+  "BUILD_LIST": {
+    "cache": 0,
+    "count": 13377,
+    "total": 13377,
+    "confidence": 1.0
+  },
+  "BUILD_MAP": {
+    "cache": 0,
+    "count": 74231,
+    "total": 74231,
+    "confidence": 1.0
+  },
+  "BUILD_SET": {
+    "cache": 0,
+    "count": 50,
+    "total": 50,
+    "confidence": 1.0
+  },
+  "BUILD_SLICE": {
+    "cache": 0,
+    "count": 1928,
+    "total": 1928,
+    "confidence": 1.0
+  },
+  "BUILD_STRING": {
+    "cache": 0,
+    "count": 1208,
+    "total": 1208,
+    "confidence": 1.0
+  },
+  "BUILD_TUPLE": {
+    "cache": 0,
+    "count": 16113,
+    "total": 16113,
+    "confidence": 1.0
+  },
+  "CALL": {
+    "cache": 4,
+    "count": 366613,
+    "total": 366645,
+    "confidence": 0.9999
+  },
+  "CALL_FUNCTION_EX": {
+    "cache": 0,
+    "count": 2259,
+    "total": 2259,
+    "confidence": 1.0
+  },
+  "CHECK_EG_MATCH": {
+    "cache": 0,
+    "count": 1,
+    "total": 1,
+    "confidence": 1.0
+  },
+  "CHECK_EXC_MATCH": {
+    "cache": 0,
+    "count": 1763,
+    "total": 1763,
+    "confidence": 1.0
+  },
+  "COMPARE_OP": {
+    "cache": 2,
+    "count": 46457,
+    "total": 46457,
+    "confidence": 1.0
+  },
+  "CONTAINS_OP": {
+    "cache": 0,
+    "count": 30150,
+    "total": 30150,
+    "confidence": 1.0
+  },
+  "COPY": {
+    "cache": 0,
+    "count": 6203,
+    "total": 6203,
+    "confidence": 1.0
+  },
+  "COPY_FREE_VARS": {
+    "cache": 0,
+    "count": 7106,
+    "total": 7106,
+    "confidence": 1.0
+  },
+  "DELETE_ATTR": {
+    "cache": 0,
+    "count": 58,
+    "total": 58,
+    "confidence": 1.0
+  },
+  "DELETE_FAST": {
+    "cache": 0,
+    "count": 1602,
+    "total": 1602,
+    "confidence": 1.0
+  },
+  "DELETE_SUBSCR": {
+    "cache": 0,
+    "count": 5816,
+    "total": 5816,
+    "confidence": 1.0
+  },
+  "DICT_MERGE": {
+    "cache": 0,
+    "count": 1791,
+    "total": 1791,
+    "confidence": 1.0
+  },
+  "DICT_UPDATE": {
+    "cache": 0,
+    "count": 3301,
+    "total": 3301,
+    "confidence": 1.0
+  },
+  "EXTENDED_ARG": {
+    "cache": 0,
+    "count": 48330,
+    "total": 48330,
+    "confidence": 1.0
+  },
+  "FORMAT_VALUE": {
+    "cache": 0,
+    "count": 2521,
+    "total": 2521,
+    "confidence": 1.0
+  },
+  "FOR_ITER": {
+    "cache": 0,
+    "count": 29318,
+    "total": 29318,
+    "confidence": 1.0
+  },
+  "GET_AWAITABLE": {
+    "cache": 0,
+    "count": 1334,
+    "total": 1334,
+    "confidence": 1.0
+  },
+  "GET_ITER": {
+    "cache": 0,
+    "count": 29674,
+    "total": 29674,
+    "confidence": 1.0
+  },
+  "IMPORT_FROM": {
+    "cache": 0,
+    "count": 19627,
+    "total": 19627,
+    "confidence": 1.0
+  },
+  "IMPORT_NAME": {
+    "cache": 0,
+    "count": 19394,
+    "total": 19394,
+    "confidence": 1.0
+  },
+  "IS_OP": {
+    "cache": 0,
+    "count": 1437,
+    "total": 1437,
+    "confidence": 1.0
+  },
+  "JUMP_BACKWARD": {
+    "cache": 0,
+    "count": 38362,
+    "total": 38362,
+    "confidence": 1.0
+  },
+  "JUMP_BACKWARD_NO_INTERRUPT": {
+    "cache": 0,
+    "count": 1334,
+    "total": 1334,
+    "confidence": 1.0
+  },
+  "JUMP_FORWARD": {
+    "cache": 0,
+    "count": 23625,
+    "total": 23625,
+    "confidence": 1.0
+  },
+  "JUMP_IF_FALSE_OR_POP": {
+    "cache": 0,
+    "count": 1795,
+    "total": 1795,
+    "confidence": 1.0
+  },
+  "JUMP_IF_TRUE_OR_POP": {
+    "cache": 0,
+    "count": 1604,
+    "total": 1604,
+    "confidence": 1.0
+  },
+  "KW_NAMES": {
+    "cache": 0,
+    "count": 14205,
+    "total": 14205,
+    "confidence": 1.0
+  },
+  "LIST_APPEND": {
+    "cache": 0,
+    "count": 1771,
+    "total": 1771,
+    "confidence": 1.0
+  },
+  "LIST_EXTEND": {
+    "cache": 0,
+    "count": 719,
+    "total": 719,
+    "confidence": 1.0
+  },
+  "LIST_TO_TUPLE": {
+    "cache": 0,
+    "count": 535,
+    "total": 535,
+    "confidence": 1.0
+  },
+  "LOAD_ASSERTION_ERROR": {
+    "cache": 0,
+    "count": 798,
+    "total": 798,
+    "confidence": 1.0
+  },
+  "LOAD_ATTR": {
+    "cache": 4,
+    "count": 491607,
+    "total": 491615,
+    "confidence": 1.0
+  },
+  "LOAD_BUILD_CLASS": {
+    "cache": 0,
+    "count": 5,
+    "total": 5,
+    "confidence": 1.0
+  },
+  "LOAD_CLASSDEREF": {
+    "cache": 0,
+    "count": 11,
+    "total": 11,
+    "confidence": 1.0
+  },
+  "LOAD_CLOSURE": {
+    "cache": 0,
+    "count": 12375,
+    "total": 12375,
+    "confidence": 1.0
+  },
+  "LOAD_CONST": {
+    "cache": 0,
+    "count": 350333,
+    "total": 350333,
+    "confidence": 1.0
+  },
+  "LOAD_DEREF": {
+    "cache": 0,
+    "count": 56452,
+    "total": 56452,
+    "confidence": 1.0
+  },
+  "LOAD_FAST": {
+    "cache": 0,
+    "count": 875473,
+    "total": 875473,
+    "confidence": 1.0
+  },
+  "LOAD_GLOBAL": {
+    "cache": 5,
+    "count": 358921,
+    "total": 358921,
+    "confidence": 1.0
+  },
+  "LOAD_METHOD": {
+    "cache": 10,
+    "count": 221373,
+    "total": 221389,
+    "confidence": 0.9999
+  },
+  "LOAD_NAME": {
+    "cache": 0,
+    "count": 8,
+    "total": 8,
+    "confidence": 1.0
+  },
+  "MAKE_CELL": {
+    "cache": 0,
+    "count": 10502,
+    "total": 10502,
+    "confidence": 1.0
+  },
+  "MAKE_FUNCTION": {
+    "cache": 0,
+    "count": 6837,
+    "total": 6837,
+    "confidence": 1.0
+  },
+  "MAP_ADD": {
+    "cache": 0,
+    "count": 56556,
+    "total": 56556,
+    "confidence": 1.0
+  },
+  "NAME": {
+    "cache": 5,
+    "count": 46,
+    "total": 141,
+    "confidence": 0.3262
+  },
+  "NOP": {
+    "cache": 0,
+    "count": 3152,
+    "total": 3152,
+    "confidence": 1.0
+  },
+  "POP_EXCEPT": {
+    "cache": 0,
+    "count": 3969,
+    "total": 3969,
+    "confidence": 1.0
+  },
+  "POP_JUMP_BACKWARD_IF_FALSE": {
+    "cache": 0,
+    "count": 273,
+    "total": 273,
+    "confidence": 1.0
+  },
+  "POP_JUMP_BACKWARD_IF_NONE": {
+    "cache": 0,
+    "count": 5,
+    "total": 5,
+    "confidence": 1.0
+  },
+  "POP_JUMP_BACKWARD_IF_NOT_NONE": {
+    "cache": 0,
+    "count": 3,
+    "total": 3,
+    "confidence": 1.0
+  },
+  "POP_JUMP_BACKWARD_IF_TRUE": {
+    "cache": 0,
+    "count": 229,
+    "total": 229,
+    "confidence": 1.0
+  },
+  "POP_JUMP_FORWARD_IF_FALSE": {
+    "cache": 0,
+    "count": 139659,
+    "total": 139659,
+    "confidence": 1.0
+  },
+  "POP_JUMP_FORWARD_IF_NONE": {
+    "cache": 0,
+    "count": 5499,
+    "total": 5499,
+    "confidence": 1.0
+  },
+  "POP_JUMP_FORWARD_IF_NOT_NONE": {
+    "cache": 0,
+    "count": 4360,
+    "total": 4360,
+    "confidence": 1.0
+  },
+  "POP_JUMP_FORWARD_IF_TRUE": {
+    "cache": 0,
+    "count": 27777,
+    "total": 27777,
+    "confidence": 1.0
+  },
+  "POP_TOP": {
+    "cache": 0,
+    "count": 168857,
+    "total": 168857,
+    "confidence": 1.0
+  },
+  "PRECALL": {
+    "cache": 1,
+    "count": 366645,
+    "total": 366645,
+    "confidence": 1.0
+  },
+  "PREP_RERAISE_STAR": {
+    "cache": 0,
+    "count": 1,
+    "total": 1,
+    "confidence": 1.0
+  },
+  "PUSH_EXC_INFO": {
+    "cache": 0,
+    "count": 2393,
+    "total": 2393,
+    "confidence": 1.0
+  },
+  "PUSH_NULL": {
+    "cache": 0,
+    "count": 17582,
+    "total": 17582,
+    "confidence": 1.0
+  },
+  "RAISE_VARARGS": {
+    "cache": 0,
+    "count": 3563,
+    "total": 3563,
+    "confidence": 1.0
+  },
+  "RERAISE": {
+    "cache": 0,
+    "count": 4922,
+    "total": 4922,
+    "confidence": 1.0
+  },
+  "RESUME": {
+    "cache": 0,
+    "count": 91632,
+    "total": 91632,
+    "confidence": 1.0
+  },
+  "RETURN_GENERATOR": {
+    "cache": 0,
+    "count": 1125,
+    "total": 1125,
+    "confidence": 1.0
+  },
+  "RETURN_VALUE": {
+    "cache": 0,
+    "count": 66998,
+    "total": 67020,
+    "confidence": 0.9997
+  },
+  "SEND": {
+    "cache": 0,
+    "count": 1334,
+    "total": 1334,
+    "confidence": 1.0
+  },
+  "SET_ADD": {
+    "cache": 0,
+    "count": 33,
+    "total": 33,
+    "confidence": 1.0
+  },
+  "STORE_ATTR": {
+    "cache": 4,
+    "count": 76661,
+    "total": 76661,
+    "confidence": 1.0
+  },
+  "STORE_DEREF": {
+    "cache": 0,
+    "count": 5154,
+    "total": 5154,
+    "confidence": 1.0
+  },
+  "STORE_FAST": {
+    "cache": 0,
+    "count": 223798,
+    "total": 223798,
+    "confidence": 1.0
+  },
+  "STORE_GLOBAL": {
+    "cache": 0,
+    "count": 2746,
+    "total": 2746,
+    "confidence": 1.0
+  },
+  "STORE_NAME": {
+    "cache": 0,
+    "count": 32,
+    "total": 32,
+    "confidence": 1.0
+  },
+  "STORE_SUBSCR": {
+    "cache": 1,
+    "count": 14814,
+    "total": 14814,
+    "confidence": 1.0
+  },
+  "SWAP": {
+    "cache": 0,
+    "count": 4617,
+    "total": 4617,
+    "confidence": 1.0
+  },
+  "UNARY_INVERT": {
+    "cache": 0,
+    "count": 38,
+    "total": 38,
+    "confidence": 1.0
+  },
+  "UNARY_NEGATIVE": {
+    "cache": 0,
+    "count": 1005,
+    "total": 1005,
+    "confidence": 1.0
+  },
+  "UNARY_NOT": {
+    "cache": 0,
+    "count": 533,
+    "total": 533,
+    "confidence": 1.0
+  },
+  "UNPACK_SEQUENCE": {
+    "cache": 1,
+    "count": 15526,
+    "total": 15526,
+    "confidence": 1.0
+  },
+  "WITH_EXCEPT_START": {
+    "cache": 0,
+    "count": 34,
+    "total": 34,
+    "confidence": 1.0
+  },
+  "YIELD_VALUE": {
+    "cache": 0,
+    "count": 1495,
+    "total": 1495,
+    "confidence": 1.0
+  }
+}

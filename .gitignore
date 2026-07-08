@@ -33,3 +33,10 @@ packages/editor/.swc/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Python cache (反编译工具链)
+__pycache__/
+*.pyc
+
+# 截图/临时
+正确的显示界面.png

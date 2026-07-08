@@ -1,0 +1,207 @@
+{
+  "binary_op": {
+    "5": {
+      "std_val": 5,
+      "symbol": "*",
+      "count": 8439,
+      "total": 8439,
+      "confidence": 1.0
+    },
+    "0": {
+      "std_val": 0,
+      "symbol": "+",
+      "count": 10259,
+      "total": 10259,
+      "confidence": 1.0
+    },
+    "23": {
+      "std_val": 23,
+      "symbol": "-=",
+      "count": 804,
+      "total": 804,
+      "confidence": 1.0
+    },
+    "26": {
+      "std_val": 11,
+      "symbol": "/",
+      "count": 3269,
+      "total": 3478,
+      "confidence": 0.9399
+    },
+    "13": {
+      "std_val": 13,
+      "symbol": "+=",
+      "count": 3983,
+      "total": 3983,
+      "confidence": 1.0
+    },
+    "10": {
+      "std_val": 10,
+      "symbol": "-",
+      "count": 5727,
+      "total": 5727,
+      "confidence": 1.0
+    },
+    "8": {
+      "std_val": 8,
+      "symbol": "**",
+      "count": 364,
+      "total": 364,
+      "confidence": 1.0
+    },
+    "2": {
+      "std_val": 2,
+      "symbol": "//",
+      "count": 129,
+      "total": 129,
+      "confidence": 1.0
+    },
+    "6": {
+      "std_val": 6,
+      "symbol": "%",
+      "count": 394,
+      "total": 394,
+      "confidence": 1.0
+    },
+    "3": {
+      "std_val": 3,
+      "symbol": "<<",
+      "count": 37,
+      "total": 37,
+      "confidence": 1.0
+    },
+    "1": {
+      "std_val": 1,
+      "symbol": "&",
+      "count": 160,
+      "total": 160,
+      "confidence": 1.0
+    },
+    "7": {
+      "std_val": 7,
+      "symbol": "|",
+      "count": 363,
+      "total": 363,
+      "confidence": 1.0
+    },
+    "20": {
+      "std_val": 20,
+      "symbol": "|=",
+      "count": 41,
+      "total": 41,
+      "confidence": 1.0
+    },
+    "27": {
+      "std_val": 24,
+      "symbol": "/=",
+      "count": 81,
+      "total": 81,
+      "confidence": 1.0
+    },
+    "18": {
+      "std_val": 18,
+      "symbol": "*=",
+      "count": 446,
+      "total": 446,
+      "confidence": 1.0
+    },
+    "22": {
+      "std_val": 22,
+      "symbol": ">>=",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "19": {
+      "std_val": 19,
+      "symbol": "%=",
+      "count": 13,
+      "total": 13,
+      "confidence": 1.0
+    },
+    "14": {
+      "std_val": 14,
+      "symbol": "&=",
+      "count": 16,
+      "total": 16,
+      "confidence": 1.0
+    },
+    "9": {
+      "std_val": 9,
+      "symbol": ">>",
+      "count": 58,
+      "total": 58,
+      "confidence": 1.0
+    },
+    "12": {
+      "std_val": 12,
+      "symbol": "^",
+      "count": 4,
+      "total": 4,
+      "confidence": 1.0
+    },
+    "21": {
+      "std_val": 21,
+      "symbol": "**=",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "25": {
+      "std_val": 25,
+      "symbol": "^=",
+      "count": 8,
+      "total": 8,
+      "confidence": 1.0
+    }
+  },
+  "compare_op": {
+    "0": {
+      "std_val": 0,
+      "symbol": "<",
+      "count": 3587,
+      "total": 3587,
+      "confidence": 1.0
+    },
+    "3": {
+      "std_val": 3,
+      "symbol": "!=",
+      "count": 6110,
+      "total": 6110,
+      "confidence": 1.0
+    },
+    "2": {
+      "std_val": 2,
+      "symbol": "==",
+      "count": 29064,
+      "total": 29064,
+      "confidence": 1.0
+    },
+    "4": {
+      "std_val": 4,
+      "symbol": ">",
+      "count": 4173,
+      "total": 4173,
+      "confidence": 1.0
+    },
+    "1": {
+      "std_val": 1,
+      "symbol": "<=",
+      "count": 1913,
+      "total": 1913,
+      "confidence": 1.0
+    },
+    "5": {
+      "std_val": 5,
+      "symbol": ">=",
+      "count": 1610,
+      "total": 1610,
+      "confidence": 1.0
+    }
+  },
+  "_meta": {
+    "files_processed": 90162,
+    "binop_entries": 22,
+    "cmpop_entries": 6
+  }
+}

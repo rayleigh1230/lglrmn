@@ -1,0 +1,581 @@
+{
+  "_meta": {
+    "files_processed": 90162,
+    "pairs_seen": 4727505,
+    "distinct_byte_values": 95,
+    "conflicts_count": 0,
+    "parse_fail": 0
+  },
+  "opmap": {
+    "0": {
+      "mnemonic": "NAME",
+      "count": 117,
+      "total": 117,
+      "confidence": 1.0
+    },
+    "2": {
+      "mnemonic": "NAME",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "3": {
+      "mnemonic": "NAME",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "4": {
+      "mnemonic": "NAME",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "5": {
+      "mnemonic": "NAME",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "9": {
+      "mnemonic": "LIST_TO_TUPLE",
+      "count": 535,
+      "total": 535,
+      "confidence": 1.0
+    },
+    "15": {
+      "mnemonic": "DELETE_SUBSCR",
+      "count": 5816,
+      "total": 5816,
+      "confidence": 1.0
+    },
+    "19": {
+      "mnemonic": "GET_ITER",
+      "count": 29674,
+      "total": 29674,
+      "confidence": 1.0
+    },
+    "20": {
+      "mnemonic": "STORE_SUBSCR",
+      "count": 14814,
+      "total": 14814,
+      "confidence": 1.0
+    },
+    "21": {
+      "mnemonic": "PUSH_EXC_INFO",
+      "count": 2393,
+      "total": 2393,
+      "confidence": 1.0
+    },
+    "24": {
+      "mnemonic": "POP_EXCEPT",
+      "count": 3969,
+      "total": 3969,
+      "confidence": 1.0
+    },
+    "26": {
+      "mnemonic": "PREP_RERAISE_STAR",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "27": {
+      "mnemonic": "BINARY_SUBSCR",
+      "count": 87498,
+      "total": 87498,
+      "confidence": 1.0
+    },
+    "34": {
+      "mnemonic": "YIELD_VALUE",
+      "count": 1495,
+      "total": 1495,
+      "confidence": 1.0
+    },
+    "38": {
+      "mnemonic": "LOAD_ASSERTION_ERROR",
+      "count": 798,
+      "total": 798,
+      "confidence": 1.0
+    },
+    "40": {
+      "mnemonic": "LOAD_BUILD_CLASS",
+      "count": 5,
+      "total": 5,
+      "confidence": 1.0
+    },
+    "43": {
+      "mnemonic": "CHECK_EG_MATCH",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "44": {
+      "mnemonic": "CHECK_EXC_MATCH",
+      "count": 1763,
+      "total": 1763,
+      "confidence": 1.0
+    },
+    "49": {
+      "mnemonic": "PUSH_NULL",
+      "count": 17582,
+      "total": 17582,
+      "confidence": 1.0
+    },
+    "51": {
+      "mnemonic": "UNARY_NEGATIVE",
+      "count": 1005,
+      "total": 1005,
+      "confidence": 1.0
+    },
+    "52": {
+      "mnemonic": "BEFORE_ASYNC_WITH",
+      "count": 1,
+      "total": 1,
+      "confidence": 1.0
+    },
+    "57": {
+      "mnemonic": "RETURN_VALUE",
+      "count": 155597,
+      "total": 155597,
+      "confidence": 1.0
+    },
+    "59": {
+      "mnemonic": "UNARY_INVERT",
+      "count": 38,
+      "total": 38,
+      "confidence": 1.0
+    },
+    "66": {
+      "mnemonic": "RETURN_GENERATOR",
+      "count": 1125,
+      "total": 1125,
+      "confidence": 1.0
+    },
+    "68": {
+      "mnemonic": "UNARY_NOT",
+      "count": 533,
+      "total": 533,
+      "confidence": 1.0
+    },
+    "84": {
+      "mnemonic": "BEFORE_WITH",
+      "count": 33,
+      "total": 33,
+      "confidence": 1.0
+    },
+    "88": {
+      "mnemonic": "NOP",
+      "count": 3152,
+      "total": 3152,
+      "confidence": 1.0
+    },
+    "90": {
+      "mnemonic": "WITH_EXCEPT_START",
+      "count": 34,
+      "total": 34,
+      "confidence": 1.0
+    },
+    "92": {
+      "mnemonic": "POP_TOP",
+      "count": 168857,
+      "total": 168857,
+      "confidence": 1.0
+    },
+    "96": {
+      "mnemonic": "JUMP_FORWARD",
+      "count": 23625,
+      "total": 23625,
+      "confidence": 1.0
+    },
+    "102": {
+      "mnemonic": "COMPARE_OP",
+      "count": 46457,
+      "total": 46457,
+      "confidence": 1.0
+    },
+    "104": {
+      "mnemonic": "DICT_MERGE",
+      "count": 1791,
+      "total": 1791,
+      "confidence": 1.0
+    },
+    "108": {
+      "mnemonic": "DELETE_ATTR",
+      "count": 58,
+      "total": 58,
+      "confidence": 1.0
+    },
+    "111": {
+      "mnemonic": "LOAD_ATTR",
+      "count": 491615,
+      "total": 491615,
+      "confidence": 1.0
+    },
+    "112": {
+      "mnemonic": "COPY",
+      "count": 6203,
+      "total": 6203,
+      "confidence": 1.0
+    },
+    "114": {
+      "mnemonic": "BUILD_MAP",
+      "count": 74231,
+      "total": 74231,
+      "confidence": 1.0
+    },
+    "116": {
+      "mnemonic": "FOR_ITER",
+      "count": 29318,
+      "total": 29318,
+      "confidence": 1.0
+    },
+    "117": {
+      "mnemonic": "STORE_FAST",
+      "count": 223798,
+      "total": 223798,
+      "confidence": 1.0
+    },
+    "119": {
+      "mnemonic": "LOAD_CLASSDEREF",
+      "count": 11,
+      "total": 11,
+      "confidence": 1.0
+    },
+    "120": {
+      "mnemonic": "RAISE_VARARGS",
+      "count": 4076,
+      "total": 4076,
+      "confidence": 1.0
+    },
+    "121": {
+      "mnemonic": "DICT_UPDATE",
+      "count": 3301,
+      "total": 3301,
+      "confidence": 1.0
+    },
+    "124": {
+      "mnemonic": "BUILD_SET",
+      "count": 50,
+      "total": 50,
+      "confidence": 1.0
+    },
+    "128": {
+      "mnemonic": "STORE_DEREF",
+      "count": 5154,
+      "total": 5154,
+      "confidence": 1.0
+    },
+    "129": {
+      "mnemonic": "LOAD_CLOSURE",
+      "count": 12375,
+      "total": 12375,
+      "confidence": 1.0
+    },
+    "132": {
+      "mnemonic": "LOAD_FAST",
+      "count": 875497,
+      "total": 875521,
+      "confidence": 1.0
+    },
+    "134": {
+      "mnemonic": "IMPORT_NAME",
+      "count": 19394,
+      "total": 19394,
+      "confidence": 1.0
+    },
+    "135": {
+      "mnemonic": "LIST_EXTEND",
+      "count": 719,
+      "total": 719,
+      "confidence": 1.0
+    },
+    "136": {
+      "mnemonic": "STORE_GLOBAL",
+      "count": 2746,
+      "total": 2746,
+      "confidence": 1.0
+    },
+    "137": {
+      "mnemonic": "UNPACK_SEQUENCE",
+      "count": 15526,
+      "total": 15526,
+      "confidence": 1.0
+    },
+    "138": {
+      "mnemonic": "FORMAT_VALUE",
+      "count": 2521,
+      "total": 2521,
+      "confidence": 1.0
+    },
+    "139": {
+      "mnemonic": "DELETE_FAST",
+      "count": 1602,
+      "total": 1602,
+      "confidence": 1.0
+    },
+    "140": {
+      "mnemonic": "BUILD_SLICE",
+      "count": 1928,
+      "total": 1928,
+      "confidence": 1.0
+    },
+    "141": {
+      "mnemonic": "COPY_FREE_VARS",
+      "count": 7111,
+      "total": 7112,
+      "confidence": 0.9999
+    },
+    "142": {
+      "mnemonic": "POP_JUMP_FORWARD_IF_TRUE",
+      "count": 27777,
+      "total": 27777,
+      "confidence": 1.0
+    },
+    "144": {
+      "mnemonic": "LOAD_METHOD",
+      "count": 221389,
+      "total": 221389,
+      "confidence": 1.0
+    },
+    "145": {
+      "mnemonic": "JUMP_IF_FALSE_OR_POP",
+      "count": 1795,
+      "total": 1795,
+      "confidence": 1.0
+    },
+    "146": {
+      "mnemonic": "RESUME",
+      "count": 91657,
+      "total": 91744,
+      "confidence": 0.9991
+    },
+    "147": {
+      "mnemonic": "STORE_ATTR",
+      "count": 76661,
+      "total": 76661,
+      "confidence": 1.0
+    },
+    "151": {
+      "mnemonic": "POP_JUMP_BACKWARD_IF_FALSE",
+      "count": 273,
+      "total": 273,
+      "confidence": 1.0
+    },
+    "152": {
+      "mnemonic": "IS_OP",
+      "count": 1437,
+      "total": 1437,
+      "confidence": 1.0
+    },
+    "155": {
+      "mnemonic": "LOAD_NAME",
+      "count": 8,
+      "total": 8,
+      "confidence": 1.0
+    },
+    "157": {
+      "mnemonic": "JUMP_BACKWARD",
+      "count": 38378,
+      "total": 38378,
+      "confidence": 1.0
+    },
+    "159": {
+      "mnemonic": "BINARY_OP",
+      "count": 34806,
+      "total": 34806,
+      "confidence": 1.0
+    },
+    "160": {
+      "mnemonic": "EXTENDED_ARG",
+      "count": 48330,
+      "total": 48330,
+      "confidence": 1.0
+    },
+    "161": {
+      "mnemonic": "CALL",
+      "count": 366645,
+      "total": 366645,
+      "confidence": 1.0
+    },
+    "162": {
+      "mnemonic": "IMPORT_FROM",
+      "count": 19627,
+      "total": 19627,
+      "confidence": 1.0
+    },
+    "164": {
+      "mnemonic": "BUILD_LIST",
+      "count": 13377,
+      "total": 13377,
+      "confidence": 1.0
+    },
+    "172": {
+      "mnemonic": "POP_JUMP_BACKWARD_IF_TRUE",
+      "count": 229,
+      "total": 229,
+      "confidence": 1.0
+    },
+    "174": {
+      "mnemonic": "SEND",
+      "count": 1334,
+      "total": 1334,
+      "confidence": 1.0
+    },
+    "178": {
+      "mnemonic": "JUMP_IF_TRUE_OR_POP",
+      "count": 1604,
+      "total": 1604,
+      "confidence": 1.0
+    },
+    "179": {
+      "mnemonic": "LIST_APPEND",
+      "count": 1771,
+      "total": 1771,
+      "confidence": 1.0
+    },
+    "185": {
+      "mnemonic": "RERAISE",
+      "count": 5956,
+      "total": 5956,
+      "confidence": 1.0
+    },
+    "187": {
+      "mnemonic": "LOAD_DEREF",
+      "count": 56452,
+      "total": 56452,
+      "confidence": 1.0
+    },
+    "188": {
+      "mnemonic": "LOAD_GLOBAL",
+      "count": 359002,
+      "total": 359048,
+      "confidence": 0.9999
+    },
+    "192": {
+      "mnemonic": "JUMP_BACKWARD_NO_INTERRUPT",
+      "count": 1334,
+      "total": 1334,
+      "confidence": 1.0
+    },
+    "194": {
+      "mnemonic": "CALL_FUNCTION_EX",
+      "count": 2259,
+      "total": 2259,
+      "confidence": 1.0
+    },
+    "196": {
+      "mnemonic": "POP_JUMP_FORWARD_IF_FALSE",
+      "count": 139659,
+      "total": 139659,
+      "confidence": 1.0
+    },
+    "197": {
+      "mnemonic": "MAP_ADD",
+      "count": 56556,
+      "total": 56556,
+      "confidence": 1.0
+    },
+    "199": {
+      "mnemonic": "BUILD_STRING",
+      "count": 1208,
+      "total": 1208,
+      "confidence": 1.0
+    },
+    "203": {
+      "mnemonic": "BUILD_TUPLE",
+      "count": 16113,
+      "total": 16113,
+      "confidence": 1.0
+    },
+    "205": {
+      "mnemonic": "KW_NAMES",
+      "count": 14205,
+      "total": 14205,
+      "confidence": 1.0
+    },
+    "206": {
+      "mnemonic": "BUILD_CONST_KEY_MAP",
+      "count": 1179,
+      "total": 1179,
+      "confidence": 1.0
+    },
+    "210": {
+      "mnemonic": "POP_JUMP_BACKWARD_IF_NOT_NONE",
+      "count": 3,
+      "total": 3,
+      "confidence": 1.0
+    },
+    "212": {
+      "mnemonic": "STORE_NAME",
+      "count": 32,
+      "total": 32,
+      "confidence": 1.0
+    },
+    "216": {
+      "mnemonic": "PRECALL",
+      "count": 366645,
+      "total": 366645,
+      "confidence": 1.0
+    },
+    "217": {
+      "mnemonic": "CONTAINS_OP",
+      "count": 30150,
+      "total": 30150,
+      "confidence": 1.0
+    },
+    "219": {
+      "mnemonic": "MAKE_FUNCTION",
+      "count": 6837,
+      "total": 6837,
+      "confidence": 1.0
+    },
+    "223": {
+      "mnemonic": "LOAD_CONST",
+      "count": 350339,
+      "total": 350345,
+      "confidence": 1.0
+    },
+    "224": {
+      "mnemonic": "POP_JUMP_FORWARD_IF_NOT_NONE",
+      "count": 4360,
+      "total": 4360,
+      "confidence": 1.0
+    },
+    "229": {
+      "mnemonic": "SET_ADD",
+      "count": 33,
+      "total": 33,
+      "confidence": 1.0
+    },
+    "232": {
+      "mnemonic": "MAKE_CELL",
+      "count": 10511,
+      "total": 10519,
+      "confidence": 0.9992
+    },
+    "234": {
+      "mnemonic": "POP_JUMP_BACKWARD_IF_NONE",
+      "count": 5,
+      "total": 5,
+      "confidence": 1.0
+    },
+    "236": {
+      "mnemonic": "SWAP",
+      "count": 4617,
+      "total": 4617,
+      "confidence": 1.0
+    },
+    "237": {
+      "mnemonic": "POP_JUMP_FORWARD_IF_NONE",
+      "count": 5499,
+      "total": 5499,
+      "confidence": 1.0
+    },
+    "238": {
+      "mnemonic": "GET_AWAITABLE",
+      "count": 1334,
+      "total": 1334,
+      "confidence": 1.0
+    }
+  }
+}
