@@ -19,7 +19,7 @@ export type RawShipRow = [
   number, // [5]  speed 航行速度
   number, // [6]  slot_weapon_max
   number, // [7]  slot_weapon_max2（恒等于[6]）
-  number, // [8]  unknown_f8
+  number, // [8]  ★curvature_speed 曲率速度（9船锚点全验证，之前误标unknown）
   string, // [9]  cost_str 建造成本
   number, // [10] build_cost_total
   number, // [11] ★ship_type 舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列，对照白名单169艘全验证）
@@ -31,7 +31,7 @@ export type RawShipRow = [
   number, // [17] reserved
   number, // [18] reserved
   number, // [19] reserved
-  number, // [20] flag
+  number, // [20] ★aircraft_group_num 编队架数（战机/护航艇>1，主力舰=1）
   number, // [21] size_class ★体型等级
   number, // [22] flag2
   string, // [23] model_code ★模型代号
@@ -46,7 +46,9 @@ export const SHIP = {
   SHIP_CLASS: 3,
   STRUCTURE: 4,
   SPEED: 5,
+  CURVATURE: 8, // ★曲率速度（9船锚点全验证，docs/10 把[8]标成unknown是错的）
   SHIP_TYPE: 11, // ★舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列）
+  AIRCRAFT_GROUP_NUM: 20, // ★编队架数（战机/护航艇>1，主力舰=1；火力=单武器DPS×此值，dump确认）
   SIZE_CLASS: 21,
   MODEL_CODE: 23,
 } as const;
@@ -92,10 +94,25 @@ export interface RawSystemEnhance {
   ENHANCE_LIMIT_TAG?: number;
   /** 默认等级 */
   ENHANCE_DEFAULT_LEVEL?: number;
-  /** 效果类型（2=普通强化，3/5=巅峰附带调校）。仅 optIdx=31-43 的调校槽有值 */
+  /**
+   * ★效果类型（对齐客户端 CfgSystemEnhanceField.EffectType）。
+   * 数据实证（28198 行）：仅值 2/3/5 出现 + 大量缺失（缺失=普通 ENHANCE，等同 1/无值）。
+   *   缺失/无值 = EFFECT_TYPE_ENHANCE（普通强化项，optIdx 01-11）
+   *   2 = ENHANCE/ADJUST（调校槽，optIdx 31-43，特征是带 ADJUST_PROB）
+   *   3 = EFFECT_TYPE_ENHANCE_EX（巅峰强化奖励 EXCLUSIVE，optIdx 70/71，field[1]）
+   *   5 = EFFECT_TYPE_ENHANCE_ADD（巅峰强化奖励 EXCLUSIVE，optIdx 70/71，field[1]）
+   * 客户端 get_enhancement_type 据此三分类：SYSTEM_ENHANCEMENT / SYSTEM_EXTEND / SYSTEM_ADJUST。
+   */
   EFFECT_TYPE?: number;
-  // ===== 调校槽（optIdx=31-43）专用字段 =====
-  /** 调校目标：被调校的强化项 optIdx（1-10） */
+  /**
+   * ★解锁类型（对齐 CfgSystemEnhanceField.UnlockType）。
+   * 数据实证：仅值 2 出现（4343 行）+ 大量缺失（缺失=NONE）。
+   *   缺失/无值/0 = UNLOCK_TYPE_NONE
+   *   2 = UNLOCK_TYPE_RE_TECH（逆向科技/武器技术解锁槽，optIdx 4-12 浮动）
+   */
+  UNLOCK_TYPE?: number;
+  // ===== 调校槽（ADJUST_PROB 特征识别，optIdx 主体 31-43）专用字段 =====
+  /** 调校目标：被调校的父强化项 optIdx（ADJUST_ENHANCE_INDEX，1-13）。父 enhanceId = shipId+slot+pad2(此值) */
   ADJUST_ENHANCE_INDEX?: number;
   /** 调校各级成功率（10级，如 (100,100,100,90,80,70,60,50,25,15)） */
   ADJUST_PROB?: number[];
@@ -143,6 +160,8 @@ export interface ClientDataStore {
   systemSkill?: Record<string, Record<string, unknown>>;
   /** ★强化项科技树前置依赖: key=enhanceId(9位), value=["parents;treeId", flag] */
   systemEnhanceTree?: Record<string, [string, number]>;
+  /** ★EFFECT_ID→三通道映射（frida dump，34条；决定 EID 走 ratio_add/ratio_del/num_add/num_del/base_num_add/base_num_del） */
+  weaponNumAttr?: Record<string, { EFFECT_ATTR_NAME: string; TABLE_NAME: string; EFFECT_TYPE: string }>;
 }
 
 // ===== cfg_ship_type.json（舰种表）=====

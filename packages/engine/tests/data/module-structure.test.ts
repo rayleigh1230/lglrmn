@@ -82,11 +82,11 @@ for (const sid of ['60101', '63501', '66501']) {
   assert(panel.structure === 212954, `${sid} skeleton=212954`);
 }
 
-// ===== 测试4: resolveBlueprint 接收 moduleStructureBonus，强化作用于 skeleton =====
-console.log('\n[测试4] resolveBlueprint 强化作用于 skeleton（含模块）');
+// ===== 测试4: resolveBlueprint 接收 moduleStructureBonus（无强化时模块直接加）=====
+console.log('\n[测试4] resolveBlueprint 无强化时 moduleStructureBonus 直接加');
 {
-  // 60501 + 36052 skeleton=212954，无强化 permille，无装配点（不传 installPoints）
-  // finalStructure = 212954
+  // 60501 + 36052 moduleBonus=32484，无强化 permille，无装配点
+  // finalStructure = enhancedBase(=base, 无强化) + moduleBonus = 180470 + 32484 = 212954
   const bp = resolveBlueprint(store, '60501', '', { moduleStructureBonus: 32484 });
   assert(bp.baseStructure === 180470, `resolver baseStructure=180470 (实际${bp.baseStructure})`);
   assert(bp.moduleStructureBonus === 32484, `resolver moduleStructureBonus=32484 (实际${bp.moduleStructureBonus})`);
@@ -123,6 +123,34 @@ console.log('\n[测试6] 其他装甲模块 PARAM 万分比验证');
   } else {
     console.log('  (跳过: 41202 装甲系统未找到)');
   }
+}
+
+// ===== 测试7: ★缺陷3修复——模块+强化同时存在时，模块比例不被强化放大（对齐 get_ship_hp）=====
+console.log('\n[测试7] 模块+强化共存：模块比例作用于裸 base，不放大（对齐 get_ship_hp）');
+{
+  // 用 60501(base=180470) + moduleBonus=32484(18%) + 一个结构强化(EID=10 万分比)
+  // 找一个能产生结构强化的科技串：CV3000 用的 1131 龙骨II lv5 = 1400‱(14%)
+  //   但 1131 是船级专属，60501 不一定有。改用通用思路：
+  //   直接验证 finalStructure 公式分层，不依赖具体科技串。
+  //
+  // 构造：base=180470, moduleBonus=32484, 强化比例=1400‱(14%)
+  //   旧（错误）：floor((180470+32484)×1.14) = floor(243186.16) = 243186
+  //   新（正确）：floor(180470×1.14) + 32484 = floor(205735.8) + 32484 = 205735 + 32484 = 238219
+  //   差异：模块部分不被 14% 放大（少 4540）
+  //
+  // 用 CV3000(80201) 的科技串产生 1400‱ 强化（1131 lv5），它本身无模块（moduleBonus 由我们传入）
+  const CV_TECH = '8020109,2,1132,5,1,1131,5,3,1210,5,4,1211,5,8,8890,1;';
+  // 上面 1132(1400)+1131(1400)+8890(500) = 3300‱ 结构强化，但 8890 是 direct(500)。
+  // 为了精确控制，只取 1131 单条 = 1400‱。构造最小科技串：
+  const bp = resolveBlueprint(store, '80201', '8020109,2,1131,5;', { moduleStructureBonus: 32484 });
+  // base=278340, 强化=1400‱(14%), moduleBonus=32484
+  const expectedEnhanced = Math.floor(278340 * 1.14); // = 317307.6 → 317307
+  const expectedFinal = expectedEnhanced + 32484;     // 模块末尾加，不放大
+  assert(bp.structureBonusPermille === 1400, `强化比例=1400‱ (实际${bp.structureBonusPermille})`);
+  assert(bp.finalStructure === expectedFinal, `finalStructure=${expectedFinal} 模块不放大 (实际${bp.finalStructure})`);
+  // 反证：旧公式会得到 floor((278340+32484)×1.14)=354394，明显偏大
+  assert(bp.finalStructure !== Math.floor((278340 + 32484) * 1.14), `不等于旧放大公式 ${Math.floor((278340 + 32484) * 1.14)}`);
+  console.log(`  base=278340 强化14% moduleBonus=32484 → final=${bp.finalStructure}（旧放大公式会得${Math.floor((278340 + 32484) * 1.14)}，偏大${Math.floor((278340 + 32484) * 1.14) - bp.finalStructure}）`);
 }
 
 console.log('\n=== 测试完成 ===');

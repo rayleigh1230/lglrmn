@@ -30,6 +30,7 @@ import { SHIP } from './rawTypes.js';
 import { parseTechString, type TechModule } from './techString.js';
 import { computePeakBonus } from './peakLevel.js';
 import { computeTuneBonus } from './tuneSystem.js';
+import type { EffectEntry } from './effectList.js';
 
 /** 万分比基数（A类 PARAM / PERMILLE = 百分比） */
 const PERMILLE = 10000;
@@ -317,13 +318,31 @@ export interface UnresolvedEffect {
 
 /**
  * 蓝图解析结果（里程碑2：含全面板属性）
+ *
+ * ★单位约定（与客户端分层对齐，2026-07-08 审计）：
+ *   - 结构类字段（baseStructure/moduleStructureBonus/finalStructure/peakStructureBonus）：
+ *     绝对值整数，单位=结构点。
+ *   - 比例类面板字段（structureBonusPermille/hitBonus/dodgeBonus/critRate/speedBonus 等）：
+ *     ★万分比（‱），如 1500 = 15.0%。客户端面板按此口径显示。
+ *     这些值由 cfg_system_effect 的 EFFECT_PARAM（万分比）/ PARAM_LEVEL（万分比）直接累加。
+ *   - effectList（EffectEntry.value）：
+ *     ★百分数（%），如 40 = 40%。对齐客户端 calc_effect_add 的 add_ratio 口径，
+ *     effectList.ts 的 EnhanceBasic 公式 (100+add_ratio)/100 直接消费百分数。
+ *   两者不混用：面板字段是 ‱（显示用），effectList 是 %（计算用）。
+ *     转换在产出时已定（resolver 里 lookup.value×100 进面板 ‱；effectList 存原始 % 值）。
  */
 export interface ResolvedBlueprint {
   shipId: string;
   baseStructure: number;
-  /** ★模块结构加成绝对值（Layer1，EID=10 万分比 × base） */
+  /** ★模块结构加成绝对值（Layer3，EID=10 万分比 × base；末尾加，不参与强化放大） */
   moduleStructureBonus: number;
-  /** 强化后结构值 = (base+moduleBonus)×(1+Σ结构万分比/10000) + 巅峰结构绝对值 + 版本号绝对值 */
+  /**
+   * 最终结构值（对齐客户端 get_ship_hp）：
+   *   = floor(base × (1+Σ强化万分比/10000))   // 强化仅作用于 base
+   *   + 巅峰结构绝对值(EFFECT_ID=12)            // 绝对值叠加
+   *   + 版本号绝对值(技术值×ship_hp_add)        // 绝对值叠加
+   *   + moduleStructureBonus                    // 模块比例×base，末尾加，不被放大
+   */
   finalStructure: number;
   /** 结构强化的万分比合计（不含巅峰/版本号绝对值） */
   structureBonusPermille: number;
@@ -417,6 +436,13 @@ export interface ResolvedBlueprint {
   repairEfficiencyBonus: number;
   /** ★损坏后自动维修触发（EFFECT_ID=12250，区别于效率提升） */
   hasDamageRepair: boolean;
+
+  /**
+   * ★统一强化效果表（所有来源：普通+巅峰+调校+模块效果收进同一列表）。
+   * 给 effectList.computeFirepower 逐武器逐 dps_type 查 cfg_weapon_num_attr 分通道。
+   * 对齐客户端 get_effect_list + calc_effect_add 统一架构。
+   */
+  effectList: import('./effectList.js').EffectEntry[];
 
   /** 全部解析出的效果（含已实现与未实现） */
   effects: ResolvedEffect[];
@@ -620,9 +646,30 @@ export function resolveBlueprint(
   let flightTimeReduction = 0;
   let focusFire = false;
   let hasAutoRepair = false;
+  // ★统一强化效果表（对齐客户端 get_effect_list）
+  const effectList: EffectEntry[] = [];
   // 维修类
   let repairEfficiencyBonus = 0; // 维修效率提升（万分比，12050/12249）
   let hasDamageRepair = false; // 损坏后自动维修触发（12250）
+
+  // ★构造 EffectEntry（统一 push 到 effectList）
+  const pushEffectEntry = (
+    effectId: number, value: number, _name: string,
+    effect: RawSystemEffect, slotId: string,
+  ) => {
+    const e = effect as RawSystemEffect & { TARGET_INDEX?: number; TARGET_COMPANY?: number; TARGET_SHIP?: number };
+    effectList.push({
+      effectId, value,
+      sourceSlotId: slotId,
+      targetShip: Number(e.TARGET_SHIP ?? 0),
+      targetSystem: Number(e.TARGET_SYSTEM ?? 0),
+      targetIndex: Number(e.TARGET_INDEX ?? 0),
+      targetModuleType: Number(e.TARGET_MODULE_TYPE ?? 0),
+      targetCompany: Number(e.TARGET_COMPANY ?? 0),
+      isSystemEffect: true,
+    });
+  };
+
   for (const tech of modules) {
     const lookup = lookupEffect(store, tech);
     if (!lookup) {
@@ -646,6 +693,15 @@ export function resolveBlueprint(
       maxLevel: findMaxLevel(store, tech),
       source: lookup.source,
     };
+
+    // ★统一注入 weaponEffects（对齐客户端 get_effect_list + calc_effect_add）：
+    //   客户端把所有 is_enhance_influence_effect_value 的强化项加入 effect_list，
+    //   calc_effect_add 按 attr 查 cfg_weapon_num_attr 动态定通道。
+    //   这里对齐：只要 effectId 在 weaponNumAttr 表里，就 push（通道由 computeFirepower 查表定）。
+    //   不再手动挑 EID——避免漏掉 12062(对空伤害→attack ratio) 这类。
+    if (effectId > 0 && store.weaponNumAttr?.[String(effectId)]) {
+      pushEffectEntry(effectId, lookup.value, resolved.name, lookup.effect, tech.slotId);
+    }
 
     // 按 EFFECT_ID 分发
     switch (effectId) {
@@ -810,19 +866,19 @@ export function resolveBlueprint(
         break;
 
       // ===== 攻击时序类 =====
-      case 12140: // 攻击持续时间提高（B类，万分比）
+      case 12140: // 攻击持续时间提高（B类，万分比）→ duration 节点 +
         attackDurationBonus += lookup.value * 100;
         effects.push(resolved);
         break;
-      case 12141: // 攻击持续时间降低/打击间隔缩短（B类，万分比）
+      case 12141: // 攻击持续时间降低/打击间隔缩短（B类，万分比）→ duration 节点 -
         attackDurationReduction += lookup.value * 100;
         effects.push(resolved);
         break;
-      case 12142: // 攻击次数增加（绝对值，额外弹数）
+      case 12142: // 攻击次数增加（绝对值，额外弹数）→ repeatTimes 节点 +
         attackCountBonus += lookup.value;
         effects.push(resolved);
         break;
-      case 12294: // 飞行时间降低（B类，万分比，投射武器）
+      case 12294: // 飞行时间降低（B类，万分比，投射武器）→ flightBefore/After 节点 -
         flightTimeReduction += lookup.value * 100;
         effects.push(resolved);
         break;
@@ -894,16 +950,30 @@ export function resolveBlueprint(
     repairEfficiencyBonus += tuneBonus.repairBonusPermille;
   }
 
-  // ★分层结构计算：
-  //   Layer0 baseStructure（cfg_ship[4]，出厂值，绝对不改）
-  //   Layer1 moduleStructureBonus（装甲模块 EID=10 万分比 × base，调用方传入）
-  //   skeleton = Layer0 + Layer1（强化系数作用基准——强化作用于完整骨架）
-  //   Layer2 强化/巅峰/技术值 → finalStructure
-  const moduleStructureBonus = options?.moduleStructureBonus ?? 0;
-  const skeletonStructure = baseStructure + moduleStructureBonus;
+  // ★合并巅峰/调校 EffectEntry 到主 effectList（统一架构）
+  effectList.push(...peakBonus.rewardEffectList);
+  if (tuneBonus) effectList.push(...tuneBonus.effectList);
 
-  // finalStructure = floor(skeleton × (1+Σ万分比/10000)) + 巅峰结构绝对值 + 版本号绝对值
-  // 用 floor（向下取整）：36040×1.09=39283.6 → 39283（游戏面板行为）
+  // ★分层结构计算（对齐客户端 common.ship_utils.get_ship_hp）：
+  //   Layer0 baseStructure（cfg_ship[4]，出厂值，绝对不改）
+  //   Layer1 强化系数仅作用于 base（不含模块加成）：
+  //     enhancedBase = floor(base × (1 + Σ强化万分比/10000))
+  //   Layer2 绝对值加成（叠加到 enhancedBase）：
+  //     + 巅峰结构绝对值（field[0] EFFECT_ID=12）
+  //     + 版本号绝对值（技术值 × ship_hp_add）
+  //   Layer3 模块结构加成（★末尾加，不参与强化放大）：
+  //     final = enhancedBase(+绝对值) + moduleStructureBonus
+  //
+  // ★与旧实现的关键差异（缺陷3修复）：
+  //   旧：final = floor((base + moduleBonus) × (1+强化比例)) —— 把 moduleBonus 也放大了
+  //   新：final = floor(base × (1+强化比例)) + 绝对值 + moduleBonus —— 模块比例作用于裸 base，不被放大
+  //   客户端 get_ship_hp：final = int( ship_hp + ship_hp_base × Σmodule_ratio/100 )
+  //   （ship_hp 已含强化 EnhanceBasic 处理；模块部分 base×ratio 末尾加）
+  const moduleStructureBonus = options?.moduleStructureBonus ?? 0;
+
+  // 强化系数仅作用于 base（Layer1）
+  const enhancedBase = Math.floor(baseStructure * (1 + structureBonusPermille / PERMILLE));
+
   // ★版本号计算（总科技点 × 每点结构加成）：
   //   总科技点 = 强化项消耗点(techPoints) + 装配点(countInstallTechPoints)
   //   - 强化项消耗：所有强化项 ENHANCE_COST 累计（不区分效果是否生效）
@@ -922,7 +992,11 @@ export function resolveBlueprint(
       versionBonus = totalTechPoints * shipHpAdd;
     }
   }
-  const finalStructure = Math.floor(skeletonStructure * (1 + structureBonusPermille / PERMILLE)) + peakBonus.structureAbsolute + versionBonus;
+
+  // ★finalStructure（对齐 get_ship_hp 的 int(...) 末尾取整）：
+  //   = enhancedBase + 巅峰绝对值 + 版本号绝对值 + moduleStructureBonus
+  //   moduleStructureBonus 已是 floor(base×ratio/10000)（调用方算好），末尾加不放大
+  const finalStructure = enhancedBase + peakBonus.structureAbsolute + versionBonus + moduleStructureBonus;
 
   return {
     shipId,
@@ -966,6 +1040,7 @@ export function resolveBlueprint(
     flightTimeReduction,
     focusFire,
     hasAutoRepair,
+    effectList,
     repairEfficiencyBonus,
     hasDamageRepair,
     effects,
