@@ -727,6 +727,12 @@ export function resolveBlueprint(
     }
 
     const effectId = lookup.effect.EFFECT_ID ?? -1;
+    // ★对齐反编译 is_enhance_influence_effect_value:
+    //   if Tb_cfg_system_skill.get(effect_id): return False
+    //   技能触发器型强化（effect_id 在 system_skill 表）不产出数值，丢弃。
+    if (effectId > 0 && store.systemSkill?.[String(effectId)]) {
+      continue;
+    }
     const resolved: ResolvedEffect = {
       tech,
       effectId,
