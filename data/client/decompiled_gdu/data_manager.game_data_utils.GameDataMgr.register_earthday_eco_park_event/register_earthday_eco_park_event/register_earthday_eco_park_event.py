@@ -1,0 +1,15 @@
+# Source Generated with Decompyle++
+# File: register_earthday_eco_park_event.pyc (Python 3.11)
+
+self.data_event_mgr.register_data_event(TableID.USER_ECOLOGY_PARK, protocol.INSERT_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.USER_ECOLOGY_PARK, protocol.UPDATE_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.USER_ECOLOGY_PARK, protocol.DEL_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.SYS_ECOLOGY, protocol.INSERT_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.SYS_ECOLOGY, protocol.UPDATE_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.SYS_ECOLOGY, protocol.DEL_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.USER_ECOLOGY_OUTPUT, protocol.GROUPED_INSERT_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.USER_ECOLOGY_OUTPUT, protocol.GROUPED_UPDATE_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.USER_ECOLOGY_OUTPUT, protocol.GROUPED_DEL_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.ECOLOGY_PLANT, protocol.INSERT_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.ECOLOGY_PLANT, protocol.UPDATE_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
+self.data_event_mgr.register_data_event(TableID.ECOLOGY_PLANT, protocol.DEL_DATA_NOTIFY, self._handle_eco_relative_data_change, self.reg_name)
