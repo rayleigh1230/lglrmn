@@ -6,8 +6,8 @@
  * H5: 用 fetch 读静态资源 (config 复制到 dist/config)
  * 小程序: 用 Taro.request 或 require
  */
-import { createClientData, type ClientDataStore, type ClientDataParts } from "@lagrange/engine";
-import { loadWeaponPriority } from "@lagrange/engine";
+import { createClientData, type ClientDataStore, type ClientDataParts } from "../engine";
+import { loadWeaponPriority } from "../engine";
 import { setShipThumbMap, setCompanyMap, type IconManifest } from "./iconResolver";
 
 // 配置表文件名 → ClientDataParts key 的映射 (与 engine/tests/nodeUtils 一致)
@@ -136,6 +136,14 @@ export async function loadStore(): Promise<ClientDataStore> {
     (_store as any).systemAdjustInEnhance = await readJson(CONFIG_BASE + "system_adjust_in_enhance.json");
   } catch {
     console.warn("systemAdjustInEnhance 调校映射未加载");
+  }
+
+  // ★cfg_module（模块表，resolveShipWeapons 读 MODULE_TYPE 用于 TMT 作用域判定）
+  //   不挂载则 moduleType=0 → 针对特定武器类型的强化（炮管/弹药）全部 TMT 匹配失败
+  try {
+    (_store as any).cfgModule = await readJson(CONFIG_BASE + "cfg_module.json");
+  } catch {
+    console.warn("cfgModule 模块表未加载");
   }
 
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");

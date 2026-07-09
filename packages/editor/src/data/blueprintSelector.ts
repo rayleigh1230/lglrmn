@@ -5,9 +5,9 @@
  *   该文件由 docs/舰船列表-已筛选完分类好.md 解析生成(用户人工筛选+分类)
  *   只有白名单内的 bpId 才显示，分类(舰型)也以白名单为准，不再靠关键词推断。
  */
-import type { ClientDataStore } from "@lagrange/engine";
-import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense } from "@lagrange/engine";
-import type { BlueprintPanel } from "@lagrange/engine";
+import type { ClientDataStore } from "../engine";
+import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense } from "../engine";
+import type { BlueprintPanel } from "../engine";
 import { levelsToTechStr } from "./codec";
 
 // ===== 舰型分类(顺序即底部图标栏顺序) =====

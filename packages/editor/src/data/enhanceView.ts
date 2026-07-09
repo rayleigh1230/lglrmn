@@ -8,7 +8,7 @@
  * - 消耗计算（单级 + 加满总额）
  * - 等级显示文本（"2+1/4" 格式）
  */
-import type { ClientDataStore } from "@lagrange/engine";
+import type { ClientDataStore } from "../engine";
 import {
   resolveEnhanceSystem,
   resolveEnhanceTree,
@@ -17,7 +17,7 @@ import {
   type EnhanceSlot,
   type EnhanceSystemSlotInfo,
   type TuneSlot,
-} from "@lagrange/engine";
+} from "../engine";
 import { prefixIcon } from "./iconResolver";
 /** 节点 UI 状态 */
 export type NodeState =

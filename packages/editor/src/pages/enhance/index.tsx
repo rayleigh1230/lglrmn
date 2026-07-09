@@ -7,7 +7,7 @@ import {
   resolveEnhanceSystem,
   isEnhanceAvailable,
   type EnhanceSlot,
-} from "@lagrange/engine";
+} from "../../engine";
 import {
   resolveEnhanceTreeVM,
   resolveSystemNav,

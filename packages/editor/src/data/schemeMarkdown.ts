@@ -13,8 +13,8 @@
  * 重名处理：同一(系统名+强化名)对应多个 enhanceId 时，全部赋同 level
  *   （重名多是同一强化的多节点/科技树链，游戏里靠位置区分，文本无法区分）。
  */
-import type { ClientDataStore } from "@lagrange/engine";
-import { resolveEnhanceSystem } from "@lagrange/engine";
+import type { ClientDataStore } from "../engine";
+import { resolveEnhanceSystem } from "../engine";
 import type { EnhanceLevels } from "../state/enhanceStore";
 
 /** 解析出的 markdown 结构 */

@@ -3,7 +3,7 @@
  * 加载 store + manifest, 提供给所有页面
  */
 import { useState, useEffect, useCallback } from "react";
-import type { ClientDataStore } from "@lagrange/engine";
+import type { ClientDataStore } from "../engine";
 import { loadAll } from "../data/loadStore";
 import { setManifest, type IconManifest } from "../data/iconResolver";
 

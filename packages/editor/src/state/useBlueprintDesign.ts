@@ -4,8 +4,8 @@
  * 派生: resolveBlueprint 结果 + countTechPoints 结果
  */
 import { useState, useMemo, useCallback, useEffect } from "react";
-import type { ClientDataStore } from "@lagrange/engine";
-import { resolveBlueprint, countTechPoints } from "@lagrange/engine";
+import type { ClientDataStore } from "../engine";
+import { resolveBlueprint, countTechPoints } from "../engine";
 import {
   levelsToTechStr,
   type EnhanceLevelState,

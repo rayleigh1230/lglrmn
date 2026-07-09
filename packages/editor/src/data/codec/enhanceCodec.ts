@@ -8,8 +8,8 @@
  *
  * 注：实现从 useBlueprintDesign.ts 迁移而来，逻辑保持不变。
  */
-import type { ClientDataStore } from "@lagrange/engine";
-import { parseTechString } from "@lagrange/engine";
+import type { ClientDataStore } from "../../engine";
+import { parseTechString } from "../../engine";
 
 /** 强化等级映射（enhanceId9位 → level） */
 export interface EnhanceLevelState {
