@@ -453,13 +453,31 @@ export interface ResolvedBlueprint {
 /** 从 systemEnhance 查 maxLevel（ENHANCE_COST 数组长度）。
  * 用 enhanceId 直接查找（由 parseTechString 计算 = slotId + optIdx补零2位）。
  */
+/** 对齐反编译 common.blueprint_utils.get_enhancement_max_level：
+ *   config = Tb_cfg_system_enhance.get(enhance_id)
+ *   if not config: return 1
+ *   if config[UNLOCK_TYPE] != UNLOCK_TYPE_NONE: return 1   ← 需解锁槽(反向科技等)只有1级
+ *   if EFFECT_TYPE in (ADJUST, ADJUST_EX): return len(ADJUST_PROB)   ← 调校槽=10级
+ *   if EFFECT_TYPE in (ENHANCE, ENHANCE_EX, ENHANCE_ADD): return len(ENHANCE_COST)
+ *   默认 1
+ * 用数据特征判断（不依赖枚举值）：有ADJUST_PROB→调校；有ENHANCE_COST→普通强化。
+ * 旧实现只用 ENHANCE_COST.length，漏了调校(ADJUST_PROB=10)和解锁槽(=1)，导致缩放比例错误。
+ */
 function findMaxLevel(
   store: ClientDataStore,
   tech: TechModule
 ): number {
   const enhance = store.systemEnhance[tech.enhanceId];
-  if (enhance) return enhance.ENHANCE_COST?.length ?? 5;
-  return 5; // 默认5级
+  if (!enhance) return 1;
+  // UNLOCK_TYPE != NONE → 1级（反向科技/武器科技解锁槽）
+  if (enhance.UNLOCK_TYPE && Number(enhance.UNLOCK_TYPE) !== 0) return 1;
+  // 调校槽：有 ADJUST_PROB → len(ADJUST_PROB)（通常10）
+  const adjustProb = enhance.ADJUST_PROB;
+  if (Array.isArray(adjustProb) && adjustProb.length > 0) return adjustProb.length;
+  // 普通强化：len(ENHANCE_COST)
+  const cost = enhance.ENHANCE_COST;
+  if (Array.isArray(cost) && cost.length > 0) return cost.length;
+  return 1;
 }
 
 /** 取 PARAM 的"有效后缀"作为满级值。多位编码类取后2位，其他取整个值 */
@@ -500,8 +518,13 @@ function lookupEffect(
 ): EffectLookup | null {
   const { systemEffect } = store;
   const prefix = String(tech.techId);
-  const level = tech.level;
   const maxLevel = findMaxLevel(store, tech);
+  // ★对齐反编译 data.ship_attr_calc.AttrCalcBase.get_effect_list:21
+  //   cur_level = min(level, max_level)
+  //   巅峰等级可能把强化等级抬到 20，但 calc_effect_add 的 max_level 来自
+  //   get_enhancement_max_level（普通强化=len(ENHANCE_COST)=5），cur_level 被 clamp 到 5。
+  //   不 clamp 会导致 B类 value = PARAM * 20 / 5 = 4倍（分位 bug 的根源）。
+  const level = Math.min(tech.level, maxLevel);
   // ★enhance_values 表（frida dump，解决 EFFECT_PARAM 空的伤害类数值来源）
   const enhanceValues = (store as any).enhanceValues as
     | Record<string, Record<string, { value: number; effect_id: number | null }>>
