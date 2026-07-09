@@ -48,6 +48,9 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
     ['systemSkill', 'cfg_system_skill.json'],
     ['systemEnhanceTree', 'cfg_system_enhance_tree.json'],
     ['weaponNumAttr', 'cfg_weapon_num_attr.json'],
+    ['cfgModule', 'cfg_module.json'],
+    ['systemEffectEnhanceData', 'system_effect_enhance_data.json'],
+    ['enhanceValues', 'enhance_values.json'],
   ] as const) {
     try {
       (parts as Record<string, unknown>)[key] = read(dir, file);
@@ -57,11 +60,7 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
   }
   const store = createClientData(parts);
   // ★frida dump 表（editor loadStore 同款，直接挂载到 store）：
-  //   enhance_values：EFFECT_PARAM 空的伤害类数值来源（炮管强化/弹药强化等）
   //   weapon_damage_type：武器 kinetic/energy 分类（scope energy 匹配用）
-  try {
-    (store as any).enhanceValues = read(dir, 'enhance_values.json');
-  } catch { /* 可选，跳过 */ }
   try {
     (store as any).weaponDamageType = read(dir, 'weapon_damage_type.json');
   } catch { /* 可选，跳过 */ }
@@ -74,9 +73,6 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
   // ★调校→父强化映射（frida dump，对齐 SYSTEM_ADJUST_IN_ENHANCE）
   try {
     (store as any).systemAdjustInEnhance = read(dir, 'system_adjust_in_enhance.json');
-  } catch { /* 可选，跳过 */ }
-  try {
-    (store as any).cfgModule = read(dir, 'cfg_module.json');
   } catch { /* 可选，跳过 */ }
   return store;
 }

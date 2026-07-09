@@ -30,6 +30,9 @@ const TABLE_FILES: Record<keyof ClientDataParts, string> = {
   systemSkill: "cfg_system_skill.json",
   systemEnhanceTree: "cfg_system_enhance_tree.json",
   weaponNumAttr: "cfg_weapon_num_attr.json",
+  cfgModule: "cfg_module.json",
+  systemEffectEnhanceData: "system_effect_enhance_data.json",
+  enhanceValues: "enhance_values.json",
 };
 
 // 额外的非引擎配置文件(舰船白名单, 用户人工筛选)
@@ -103,13 +106,6 @@ export async function loadStore(): Promise<ClientDataStore> {
     console.warn("强化项渲染描述表未加载, 占位符将无法替换");
   }
 
-  // 加载强化项数值表(enhanceId+level → {value, effect_id}, 解决PARAM空的伤害类数值来源)
-  try {
-    (_store as any).enhanceValues = await readJson(CONFIG_BASE + "enhance_values.json");
-  } catch {
-    console.warn("强化项数值表未加载, 伤害类强化可能无数值");
-  }
-
   // 加载巅峰强化扩展映射(slotId → optIdx70 peakEnhanceId, 巅峰等级提升maxLevel)
   try {
     (_store as any).peakEnhanceMap = await readJson(CONFIG_BASE + "peak_enhance_map.json");
@@ -137,14 +133,6 @@ export async function loadStore(): Promise<ClientDataStore> {
     (_store as any).systemAdjustInEnhance = await readJson(CONFIG_BASE + "system_adjust_in_enhance.json");
   } catch {
     console.warn("systemAdjustInEnhance 调校映射未加载");
-  }
-
-  // ★cfg_module（模块表，resolveShipWeapons 读 MODULE_TYPE 用于 TMT 作用域判定）
-  //   不挂载则 moduleType=0 → 针对特定武器类型的强化（炮管/弹药）全部 TMT 匹配失败
-  try {
-    (_store as any).cfgModule = await readJson(CONFIG_BASE + "cfg_module.json");
-  } catch {
-    console.warn("cfgModule 模块表未加载");
   }
 
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");

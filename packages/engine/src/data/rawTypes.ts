@@ -24,7 +24,7 @@ export type RawShipRow = [
   number, // [10] build_cost_total
   number, // [11] ★ship_type 舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列，对照白名单169艘全验证）
   number, // [12] ship_type2（恒等于[11]）
-  number, // [13] unknown_f13
+  number, // [13] ★exploit_capacity 指挥值/容量（随舰级递增：航母110000-150000，护卫1000-2200，战机/无人机=0）
   number, // [14] reserved
   number, // [15] reserved
   number, // [16] reserved
@@ -48,6 +48,11 @@ export const SHIP = {
   SPEED: 5,
   CURVATURE: 8, // ★曲率速度（9船锚点全验证，docs/10 把[8]标成unknown是错的）
   SHIP_TYPE: 11, // ★舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列）
+  /** ★指挥值/容量（对齐 CfgShipField.EXPLOIT_CAPACITY = 'exploit_capacity'）。
+   *  实证：航母 110000-150000，战列 150000，护卫 1000-2200，战机/无人机=0。
+   *  注意 docs/10 标为 unknown_f13，但 03_ship_attribute.txt:1497/1517 确认此字段。
+   *  blueprintSelector.ts 旧实现误用 [7]（武器槽数）——已修正为 [13]。 */
+  EXPLOIT_CAPACITY: 13,
   AIRCRAFT_GROUP_NUM: 20, // ★编队架数（战机/护航艇>1，主力舰=1；火力=单武器DPS×此值，dump确认）
   SIZE_CLASS: 21,
   MODEL_CODE: 23,
@@ -148,8 +153,8 @@ export interface ClientDataStore {
   weaponAction: Record<string, unknown[]>;
   /** 武器优先级 */
   weaponPriority: Record<string, unknown[]>;
-  /** 模块效果表 */
-  moduleEffect: Record<string, Record<string, unknown>>;
+  /** 模块效果表（cfg_module_effect.json，key = moduleId+2位序号） */
+  moduleEffect: Record<string, RawModuleEffect>;
   /** 舰船巅峰等级表: key = shipId(5) + peakLv(2), value = [强化串, 70号调校解锁串] */
   shipPeakLevel?: Record<string, [string, string]>;
   /** 巅峰等级经验阈值表: key = 巅峰等级(1-19), value = [等级, 累计经验] */
@@ -166,6 +171,46 @@ export interface ClientDataStore {
    * key=调校enhanceId(9位), value=父强化enhanceId(9位)。
    * is_enhance_influence_effect_value 用它把调校重定向到父强化查 effect。 */
   systemAdjustInEnhance?: Record<string, number>;
+  /** ★模块表（cfg_module.json，frida dump；key = weaponId/moduleId, value=[MODULE_TYPE, ...]）。
+   *  blueprintCalc 读 [0]=MODULE_TYPE 用于 TMT 作用域判定。 */
+  cfgModule?: Record<string, unknown[]>;
+  /** ★系统效果强化数据（system_effect_enhance_data.json，frida dump）。
+   *  key = effect_id，value = 该 effect 关联的 system_effect_id 列表。
+   *  载机 DPS 递归的 _filter_drone_enhance 用它判断强化 effect 链是否触达 DRONE_EFFECT_IDS。 */
+  systemEffectEnhanceData?: Record<string, unknown[]>;
+  /** ★强化项数值表（enhance_values.json，frida dump）：enhanceId+level → {value, effect_id}。
+   *  解决 EFFECT_PARAM 空的伤害类数值来源。 */
+  enhanceValues?: Record<string, unknown>;
+}
+
+// ===== cfg_module_effect.json（模块效果表）=====
+// 格式：{ row_id: {字段} }，row_id = moduleId(5位) + 2位序号（如 4604101 = module 46041 的第 01 条效果）。
+// 客户端 BLUEPRINT_MODULE_EFFECT.get(moduleId) 取该模块全部效果 = row_id 前 5 位匹配。
+export interface RawModuleEffect {
+  /** 效果类型 ID（决定机制，查 effect_def）。
+   *  载机相关（对齐 DRONE_EFFECT_IDS）：
+   *    2020 EFFECT_CARRIER（搭载战机） / 2021 EFFECT_CARRIER_BOAT（搭载护航艇）
+   *    2022 EFFECT_DRONE（搭载无人机） / 2023 EFFECT_ACCOMPANY_DRONE（伴飞无人艇）
+   *    2024 EFFECT_CARRIER_EFFECT_LIMIT（机库容量限制标记，★非载机来源，必须排除）
+   *  容量相关：2034 EFFECT_MODULE_CAPACITY（模块容量基础值）/ 2035 EFFECT_MODULE_CAPACITY_INC（容量比例）。
+   *  来源：data/client/tools/effect_enum_values.json（字节码提取）。 */
+  EFFECT_ID?: number;
+  /** 效果参数。
+   *  载机类（2020-2023）：ship_id = PARAM / 100, num = PARAM % 100。
+   *    注：2020/2021 的 PARAM 为 class*100+count（如 201=中型战机×1）；2022/2023 为具体 ship_id*100+count。 */
+  EFFECT_PARAM?: number;
+  NAME?: string;
+  DESC?: string;
+  DESC_SIMP?: string;
+  /** 目标系统：0=ALL, 1=SELF, 2=MAIN, 3=OTHER */
+  TARGET_SYSTEM?: number;
+  /** 目标队伍 */
+  TARGET_TEAM?: number;
+  /** 目标槽位索引（-1=不限） */
+  TARGET_INDEX?: number;
+  /** 是否显示 */
+  EFFECT_SHOW?: number;
+  [k: string]: unknown;
 }
 
 // ===== cfg_ship_type.json（舰种表）=====

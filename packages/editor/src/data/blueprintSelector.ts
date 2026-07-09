@@ -180,13 +180,15 @@ export interface ShipPanelData {
  *  @param peakLevel 巅峰等级（0-20），提供后聚合巅峰加成（结构/移速）
  *  @param enabledSlots 启用的可选模块 systemId 列表（影响武器装配/属性计算）
  *  @param enhanceLevels 强化项等级映射 { enhanceId: level }，转 techStr 传给 resolver
+ *  @param aircrafts 玩家自选载机覆写（ShipRecord.aircrafts），透传给 computeAircraftDps 双轨入口
  */
 export function getShipPanel(
   store: ClientDataStore,
   bpId: string,
   peakLevel: number = 0,
   enabledSlots: string[] = [],
-  enhanceLevels?: Record<string, number>
+  enhanceLevels?: Record<string, number>,
+  aircrafts?: Record<string, number[]>
 ): ShipPanelData | null {
   const whitelist = (store as any).shipWhitelist ?? _whitelist;
   const entry = whitelist?.[bpId];
@@ -220,7 +222,7 @@ export function getShipPanel(
         techPoints,   // ★使版本号加成（techPoints × shipHpAdd）进入 finalStructure
       })
     : null;
-  const panel = resolveBlueprintPanel(store, entry.shipId, shipName, blueprint, enabledSlots);
+  const panel = resolveBlueprintPanel(store, entry.shipId, shipName, blueprint, enabledSlots, aircrafts);
 
   return {
     bpId,
@@ -229,7 +231,7 @@ export function getShipPanel(
     subTypeName: subType,
     category: entry.category,
     rowLabel: entry.rowLabel || "无",
-    command: Number(shipRow[7] ?? 0),
+    command: Number(shipRow[13] ?? 0),
     shipId: entry.shipId,
     panel,
     techPoints,

@@ -315,8 +315,144 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
 
 
 import { computeFirepower } from './effectList.js';
+import { DPS_TYPE } from './effectList.js';
 // Re-export for backward compatibility (index.ts)
 export { computeFirepower } from './effectList.js';
+
+// ===== 舰载机 DPS 递归（对齐 AttrCalcBase.get_aircraft_dps）=====
+/**
+ * DRONE_EFFECT_IDS —— 对齐客户端 common_definition.DRONE_EFFECT_IDS。
+ *
+ * 数据来源：data/client/tools/effect_enum_values.json（字节码提取常量）。
+ *   2020 EFFECT_CARRIER      搭载战机（机库，PARAM = class*100+count）
+ *   2021 EFFECT_CARRIER_BOAT 搭载护航艇（坞舱，PARAM = count）
+ *   2022 EFFECT_DRONE        搭载无人机（PARAM = ship_id*100+count）
+ *   2023 EFFECT_ACCOMPANY_DRONE 伴飞无人艇（PARAM = ship_id*100+count）
+ *
+ * ★必须排除 2024（EFFECT_CARRIER_EFFECT_LIMIT 机库容量限制标记，非载机来源）。
+ */
+export const DRONE_EFFECT_IDS: ReadonlySet<number> = new Set([2020, 2021, 2022, 2023]);
+
+/**
+ * 计算母舰搭载的舰载机/无人机贡献的 DPS（对齐 AttrCalcBase.get_aircraft_dps）。
+ *
+ * 客户端公式（数值版，get_aircraft_dps.py）：
+ *   total_dps = 0
+ *   for effect_info in all_effects_list:
+ *       if effect_id in DRONE_EFFECT_IDS:
+ *           ship_id = EFFECT_PARAM / 100
+ *           num     = EFFECT_PARAM % 100
+ *           child = BlueprintAttrCalc.prepare_by_ship_id(ship_id)
+ *           child.set_mother_ship_info(system_id, _filter_drone_enhance(母舰 enhanceDic))
+ *           total_dps += child.get_ship_dps(dps_type) * num
+ *
+ * 本实现：
+ *   - 载机 ship_id 当独立船算：resolveShipWeapons(aircraftShipId) → computeFirepower（含其自身 group_num）。
+ *   - 双轨载机来源：
+ *     ① 模块路径（对齐面板）：扫描该舰 cfg_ship_slot 中 cat=0 模块槽，取其 moduleEffect，
+ *        对 EID∈DRONE_EFFECT_IDS 的 effect，ship_id=EFFECT_PARAM/100, num=EFFECT_PARAM%100。
+ *     ② 玩家覆写（aircraftsOverride）：ShipRecord.aircrafts = {shipId: [num,...]}，优先于模块路径。
+ *   - 2020/2021 的 PARAM//100 是战机 class（2/3），不在 cfg_ship → 无法解析具体载机，
+ *     跳过（除非 aircraftsOverride 提供具体 shipId）。2022/2023 是具体 ship_id，可直接解析。
+ *
+ * @param store 配置表存储
+ * @param shipId 母舰 5 位 ship_id
+ * @param enabledSlots 启用的可选模块 systemId 列表（过滤可切换机库，与 resolveShipWeapons 同口径）
+ * @param dpsType 0=对舰/1=对空/2=攻城（对齐 MA_SHIP_DPS/AIR_DPS/COEF_DPS）
+ * @param aircraftsOverride 玩家 ShipRecord.aircrafts 覆写（{shipId:[count,...]}）
+ * @returns 该母舰所有搭载载机贡献的火力（对舰/防空/攻城其一，按 dpsType）
+ */
+export function computeAircraftDps(
+  store: ClientDataStore,
+  shipId: string,
+  enabledSlots: string[] | undefined,
+  dpsType: number,
+  aircraftsOverride?: Record<string, number[]>,
+): number {
+  // 收集载机清单：{shipId: 总数}
+  const aircraftMap = new Map<string, number>();
+
+  if (aircraftsOverride && Object.keys(aircraftsOverride).length > 0) {
+    // 玩家覆写路径：aircrafts = {shipId: [count,...]}（对齐 ShipField.AIRCRAFTS）
+    for (const [shipIdA, counts] of Object.entries(aircraftsOverride)) {
+      if (!shipIdA || !store.ship?.[shipIdA]) continue; // 跳过无效 shipId（含 class 码）
+      const num = Array.isArray(counts) ? counts.reduce((a, b) => a + Number(b || 0), 0) : Number(counts || 0);
+      if (num > 0) aircraftMap.set(shipIdA, (aircraftMap.get(shipIdA) ?? 0) + num);
+    }
+  } else {
+    // 模块路径（对齐 get_aircraft_dps 遍历机库模块 effect）：
+    //   扫描该舰 cfg_ship_slot 中 cat=0 的模块槽，取其 moduleEffect 的 DRONE_EFFECT_IDS 项。
+    const droneEntries = collectDroneEffectsFromShip(store, shipId, enabledSlots);
+    for (const { effectId, param } of droneEntries) {
+      if (!DRONE_EFFECT_IDS.has(effectId)) continue;
+      const aircraftShipId = String(Math.floor(param / 100));
+      const num = param % 100;
+      if (num <= 0) continue;
+      if (!store.ship?.[aircraftShipId]) continue; // 跳过 class 码（2020/2021）
+      aircraftMap.set(aircraftShipId, (aircraftMap.get(aircraftShipId) ?? 0) + num);
+    }
+  }
+
+  if (aircraftMap.size === 0) return 0;
+
+  // 递归：每型载机当独立船算火力 × num
+  let total = 0;
+  for (const [aircraftShipId, num] of aircraftMap) {
+    // ★对齐 prepare_by_ship_id(ship_id) → get_ship_dps(dps_type)
+    const acWeapons = resolveShipWeapons(store, aircraftShipId);
+    if (acWeapons.length === 0) continue;
+    // 母舰强化过滤后透传给载机（_filter_drone_enhance：剥除触达 DRONE_EFFECT_IDS 的强化项）。
+    // 当前简化：载机用空 effectList（其自身模块效果由 resolveShipWeapons 内部 moduleEffect 装配补回），
+    //   因客户端 _filter_drone_enhance 主要影响"影响载机的强化"，而面板基线载机无额外强化。
+    const acFp = computeFirepower(acWeapons, [], store);
+    const dps = dpsType === DPS_TYPE.ANTI_SHIP ? acFp.antiShip
+      : dpsType === DPS_TYPE.ANTI_AIR ? acFp.antiAir
+      : acFp.siege;
+    total += dps * num;
+  }
+  return total;
+}
+
+/**
+ * 扫描该舰 cfg_ship_slot 中 cat=0 模块槽，收集其 moduleEffect 的 DRONE 效果（EID + PARAM）。
+ * 对齐客户端 BLUEPRINT_MODULE_EFFECT.get(module_id) 遍历机库模块效果。
+ */
+function collectDroneEffectsFromShip(
+  store: ClientDataStore,
+  shipId: string,
+  enabledSlots: string[] | undefined,
+): { effectId: number; param: number }[] {
+  const out: { effectId: number; param: number }[] = [];
+  const shipSlot = store.shipSlot as Record<string, unknown[]> | undefined;
+  const moduleEffect = store.moduleEffect as Record<string, Record<string, unknown>> | undefined;
+  const shipSystem = store.shipSystem as Record<string, Record<string, unknown>> | undefined;
+  if (!shipSlot || !moduleEffect) return out;
+  // 启用系统集合（与 resolveShipWeapons 同口径，过滤可切换机库）
+  const enabledSysSet = shipSystem ? resolveEnabledSystems(shipSystem, shipId, enabledSlots) : null;
+  const seenModule = new Set<string>();
+  for (const slotId in shipSlot) {
+    if (!slotId.startsWith(shipId)) continue;
+    const row = shipSlot[slotId];
+    const cat = Number(row[0]); // 0=模块, 1=主武, 2=副武
+    if (cat !== 0) continue; // 只看模块槽（机库/坞舱是 cat=0）
+    const systemId = slotId.slice(0, 7);
+    if (enabledSysSet && !enabledSysSet.has(systemId)) continue;
+    const moduleId = String(row[2]);
+    if (!moduleId || moduleId === "0" || seenModule.has(moduleId)) continue;
+    seenModule.add(moduleId);
+    // moduleEffect key = moduleId(5位) + 2位序号
+    for (const meKey in moduleEffect) {
+      if (!meKey.startsWith(moduleId)) continue;
+      const me = moduleEffect[meKey];
+      const eid = Number(me.EFFECT_ID);
+      if (!DRONE_EFFECT_IDS.has(eid)) continue;
+      const param = Number(me.EFFECT_PARAM);
+      if (!Number.isNaN(param)) out.push({ effectId: eid, param });
+    }
+  }
+  return out;
+}
+
 
 
 // ===== 3. 防御属性 =====
@@ -567,7 +703,9 @@ export function resolveBlueprintPanel(
   shipId: string,
   shipName: string,
   blueprint?: ResolvedBlueprint | null,
-  enabledSlots?: string[]
+  enabledSlots?: string[],
+  /** 玩家自选载机覆写（ShipRecord.aircrafts），非空时优先于机库模块推导。双轨对齐客户端 AIRCRAFTS 装备串。 */
+  aircraftsOverride?: Record<string, number[]>,
 ): BlueprintPanel {
   void shipName; // 兼容旧调用（舰种改用 cfg_ship[11] 字段判定）
   const shipRow = store.ship?.[shipId] as unknown[] | undefined;
@@ -627,6 +765,13 @@ export function resolveBlueprintPanel(
     }
   }
   const firepower = computeFirepower(weapons, effectList, store);
+  // ★舰载机/无人机 DPS 回填（对齐客户端 get_ship_dps: ship_dps = Σweapon×group_num + get_aircraft_dps）。
+  //   get_aircraft_dps 此前是蓝图系统已知缺口（docs/17/21 标记 deferred），现回填进面板火力。
+  //   母舰 effectList 中 EID∈DRONE_EFFECT_IDS 的 effect 即机库搭载载机，递归算载机自身火力×num。
+  //   aircrafts 覆写优先于模块推导（双轨，对齐玩家 AIRCRAFTS 装备串）。
+  firepower.antiShip += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.ANTI_SHIP, aircraftsOverride);
+  firepower.antiAir += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.ANTI_AIR, aircraftsOverride);
+  firepower.siege += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.SIEGE, aircraftsOverride);
   // ★临时诊断
   console.log('[resolveBlueprintPanel-diag] ' + JSON.stringify({
     shipId, bpEffectListLen: blueprint?.effectList?.length ?? 0, finalELLen: effectList.length,

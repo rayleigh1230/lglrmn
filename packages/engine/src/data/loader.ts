@@ -16,6 +16,7 @@ import type {
   RawSystemEnhanceTable,
   RawEffectDefTable,
   RawShipTypeRow,
+  RawModuleEffect,
 } from './rawTypes.js';
 
 /** 配置表各部分的已解析 JSON（调用方负责读取文件并 JSON.parse） */
@@ -33,7 +34,7 @@ export interface ClientDataParts {
   shipBlueprint?: Record<string, unknown[]>;
   weaponAction?: Record<string, unknown[]>;
   weaponPriority?: Record<string, unknown[]>;
-  moduleEffect?: Record<string, Record<string, unknown>>;
+  moduleEffect?: Record<string, RawModuleEffect>;
   /** 扩展表: 巅峰等级/调校系统(可选) */
   shipPeakLevel?: Record<string, [string, string]>;
   blueprintPeakLevel?: Record<string, [number, number]>;
@@ -43,6 +44,12 @@ export interface ClientDataParts {
   systemEnhanceTree?: Record<string, [string, number]>;
   /** ★EFFECT_ID→三通道映射（frida dump 的 cfg_weapon_num_attr，34条；决定 EID 走 ratio_add/num_add 等） */
   weaponNumAttr?: Record<string, { EFFECT_ATTR_NAME: string; TABLE_NAME: string; EFFECT_TYPE: string }>;
+  /** ★模块表（cfg_module.json，frida dump；key=weaponId/moduleId, value=[MODULE_TYPE,...]） */
+  cfgModule?: Record<string, unknown[]>;
+  /** ★系统效果强化数据（system_effect_enhance_data.json，frida dump；载机 DPS 递归过滤用） */
+  systemEffectEnhanceData?: Record<string, unknown[]>;
+  /** ★强化项数值表（enhance_values.json，frida dump；伤害类强化数值来源） */
+  enhanceValues?: Record<string, unknown>;
 }
 
 /**
@@ -71,5 +78,8 @@ export function createClientData(parts: ClientDataParts): ClientDataStore {
     systemSkill: parts.systemSkill,
     systemEnhanceTree: parts.systemEnhanceTree,
     weaponNumAttr: parts.weaponNumAttr,
+    cfgModule: parts.cfgModule,
+    systemEffectEnhanceData: parts.systemEffectEnhanceData,
+    enhanceValues: parts.enhanceValues,
   };
 }

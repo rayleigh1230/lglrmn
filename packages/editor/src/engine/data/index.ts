@@ -21,13 +21,13 @@ export type {
   RawEffectDefRow,
   RawEffectDefTable,
   ClientDataStore,
-} from './rawTypes';
+} from './rawTypes.js';
 
-export { SHIP } from './rawTypes';
+export { SHIP } from './rawTypes.js';
 
-export { createClientData, type ClientDataParts } from './loader';
+export { createClientData, type ClientDataParts } from './loader.js';
 
-export { parseTechString, type TechModule } from './techString';
+export { parseTechString, type TechModule } from './techString.js';
 
 export {
   resolveBlueprint,
@@ -36,7 +36,7 @@ export {
   type UnresolvedEffect,
   type ResolvedBlueprint,
   type BlueprintOptions,
-} from './blueprintResolver';
+} from './blueprintResolver.js';
 
 export {
   resolveAssembly,
@@ -44,7 +44,7 @@ export {
   type AssembledSystem,
   type AssemblyResult,
   type AssemblyError,
-} from './moduleAssembler';
+} from './moduleAssembler.js';
 
 export {
   parseBlock0,
@@ -53,24 +53,26 @@ export {
   parseEnemyBattleData,
   type ParsedShipConfig,
   type HpSample,
-} from './battleReportParser';
+} from './battleReportParser.js';
 
 export {
   countTechPoints,
   type TechPointCost,
   type TechPointSummary,
-} from './techPointCounter';
+} from './techPointCounter.js';
 
 export {
   resolveShipWeapons,
   computeFirepower,
+  computeAircraftDps,
+  DRONE_EFFECT_IDS,
   getBaseDefense,
   resolveBlueprintPanel,
   loadWeaponPriority,
   type AssembledWeapon,
   type WeaponCategory,
   type BlueprintPanel,
-} from './blueprintCalc';
+} from './blueprintCalc.js';
 
 export {
   parsePeakEnhanceString,
@@ -81,7 +83,7 @@ export {
   type PeakEnhanceEntry,
   type PeakSnapshot,
   type PeakBonus,
-} from './peakLevel';
+} from './peakLevel.js';
 
 export {
   resolveTuneSystem,
@@ -91,7 +93,7 @@ export {
   type TuneSlot,
   type ShipTuneSystem,
   type TuneBonus,
-} from './tuneSystem';
+} from './tuneSystem.js';
 
 export {
   resolveEnhanceSystem,
@@ -102,4 +104,18 @@ export {
   type EnhanceSystemSlotInfo,
   type EnhanceAvailability,
   type ShipEnhanceSystem,
-} from './enhanceSystem';
+} from './enhanceSystem.js';
+
+export {
+  resolveFormation,
+  getShipCapacity,
+  getTeamCapacity,
+  validateFormation,
+  type ResolvedFormation,
+  type FormationMember,
+  type FormationCapacity,
+  type FormationValidation,
+  type FormationPanel,
+  type TeamConfigInput,
+  type ShipRecordInput,
+} from './fleetFormation.js';

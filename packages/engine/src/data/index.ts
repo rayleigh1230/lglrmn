@@ -64,6 +64,8 @@ export {
 export {
   resolveShipWeapons,
   computeFirepower,
+  computeAircraftDps,
+  DRONE_EFFECT_IDS,
   getBaseDefense,
   resolveBlueprintPanel,
   loadWeaponPriority,
@@ -103,3 +105,17 @@ export {
   type EnhanceAvailability,
   type ShipEnhanceSystem,
 } from './enhanceSystem.js';
+
+export {
+  resolveFormation,
+  getShipCapacity,
+  getTeamCapacity,
+  validateFormation,
+  type ResolvedFormation,
+  type FormationMember,
+  type FormationCapacity,
+  type FormationValidation,
+  type FormationPanel,
+  type TeamConfigInput,
+  type ShipRecordInput,
+} from './fleetFormation.js';
