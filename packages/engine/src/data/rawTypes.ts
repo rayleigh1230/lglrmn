@@ -162,6 +162,10 @@ export interface ClientDataStore {
   systemEnhanceTree?: Record<string, [string, number]>;
   /** ★EFFECT_ID→三通道映射（frida dump，34条；决定 EID 走 ratio_add/ratio_del/num_add/num_del/base_num_add/base_num_del） */
   weaponNumAttr?: Record<string, { EFFECT_ATTR_NAME: string; TABLE_NAME: string; EFFECT_TYPE: string }>;
+  /** ★调校→父强化映射（frida dump，2262条；对齐客户端 SYSTEM_ADJUST_IN_ENHANCE）。
+   * key=调校enhanceId(9位), value=父强化enhanceId(9位)。
+   * is_enhance_influence_effect_value 用它把调校重定向到父强化查 effect。 */
+  systemAdjustInEnhance?: Record<string, number>;
 }
 
 // ===== cfg_ship_type.json（舰种表）=====

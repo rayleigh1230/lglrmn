@@ -694,7 +694,28 @@ export function resolveBlueprint(
   };
 
   for (const tech of modules) {
-    const lookup = lookupEffect(store, tech);
+    // ★对齐反编译 is_enhance_influence_effect_value：
+    //   if enhance_id in SYSTEM_ADJUST_IN_ENHANCE:
+    //       enhance_id = SYSTEM_ADJUST_IN_ENHANCE[enhance_id]   # 调校 → 父强化
+    //   effect_id = get_enhance_effect_id(enhance_id)           # 用父强化的 prefix 查 effect
+    //   if Tb_cfg_system_skill.get(effect_id): return False     # 技能触发器 → 丢弃
+    //   调校的 level/maxLevel 仍是自己的（cur_level=min(adjust_level, adjust_maxLevel)），
+    //   但 effect_record 用父强化的。不重定向会用调校自身 prefix（多为技能触发器 EID）→ 错误。
+    let lookup: EffectLookup | null;
+    const parentId = (store.systemAdjustInEnhance ?? {})[tech.enhanceId];
+    if (parentId !== undefined) {
+      const parentEnhance = store.systemEnhance[String(parentId)];
+      const parentPrefix = parentEnhance ? Number(parentEnhance.SYSTEM_EFFECT_PREFIX) : 0;
+      if (parentPrefix) {
+        // 用父强化的 prefix 查 effect，但 level/maxLevel 用调校自己的
+        lookup = lookupEffect(store, { ...tech, techId: parentPrefix });
+      } else {
+        // 父强化无记录 → 调校无效，跳过
+        continue;
+      }
+    } else {
+      lookup = lookupEffect(store, tech);
+    }
     if (!lookup) {
       unresolved.push({
         tech,

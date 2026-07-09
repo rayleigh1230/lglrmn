@@ -131,6 +131,13 @@ export async function loadStore(): Promise<ClientDataStore> {
     console.warn("weaponNumAttr 三通道映射未加载");
   }
 
+  // 加载调校→父强化映射(frida dump, 对齐 SYSTEM_ADJUST_IN_ENHANCE)
+  try {
+    (_store as any).systemAdjustInEnhance = await readJson(CONFIG_BASE + "system_adjust_in_enhance.json");
+  } catch {
+    console.warn("systemAdjustInEnhance 调校映射未加载");
+  }
+
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
 
   // 加载武器优先级表（火力计算用）

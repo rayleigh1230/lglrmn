@@ -71,6 +71,10 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
   try {
     (store as any).weaponNumAttr = read(dir, 'cfg_weapon_num_attr.json');
   } catch { /* 可选，跳过 */ }
+  // ★调校→父强化映射（frida dump，对齐 SYSTEM_ADJUST_IN_ENHANCE）
+  try {
+    (store as any).systemAdjustInEnhance = read(dir, 'system_adjust_in_enhance.json');
+  } catch { /* 可选，跳过 */ }
   try {
     (store as any).cfgModule = read(dir, 'cfg_module.json');
   } catch { /* 可选，跳过 */ }
