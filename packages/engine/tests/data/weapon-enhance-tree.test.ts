@@ -5,7 +5,7 @@ import type { AssembledWeapon } from '../../src/data/blueprintCalc.js';
 import type { EffectEntry } from '../../src/data/effectList.js';
 
 function makeW(p: Partial<AssembledWeapon>): AssembledWeapon {
-  return { weaponId:'',systemId:'',systemLabel:'',slotId:'301010101',shipType:3,dph:100,attackRounds:1,attackCount:1,installNum:1,antiaircraftRatio:0,shotsPerCycle:1,fireDuration:1,cooldown:4,flightBefore:0,flightAfter:0,weaponType:3,tmt:201,actionType:2,specialTargetLogic:2,destroyCoef:0,aircraftCoef:100,airBaseBonus:0,airCdReduction:0,airDurReduction:0,isAirborne:false,damageType:'kinetic',canTargetShip:true,canTargetAircraft:false,canTargetDestroy:false,category:'antiShip',modDamageInc:0,modAircraftInc:0,modDestroyInc:0,...p };
+  return { weaponId:'',systemId:'',systemLabel:'',slotId:'301010101',shipType:3,dph:100,attackRounds:1,attackCount:1,installNum:1,antiaircraftRatio:0,shotsPerCycle:1,fireDuration:1,cooldown:4,flightBefore:0,flightAfter:0,weaponType:3,tmt:201,actionType:2,specialTargetLogic:2,destroyCoef:0,aircraftCoef:100,airBaseBonus:0,airCdSkillRatio:0,airDurSkillRatio:0,isAirborne:false,damageType:'kinetic',canTargetShip:true,canTargetAircraft:false,canTargetDestroy:false,category:'antiShip',modDamageInc:0,modAircraftInc:0,modDestroyInc:0,...p };
 }
 
 const WNA = { '12020':{EFFECT_ATTR_NAME:'action_param',TABLE_NAME:'cfg_weapon_action',EFFECT_TYPE:'ratio_add'},'12041':{EFFECT_ATTR_NAME:'cd_time',TABLE_NAME:'cfg_weapon',EFFECT_TYPE:'ratio_del'},'12141':{EFFECT_ATTR_NAME:'duration',TABLE_NAME:'cfg_weapon_action',EFFECT_TYPE:'ratio_del'},'12142':{EFFECT_ATTR_NAME:'repeat_times',TABLE_NAME:'cfg_weapon_action',EFFECT_TYPE:'num_add'},'12294':{EFFECT_ATTR_NAME:'flight_time_before_cd',TABLE_NAME:'cfg_weapon',EFFECT_TYPE:'ratio_del'} } as any;

@@ -32,8 +32,14 @@ export interface AssembledWeapon {
   destroyCoef: number;    // 攻城系数（cfg_weapon.DESTROY_COEF，如14）
   aircraftCoef: number;   // 对空系数（cfg_weapon.AIRCRAFT_COEF，如100）
   airBaseBonus: number;   // 对空基础单发增加（module_effect EID=12300，防空专用固定增伤）
-  airCdReduction: number; // 对空冷却时间下降（module_effect EID=12306，万分比/100，如40=降40%）
-  airDurReduction: number;// 对空攻击持续时间下降（module_effect EID=12311，万分比/100）
+  // ★对空 skill_effect_ratio 通道（对齐 collect_skill_effect_ratio + get_module_effect_real_value）：
+  //   对 MA_MODULE_AIR_DPS，duration/cd 走 (100+add_ratio+skill_ratio)/100，skill_ratio 由模块
+  //   EFFECT_AIRCRAFT_WEAPON_DURATION_INC(12310)+DEC(12311) / CD_TIME_INC(12305)+DEC(12306) 合成。
+  //   DEC 经 get_module_effect_real_value 取负 → 这里的值 = INC_param − DEC_param（带符号，如−40=降低40%）。
+  //   旧字段名 airCdReduction/airDurReduction（只存 DEC_param、在 effectList 里减）已改为此带符号值，
+  //   在 effectList 里改为「加 skillRatio」，数值上等价（−DEC_param == +(−DEC_param)），且补全了之前漏掉的 INC。
+  airCdSkillRatio: number; // 对空冷却 skill_ratio = CD_TIME_INC(12305) − CD_TIME_DEC(12306)
+  airDurSkillRatio: number;// 对空持续 skill_ratio = DURATION_INC(12310) − DURATION_DEC(12311)
   isAirborne: boolean;    // 是否机载（战机/艇自身 或 无人机/载机系统的武器）
   damageType: string;     // ★伤害类型('kinetic'实弹/'energy'能量, 来自weapon_action[3])
   canTargetShip: boolean;     // ★是否对舰(weapon_priority_target_ship)
@@ -216,16 +222,19 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
     const aircraftCoef = Number(w.AIRCRAFT_COEF) || 0;
 
     // 对空基础单发增加（module_effect EID=12300，防空专用固定增伤词条）
-    // 对空冷却时间下降（EID=12306，防空高速高效循环）
-    // 对空攻击持续时间下降（EID=12311，防空高效打击）
+    // ★对空 skill_effect_ratio 通道（对齐反编译 collect_skill_effect_ratio）：
+    //   对 MA_MODULE_AIR_DPS，duration/cd 走 (100+add_ratio+skill_ratio)/100。
+    //   skill_ratio = INC_param − DEC_param（DEC 经 get_module_effect_real_value 取负）：
+    //     duration: DURATION_INC(12310) + DURATION_DEC(12311→取负)
+    //     cd:       CD_TIME_INC(12305)   + CD_TIME_DEC(12306→取负)
+    //   注：这4个 EID 不在 weapon_num_attr（不走三通道 getEnhanceAdd），是模块自带原值直接进 skill_ratio。
     // ★V_SKILL_EFFECT_RATIO 通道（对齐 get_weapon_attack_calc 的 get_module_effect_ori_value_info）：
     //   EFFECT_DAMAGE_INC(12020, 所有 dpsType) + EFFECT_AIRCRAFT_INC(12062, 对空) + EFFECT_DESTROY_INC(12060, 攻城)
     //   这些是武器**模块自带**的 cfg_module_effect 原值（不缩放），绑到 V_SKILL_EFFECT_RATIO。
     //   普通武器无此3类模块效果 → 0（锚点武器不受影响）。
     // key = weaponId + 序号(01/02/03...)，遍历该武器的所有 module_effect
     let airBaseBonus = 0;
-    let airCdReduction = 0;
-    let airDurReduction = 0;
+    let cdInc = 0, cdDec = 0, durInc = 0, durDec = 0;  // 12305/12306/12310/12311 原值，下面合成带符号 skill_ratio
     let modDamageInc = 0;   // EFFECT_DAMAGE_INC(12020) 模块原值（所有 dpsType 的 V_SKILL_EFFECT_RATIO 基底）
     let modAircraftInc = 0; // EFFECT_AIRCRAFT_INC(12062) 模块原值（对空 V_SKILL_EFFECT_RATIO 追加）
     let modDestroyInc = 0;  // EFFECT_DESTROY_INC(12060) 模块原值（攻城 V_SKILL_EFFECT_RATIO 追加）
@@ -237,13 +246,18 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
         const eid = Number(me.EFFECT_ID);
         const param = Number(me.EFFECT_PARAM) || 0;
         if (eid === 12300) airBaseBonus = param;        // 对空基础单发增加
-        else if (eid === 12306) airCdReduction = param; // 对空冷却时间下降(%)
-        else if (eid === 12311) airDurReduction = param;// 对空攻击持续时间下降(%)
+        else if (eid === 12305) cdInc = param;          // EFFECT_AIRCRAFT_CD_TIME_INC（+）
+        else if (eid === 12306) cdDec = param;          // EFFECT_AIRCRAFT_CD_TIME_DEC（取负）
+        else if (eid === 12310) durInc = param;         // EFFECT_AIRCRAFT_WEAPON_DURATION_INC（+）
+        else if (eid === 12311) durDec = param;         // EFFECT_AIRCRAFT_WEAPON_DURATION_DEC（取负）
         else if (eid === 12020) modDamageInc = param;   // ★EFFECT_DAMAGE_INC（伤害提升，模块自带）
         else if (eid === 12062) modAircraftInc = param; // ★EFFECT_AIRCRAFT_INC（对空伤害提高，模块自带）
         else if (eid === 12060) modDestroyInc = param;  // ★EFFECT_DESTROY_INC（攻城伤害提高，模块自带）
       }
     }
+    // 合成带符号 skill_ratio（DEC 取负）：duration = DUR_INC − DUR_DEC，cd = CD_INC − CD_DEC
+    const airDurSkillRatio = durInc - durDec;
+    const airCdSkillRatio = cdInc - cdDec;
 
     // 找所属子系统: slotId 前7位 = systemId
     const systemId = slotId.slice(0, 7);
@@ -283,8 +297,8 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
       destroyCoef,
       aircraftCoef,
       airBaseBonus,
-      airCdReduction,
-      airDurReduction,
+      airCdSkillRatio,
+      airDurSkillRatio,
       isAirborne,
       damageType: (store as any).weaponDamageType?.[weaponId] ?? 'kinetic',
       canTargetShip: _priorityShip.has(Number(weaponId)),

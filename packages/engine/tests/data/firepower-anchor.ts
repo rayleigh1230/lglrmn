@@ -58,7 +58,7 @@ function makeW(partial: Partial<W>): W {
     dph: 0, attackRounds: 1, attackCount: 1, installNum: 1, antiaircraftRatio: 0,
     shotsPerCycle: 1, fireDuration: 0, cooldown: 0, flightBefore: 0, flightAfter: 0,
     weaponType: 0, tmt: 0, actionType: 2, specialTargetLogic: 0,
-    destroyCoef: 0, aircraftCoef: 0, airBaseBonus: 0, airCdReduction: 0, airDurReduction: 0,
+    destroyCoef: 0, aircraftCoef: 0, airBaseBonus: 0, airCdSkillRatio: 0, airDurSkillRatio: 0,
     isAirborne: false, damageType: 'kinetic',
     canTargetShip: true, canTargetAircraft: false, canTargetDestroy: false,
     category: 'antiShip' as const,
@@ -98,15 +98,16 @@ assert(fp16033.siege === 1134, `16033攻城=1134 (实际${fp16033.siege})`);
 
 // 澄海级防空护卫舰31203 - 防空专用词条验证
 console.log('\n[澄海级防空护卫舰 / 31203 - 防空专用词条]');
-// W13124: air=1440 (action=(4,2,20,1,4000), install=2, aa=150, cd=6, airBaseBonus=60, airCdReduction=40, airDurReduction=40)
+// W13124: air=1440 (action=(4,2,20,1,4000), install=2, aa=150, cd=6, airBaseBonus=60, airCdSkillRatio=-40, airDurSkillRatio=-40)
 // 防空高速高效循环(EID=12306降CD40%) + 防空高效打击(EID=12311降dur40%)
-const w13124 = makeW({ dph: 20, attackRounds: 4, attackCount: 1, installNum: 2, fireDuration: 4, cooldown: 6, aircraftCoef: 100, antiaircraftRatio: 150, airBaseBonus: 60, airCdReduction: 40, airDurReduction: 40, canTargetShip: false, canTargetAircraft: true, canTargetDestroy: false });
+// skill_ratio = INC−DEC = 0−40 = −40（数值等价旧 airCdReduction:40 的减法）
+const w13124 = makeW({ dph: 20, attackRounds: 4, attackCount: 1, installNum: 2, fireDuration: 4, cooldown: 6, aircraftCoef: 100, antiaircraftRatio: 150, airBaseBonus: 60, airCdSkillRatio: -40, airDurSkillRatio: -40, canTargetShip: false, canTargetAircraft: true, canTargetDestroy: false });
 const fp13124 = computeFirepower([w13124], [], store);
 console.log(`  13124: 防空=${fp13124.antiAir}`);
 assert(Math.abs(fp13124.antiAir - 1440) <= 1, `13124防空=1440 (实际${fp13124.antiAir})`);
 
-// W13122: air=374 (action=(3,2,15,1,3000), install=2, aa=150, cd=3, airBaseBonus=10, airCdReduction=10, airDurReduction=10)
-const w13122 = makeW({ dph: 15, attackRounds: 3, attackCount: 1, installNum: 2, fireDuration: 3, cooldown: 3, aircraftCoef: 100, antiaircraftRatio: 150, airBaseBonus: 10, airCdReduction: 10, airDurReduction: 10, canTargetShip: false, canTargetAircraft: true, canTargetDestroy: false });
+// W13122: air=374 (action=(3,2,15,1,3000), install=2, aa=150, cd=3, airBaseBonus=10, airCdSkillRatio=-10, airDurSkillRatio=-10)
+const w13122 = makeW({ dph: 15, attackRounds: 3, attackCount: 1, installNum: 2, fireDuration: 3, cooldown: 3, aircraftCoef: 100, antiaircraftRatio: 150, airBaseBonus: 10, airCdSkillRatio: -10, airDurSkillRatio: -10, canTargetShip: false, canTargetAircraft: true, canTargetDestroy: false });
 const fp13122 = computeFirepower([w13122], [], store);
 console.log(`  13122: 防空=${fp13122.antiAir}`);
 assert(Math.abs(fp13122.antiAir - 375) <= 2, `13122防空≈375 (实际${fp13122.antiAir})`);

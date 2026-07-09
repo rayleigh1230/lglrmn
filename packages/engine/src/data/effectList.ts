@@ -51,9 +51,11 @@ const ALL_ANTIAIR_EFFECT_IDS = new Set([
   12411, 12412, 12413,
 ]);
 
-/** TODO: 对空专用 CD/duration EID（客户端 common_duration_query_calc 的 skill_effect_ratio 通道） */
-// const AIR_CD_EFFECT_IDS = new Set([13002, 13003]);
-// const AIR_DUR_EFFECT_IDS = new Set([13004, 13005]);
+/** 对空 skill_effect_ratio 通道（已实现，对齐反编译 collect_skill_effect_ratio）：
+ *  对 MA_MODULE_AIR_DPS，duration/cd 走 (100+add_ratio+skill_ratio)/100，其中 skill_ratio 来自模块
+ *  EFFECT_AIRCRAFT_WEAPON_DURATION_INC(12310)+DEC(12311) / CD_TIME_INC(12305)+DEC(12306)，
+ *  DEC 取负。这些 EID 不进 weaponNumAttr 三通道，在 blueprintCalc.ts 装配时合成 airDurSkillRatio/airCdSkillRatio，
+ *  在 computeWeaponDps 的 duration/cd 通道传入 evalEnhanceBasic 的 skillRatio 参数。 */
 
 // ===== attr 匹配（对齐 calc_effect_add 的 ATTR/TABLE 检查）=====
 function attrMatch(attr: string, rec: { EFFECT_ATTR_NAME: string; TABLE_NAME: string }): boolean {
@@ -127,10 +129,14 @@ function isValidEffect(
   return true;
 }
 
-// ===== evalEnhanceBasic（对齐 EnhanceBasic.expression）=====
-/** EnhanceBasic.expression: (base+addBase)*(100+addRatio)/100 + addNum */
-function evalEnhanceBasic(base: number, addBase: number, addRatio: number, addNum: number): number {
-  return (base + addBase) * (100 + addRatio) / 100 + addNum;
+// ===== evalEnhanceBasic（对齐 EnhanceBasic.expression + get_after_system_effect_value）=====
+/** 完整公式（对齐反编译 get_after_system_effect_value）：
+ *   ret = (base + addBase) × (100 + addRatio + skillRatio) / 100 + addNum
+ *   skillRatio 默认 0（大多数 attr 无 skill_effect_ratio 通道）。
+ *   只有防空的 duration/cd_time 两类 attr 有非零 skillRatio（来自 collect_skill_effect_ratio）。
+ */
+function evalEnhanceBasic(base: number, addBase: number, addRatio: number, addNum: number, skillRatio = 0): number {
+  return (base + addBase) * (100 + addRatio + skillRatio) / 100 + addNum;
 }
 
 // ===== getEnhanceAdd（对齐 calc_effect_add + get_cur_enhance_add_info）=====
@@ -285,15 +291,17 @@ function computeWeaponDps(
 
   // duration（毫秒值走 EnhanceBasic / 1000）
   const durCh = getEnhanceAdd(effectList, 'duration', new Set(), w, shipSystem, shipSlot, weaponNumAttr);
-  // ★防空专用 airDurReduction（模块 EID=12311，不进 effectList，直接进 ratio 通道）
-  const durAddRatio = durCh.addRatio - (dpsType === DPS_TYPE.ANTI_AIR ? w.airDurReduction : 0);
-  const duration = evalEnhanceBasic(w.fireDuration * 1000, durCh.addBase, durAddRatio, durCh.addNum) / 1000;
+  // ★防空 skill_effect_ratio 通道（对齐 collect_skill_effect_ratio）：
+  //   对 MA_MODULE_AIR_DPS，duration 走 (100+add_ratio+skill_ratio)/100，skill_ratio = DUR_INC(12310)−DUR_DEC(12311)。
+  //   旧实现把 airDurReduction(=DUR_DEC) 从 addRatio 减 —— 数值等价（仅 DEC 时），但漏了 INC。现已合成带符号 skill_ratio。
+  const durSkillRatio = dpsType === DPS_TYPE.ANTI_AIR ? w.airDurSkillRatio : 0;
+  const duration = evalEnhanceBasic(w.fireDuration * 1000, durCh.addBase, durCh.addRatio, durCh.addNum, durSkillRatio) / 1000;
 
   // cd_time
   const cdCh = getEnhanceAdd(effectList, 'cd_time', new Set(), w, shipSystem, shipSlot, weaponNumAttr);
-  // ★防空专用 airCdReduction（模块 EID=12306）
-  const cdAddRatio = cdCh.addRatio - (dpsType === DPS_TYPE.ANTI_AIR ? w.airCdReduction : 0);
-  const cdTime = evalEnhanceBasic(w.cooldown * 1000, cdCh.addBase, cdAddRatio, cdCh.addNum) / 1000;
+  // ★防空 skill_effect_ratio：cd 走 (100+add_ratio+skill_ratio)/100，skill_ratio = CD_INC(12305)−CD_DEC(12306)
+  const cdSkillRatio = dpsType === DPS_TYPE.ANTI_AIR ? w.airCdSkillRatio : 0;
+  const cdTime = evalEnhanceBasic(w.cooldown * 1000, cdCh.addBase, cdCh.addRatio, cdCh.addNum, cdSkillRatio) / 1000;
 
   // flight_before / flight_after（共享 flight_time_before_cd 通道）
   const flCh = getEnhanceAdd(effectList, 'flight_time_before_cd', new Set(), w, shipSystem, shipSlot, weaponNumAttr);
