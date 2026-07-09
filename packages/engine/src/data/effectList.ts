@@ -178,23 +178,6 @@ function getEnhanceAdd(
   return { addBase, addNum, addRatio };
 }
 
-/** 对指定 valid EID 集合取 addRatio 求和（对齐对空 skill_effect_ratio 通道） */
-function sumSkillRatio(
-  effectList: EffectEntry[],
-  validEidSet: Set<number>,
-  w: AssembledWeapon,
-  shipSystem?: Record<string, Record<string, unknown>>,
-  shipSlot?: Record<string, unknown[]>,
-): number {
-  let r = 0;
-  for (const e of effectList) {
-    if (!validEidSet.has(e.effectId)) continue;
-    if (!isValidEffect(e, w, w.slotId, shipSystem, shipSlot)) continue;
-    r += e.value;
-  }
-  return r;
-}
-
 // ===== attack 配置（对齐 get_weapon_attack_calc 的 per-dps_type 分支）=====
 interface AttackConfig {
   invalidEffectIds: Set<number>;  // invalid_effect_list
@@ -245,24 +228,25 @@ function evalAttack(
   const cfg = buildAttackConfig(dpsType, w);
   // 三通道（含 invalid 排除）
   const { addBase, addNum, addRatio } = getEnhanceAdd(effectList, 'action_param', cfg.invalidEffectIds, w, shipSystem, shipSlot, weaponNumAttr);
-  // V_SKILL_EFFECT（对空的 ALL_ANIT_AIR 组 → base 通道）
-  let skillBase = cfg.skillBaseEidSet.size > 0
-    ? sumSkillRatio(effectList, cfg.skillBaseEidSet, w, shipSystem, shipSlot) : 0;
-  // 模块 airBaseBonus（EID=12300，不进 effectList，直接 +dph）
-  if (dpsType === DPS_TYPE.ANTI_AIR) skillBase += w.airBaseBonus;
-  // ★V_SKILL_EFFECT_RATIO（对齐 get_weapon_attack_calc 的 skill_effect_ratio 绑定）：
-  //   客户端从武器**模块自带** cfg_module_effect 取原值（get_module_effect_ori_value_info，不缩放）：
+  // ★对齐反编译 get_weapon_attack_calc + get_weapon_action_attr_value_calc：
+  //   add_single_firepower_by_effect（对空 EFFECT_AIRCRAFT_WEAPON_ATTKACK_ADD=12300）加到 base_value(dph)。
+  //   旧实现把 airBaseBonus 当 skillBase 加到 base，又用 sumSkillRatio(ALL_ANTIAIR) 重复算——错误。
+  //   ALL_ANTIAIR_EFFECT_IDS 在客户端不通过 effectList 产出（这些 EID 不在 weaponNumAttr），
+  //   12300 通过 add_by_effect 单独加 base。
+  const baseValue = w.dph + (dpsType === DPS_TYPE.ANTI_AIR ? w.airBaseBonus : 0);
+  // ★V_SKILL_EFFECT_RATIO（对齐 get_weapon_attack_calc 的 add_ratio 参数）：
+  //   模块自带原值（get_module_effect_ori_value_info，不缩放）：
   //     所有 dpsType: EFFECT_DAMAGE_INC(12020) = w.modDamageInc
   //     对空追加: EFFECT_AIRCRAFT_INC(12062) = w.modAircraftInc
   //     攻城追加: EFFECT_DESTROY_INC(12060) = w.modDestroyInc
-  //   旧实现 skillRatio=0 → 这3类模块加成全丢（仅影响有此效果的武器，普通武器为0不影响锺点）。
   let skillRatio = w.modDamageInc;
   if (dpsType === DPS_TYPE.ANTI_AIR) skillRatio += w.modAircraftInc;
   else if (dpsType === DPS_TYPE.SIEGE) skillRatio += w.modDestroyInc;
 
-  // AttackCalculator.expression
+  // get_after_system_effect_value: (base + add_base) × (100 + add_ratio + skill_ratio)/100 + add_num
+  // 然后 get_weapon_attack_calc: × ratio/100
   return (cfg.ratio / 100) * (
-    (w.dph + addBase + skillBase) * (100 + addRatio + skillRatio) / 100 + addNum
+    (baseValue + addBase) * (100 + addRatio + skillRatio) / 100 + addNum
   );
 }
 
