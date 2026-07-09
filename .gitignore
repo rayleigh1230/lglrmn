@@ -40,3 +40,6 @@ __pycache__/
 
 # 截图/临时
 正确的显示界面.png
+dumped/
+.zcode/
+.test_simple.py

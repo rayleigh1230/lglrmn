@@ -627,6 +627,12 @@ export function resolveBlueprintPanel(
     }
   }
   const firepower = computeFirepower(weapons, effectList, store);
+  // ★临时诊断
+  console.log('[resolveBlueprintPanel-diag] ' + JSON.stringify({
+    shipId, bpEffectListLen: blueprint?.effectList?.length ?? 0, finalELLen: effectList.length,
+    wnaLen: (store as any).weaponNumAttr ? Object.keys((store as any).weaponNumAttr).length : 0,
+    weaponCount: weapons.length, fp: firepower,
+  }));
 
   // ★受维修量提升（百分比）= 装甲抵抗值 × 舰种系数(REPAIR_ADJUST_COEF)
   // 装甲抵抗 = 模块EID=10033 + 强化EID=10033（不含ship_type基础抵抗）
