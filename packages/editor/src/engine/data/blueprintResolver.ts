@@ -442,7 +442,7 @@ export interface ResolvedBlueprint {
    * 给 effectList.computeFirepower 逐武器逐 dps_type 查 cfg_weapon_num_attr 分通道。
    * 对齐客户端 get_effect_list + calc_effect_add 统一架构。
    */
-  effectList: import('./effectList').EffectEntry[];
+  effectList: import('./effectList.js').EffectEntry[];
 
   /** 全部解析出的效果（含已实现与未实现） */
   effects: ResolvedEffect[];
@@ -478,6 +478,55 @@ function findMaxLevel(
   const cost = enhance.ENHANCE_COST;
   if (Array.isArray(cost) && cost.length > 0) return cost.length;
   return 1;
+}
+
+/**
+ * ★计算 B 型强化项（有 ex 项 optIdx70/71）超 maxLevel 部分的额外数值。
+ *
+ * 机制：普通强化项 optIdx01 的 PARAM_LEVEL 只有 maxLevel(5) 档，玩家点满到第 6/7 级时，
+ * 超出 maxLevel 的部分数值来自对应的 ex 项 optIdx70 的 PARAM_LEVEL（前 N 行，N=超出级数）。
+ * ex 项通过 ADJUST_ENHANCE_INDEX 反向匹配（ex 项的 ADJ == 普通项 optIdx）。
+ *
+ * 例：斗牛 405010201(optIdx01) maxLevel=5，玩家点到 7 级 → 超出 2 级 →
+ *   ex 项 405010270 的 PARAM_LEVEL 第 1,2 行(100,200) → 额外 +300。
+ *
+ * @param store 配置数据
+ * @param tech 普通强化项（enhanceId/optIdx/slotId/level）
+ * @param baseMaxLevel 普通项的 maxLevel（findMaxLevel 结果）
+ * @param baseValue 普通项按 clamp 后 level 取的数值（lookupEffect.value）
+ * @returns 超出部分的额外数值（A类 PARAM_LEVEL 累加；无 ex 项或未超 maxLevel 返回 0）
+ */
+function computePeakExtraValue(
+  store: ClientDataStore,
+  tech: TechModule,
+  baseMaxLevel: number,
+  baseValue: number
+): number {
+  const overLevel = tech.level - baseMaxLevel;
+  if (overLevel <= 0) return 0;
+  const sysEnh = store.systemEnhance;
+  if (!sysEnh) return 0;
+  // 找 ex 项：slotId + 70/71，其 ADJUST_ENHANCE_INDEX == tech.optIdx
+  const slotId = tech.slotId;
+  for (let oi = 70; oi <= 71; oi++) {
+    const exId = slotId + String(oi).padStart(2, '0');
+    const exRec = sysEnh[exId];
+    if (!exRec) continue;
+    if (Number(exRec.ADJUST_ENHANCE_INDEX) !== tech.optIdx) continue;
+    // 找到 ex 项，查它的 effect 表（SYSTEM_EFFECT_PREFIX + '01'）
+    const exPrefix = Number(exRec.SYSTEM_EFFECT_PREFIX);
+    if (!exPrefix) break;
+    const exEff = store.systemEffect[String(exPrefix) + '01'];
+    if (!exEff || !exEff.EFFECT_PARAM_LEVEL) break;
+    // 取 ex 项 PARAM_LEVEL 前 overLevel 级累加
+    const levels = parseParamLevel(exEff.EFFECT_PARAM_LEVEL);
+    let extra = 0;
+    for (let i = 0; i < Math.min(overLevel, levels.length); i++) {
+      extra += levels[i][1];
+    }
+    return extra;
+  }
+  return 0;
 }
 
 /** 取 PARAM 的"有效后缀"作为满级值。多位编码类取后2位，其他取整个值 */
@@ -733,14 +782,20 @@ export function resolveBlueprint(
     if (effectId > 0 && store.systemSkill?.[String(effectId)]) {
       continue;
     }
+    // ★B 型强化项（有 ex 项 optIdx70/71）超 maxLevel 部分的额外数值：
+    //   玩家点满到第 6/7 级时，超出 base maxLevel(5) 的部分按 ex 项 PARAM_LEVEL 取值叠加。
+    //   未超 maxLevel 或无 ex 项时返回 0，不影响普通强化。
+    const baseMaxLevel = findMaxLevel(store, tech);
+    const peakExtra = computePeakExtraValue(store, tech, baseMaxLevel, lookup.value);
+    const value = lookup.value + peakExtra;
     const resolved: ResolvedEffect = {
       tech,
       effectId,
       name: lookup.effect.NAME ?? '(无名)',
-      value: lookup.value,
+      value,
       category: EFFECT_CATEGORY[effectId] ?? 'other',
       maxParamValue: lookup.maxParamValue,
-      maxLevel: findMaxLevel(store, tech),
+      maxLevel: baseMaxLevel,
       source: lookup.source,
     };
 
@@ -750,23 +805,23 @@ export function resolveBlueprint(
     //   这里对齐：只要 effectId 在 weaponNumAttr 表里，就 push（通道由 computeFirepower 查表定）。
     //   不再手动挑 EID——避免漏掉 12062(对空伤害→attack ratio) 这类。
     if (effectId > 0 && store.weaponNumAttr?.[String(effectId)]) {
-      pushEffectEntry(effectId, lookup.value, resolved.name, lookup.effect, tech.slotId);
+      pushEffectEntry(effectId, value, resolved.name, lookup.effect, tech.slotId);
     }
 
     // 按 EFFECT_ID 分发
     switch (effectId) {
       case 10: // 舰船结构值提高（A类，万分比加法叠加）
-        structureBonusPermille += lookup.value;
+        structureBonusPermille += value;
         effects.push(resolved);
         break;
 
       case 10033: // 物理伤害抵抗提高（B类，绝对值加法）
-        resistanceBonus += lookup.value;
+        resistanceBonus += value;
         effects.push(resolved);
         break;
 
       case 10010: // 闪避率提升（B类，万分比）
-        dodgeBonus += lookup.value * 100; // % → 万分比
+        dodgeBonus += value * 100; // % → 万分比
         effects.push(resolved);
         break;
 
@@ -780,31 +835,31 @@ export function resolveBlueprint(
         else if (/战机|护航艇/.test(desc)) targetClass = 'fighter_corvette';
         else if (tech.techId === 201 || tech.techId === 202) targetClass = 'fighter_corvette';
         else if (tech.techId === 203 || tech.techId === 204) targetClass = 'frigate_destroyer';
-        hitBonusByTargetClass[targetClass] = (hitBonusByTargetClass[targetClass] ?? 0) + lookup.value * 100;
+        hitBonusByTargetClass[targetClass] = (hitBonusByTargetClass[targetClass] ?? 0) + value * 100;
         effects.push(resolved);
         break;
       }
 
       case 12010: // 通用命中率提升（万分比）
-        hitBonus += lookup.value * 100;
+        hitBonus += value * 100;
         effects.push(resolved);
         break;
 
       case 12041: {
         // 系统内武器冷却时间下降（B类，万分比）。按系统分组
         const label = String(lookup.effect.TARGET_MODULE_TYPE ?? 'main');
-        weaponCooldownReduction[label] = (weaponCooldownReduction[label] ?? 0) + lookup.value * 100;
+        weaponCooldownReduction[label] = (weaponCooldownReduction[label] ?? 0) + value * 100;
         effects.push(resolved);
         break;
       }
 
       case 1: // 常规移动速度提升（B类，万分比）
-        speedBonus += lookup.value * 100;
+        speedBonus += value * 100;
         effects.push(resolved);
         break;
 
       case 2: // 曲率移动速度提升（B类，万分比）
-        curvatureSpeedBonus += lookup.value * 100;
+        curvatureSpeedBonus += value * 100;
         effects.push(resolved);
         break;
 
@@ -828,7 +883,7 @@ export function resolveBlueprint(
         break;
       }
       case 12032: // 暴击伤害提升（B类，万分比）
-        critDamageBonus += lookup.value * 100;
+        critDamageBonus += value * 100;
         effects.push(resolved);
         break;
       case 12033: // 系统受到暴击伤害下降（B类，万分比）—— 防御向，暂归 critDamageBonus 负值
@@ -836,12 +891,12 @@ export function resolveBlueprint(
         break;
 
       // ===== 防御类 =====
-      case 10021: // 能量伤害抵抗/护盾提高（B类，万分比）。PARAM 可能 undefined，用 lookup.value
-        energyResistance += lookup.value * 100;
+      case 10021: // 能量伤害抵抗/护盾提高（B类，万分比）。PARAM 可能 undefined，用 value
+        energyResistance += value * 100;
         effects.push(resolved);
         break;
       case 10031: // 物理伤害下降百分比（B类，万分比）
-        physicalDamageReduction += lookup.value * 100;
+        physicalDamageReduction += value * 100;
         effects.push(resolved);
         break;
       case 10012: {
@@ -852,7 +907,7 @@ export function resolveBlueprint(
         if (/导弹/.test(desc)) wType = 'guided';
         else if (/鱼雷/.test(desc)) wType = 'guided';
         else if (/直射/.test(desc)) wType = 'direct';
-        dodgeByWeaponType[wType] = (dodgeByWeaponType[wType] ?? 0) + lookup.value * 100;
+        dodgeByWeaponType[wType] = (dodgeByWeaponType[wType] ?? 0) + value * 100;
         effects.push(resolved);
         break;
       }
@@ -862,23 +917,23 @@ export function resolveBlueprint(
       case 12021: // 系统内武器伤害提升（变种）
       case 12022: // 系统内武器伤害提升（变种）
       case 10011: // 武器伤害提升
-        weaponDamageBonus['all'] = (weaponDamageBonus['all'] ?? 0) + lookup.value * 100;
+        weaponDamageBonus['all'] = (weaponDamageBonus['all'] ?? 0) + value * 100;
         effects.push(resolved);
         break;
       case 12350: // 单发基础攻击力提升（B类，绝对值 +dph）
-        baseDamageBonus += lookup.value;
+        baseDamageBonus += value;
         effects.push(resolved);
         break;
       case 12060: // 攻城伤害提高（B类，万分比）
-        siegeDamageBonus += lookup.value * 100;
+        siegeDamageBonus += value * 100;
         effects.push(resolved);
         break;
       case 12062: // 对空伤害提高（B类，万分比）
-        antiAirDamageBonus += lookup.value * 100;
+        antiAirDamageBonus += value * 100;
         effects.push(resolved);
         break;
       case 1010: // 系统结构值提高（B类，万分比，子系统HP）
-        systemStructureBonus += lookup.value * 100;
+        systemStructureBonus += value * 100;
         effects.push(resolved);
         break;
       case 12251: // 持续攻击伤害提升（特殊机制，万分比）
@@ -891,23 +946,23 @@ export function resolveBlueprint(
         // 提升拦截率（PARAM=5025: {102}=25%）
         // PARAM 多位编码，取 {102}=后2位（与12012/10012同规则）
         const param = lookup.effect.EFFECT_PARAM;
-        const rate = param != null ? Number(String(param).slice(-2)) : lookup.value;
-        interceptRate += rate * 100 * lookup.value / (lookup.maxParamValue || rate);
+        const rate = param != null ? Number(String(param).slice(-2)) : value;
+        interceptRate += rate * 100 * value / (lookup.maxParamValue || rate);
         effects.push(resolved);
         break;
       }
       case 12082: // 被拦截几率降低（B类，万分比）
-        interceptEvade += lookup.value * 100;
+        interceptEvade += value * 100;
         effects.push(resolved);
         break;
 
       // ===== 目标选择类 =====
       case 12070: // 命中优先级提升（原始权重值）
-        targetPriorityBonus += lookup.value;
+        targetPriorityBonus += value;
         effects.push(resolved);
         break;
       case 12090: // 选择目标时间降低（B类，万分比）
-        targetLockTimeReduction += lookup.value * 100;
+        targetLockTimeReduction += value * 100;
         effects.push(resolved);
         break;
       case 12263: // 默认集火（旗舰）
@@ -917,19 +972,19 @@ export function resolveBlueprint(
 
       // ===== 攻击时序类 =====
       case 12140: // 攻击持续时间提高（B类，万分比）→ duration 节点 +
-        attackDurationBonus += lookup.value * 100;
+        attackDurationBonus += value * 100;
         effects.push(resolved);
         break;
       case 12141: // 攻击持续时间降低/打击间隔缩短（B类，万分比）→ duration 节点 -
-        attackDurationReduction += lookup.value * 100;
+        attackDurationReduction += value * 100;
         effects.push(resolved);
         break;
       case 12142: // 攻击次数增加（绝对值，额外弹数）→ repeatTimes 节点 +
-        attackCountBonus += lookup.value;
+        attackCountBonus += value;
         effects.push(resolved);
         break;
       case 12294: // 飞行时间降低（B类，万分比，投射武器）→ flightBefore/After 节点 -
-        flightTimeReduction += lookup.value * 100;
+        flightTimeReduction += value * 100;
         effects.push(resolved);
         break;
 
@@ -940,11 +995,11 @@ export function resolveBlueprint(
         break;
       case 12050: // 系统维修效果提升（A类，PARAM_LEVEL查表，值为百分比）
         // PARAM_LEVEL 如 "1,2;2,4;...;5,10"，value 已按 level 查表（如 lv3=6）
-        repairEfficiencyBonus += lookup.value * 100; // % → 万分比
+        repairEfficiencyBonus += value * 100; // % → 万分比
         effects.push(resolved);
         break;
       case 12249: // 系统自维修强化（B类，PARAM=25，提升维修效率25%）
-        repairEfficiencyBonus += lookup.value * 100; // % → 万分比
+        repairEfficiencyBonus += value * 100; // % → 万分比
         effects.push(resolved);
         break;
       case 12250: // 系统损毁后自动维修（触发型机制，非效率提升）
@@ -956,7 +1011,7 @@ export function resolveBlueprint(
         // 检查是否为"系统内伤害提升"类（无EFFECT_ID，靠DESC识别）
         if (isWeaponDamageEffect(lookup.effect)) {
           const label = String(lookup.effect.TARGET_MODULE_TYPE ?? 'main');
-          weaponDamageBonus[label] = (weaponDamageBonus[label] ?? 0) + lookup.value * 100;
+          weaponDamageBonus[label] = (weaponDamageBonus[label] ?? 0) + value * 100;
           effects.push(resolved);
           break;
         }
@@ -1000,8 +1055,10 @@ export function resolveBlueprint(
     repairEfficiencyBonus += tuneBonus.repairBonusPermille;
   }
 
-  // ★合并巅峰/调校 EffectEntry 到主 effectList（统一架构）
-  effectList.push(...peakBonus.rewardEffectList);
+  // ★合并调校 EffectEntry 到主 effectList
+  //   巅峰 rewardEffectList(field[1] optIdx70/71) 不进数值计算——
+  //   ex项数值只在玩家实际点满对应等级时生效（见 resolveEffects 里的超 maxLevel 处理），
+  //   而非巅峰等级一到就无条件给满级数值。
   if (tuneBonus) effectList.push(...tuneBonus.effectList);
 
   // ★分层结构计算（对齐客户端 common.ship_utils.get_ship_hp）：

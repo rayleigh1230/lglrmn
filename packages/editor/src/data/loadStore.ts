@@ -29,6 +29,7 @@ const TABLE_FILES: Record<keyof ClientDataParts, string> = {
   peakLevelAuth: "cfg_peak_level_auth.json",
   systemSkill: "cfg_system_skill.json",
   systemEnhanceTree: "cfg_system_enhance_tree.json",
+  weaponNumAttr: "cfg_weapon_num_attr.json",
 };
 
 // 额外的非引擎配置文件(舰船白名单, 用户人工筛选)

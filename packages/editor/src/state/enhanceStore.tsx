@@ -115,7 +115,21 @@ export function EnhanceStateProvider({ children }: { children: ReactNode }) {
   );
 
   const getShipConfig = useCallback(
-    (uid: string): ShipRecord => store[uid] ?? makeEmpty(uid),
+    (uid: string): ShipRecord => {
+      const cur = store[uid] ?? makeEmpty(uid);
+      // ★巅峰等级按舰型共享：若当前 record 未显式设过(=0)，从同舰型其他子型号取
+      if (!cur.peakLevel) {
+        const typePrefix = (cur.shipId ?? uid).slice(0, 3);
+        for (const k in store) {
+          if (k === uid) continue;
+          const sid = store[k].shipId ?? k;
+          if (sid.slice(0, 3) === typePrefix && store[k].peakLevel) {
+            return { ...cur, peakLevel: store[k].peakLevel };
+          }
+        }
+      }
+      return cur;
+    },
     [store]
   );
 
@@ -123,9 +137,20 @@ export function EnhanceStateProvider({ children }: { children: ReactNode }) {
     (uid: string, level: number) => {
       setStore((prev) => {
         const next = { ...prev };
-        const cur = next[uid] ? { ...next[uid] } : makeEmpty(uid);
-        cur.peakLevel = level;
-        next[uid] = cur;
+        // ★巅峰等级按舰型共享：同 shipId 前3位（舰型）的所有子型号一起更新
+        //   调用方传入的 uid 即 shipId（5位），取前3位作舰型 key
+        const target = next[uid] ? { ...next[uid] } : makeEmpty(uid);
+        const typePrefix = (target.shipId ?? uid).slice(0, 3);
+        target.peakLevel = level;
+        next[uid] = target;
+        // 同步更新同舰型的其他子型号
+        for (const k in next) {
+          if (k === uid) continue;
+          const sid = next[k].shipId ?? k;
+          if (sid.slice(0, 3) === typePrefix) {
+            next[k] = { ...next[k], peakLevel: level };
+          }
+        }
         return next;
       });
       bump();

@@ -6,7 +6,7 @@
  *   只有白名单内的 bpId 才显示，分类(舰型)也以白名单为准，不再靠关键词推断。
  */
 import type { ClientDataStore } from "../engine";
-import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense } from "../engine";
+import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense, countTechPoints } from "../engine";
 import type { BlueprintPanel } from "../engine";
 import { levelsToTechStr } from "./codec";
 
@@ -173,6 +173,7 @@ export interface ShipPanelData {
   shipId: string;
   // 计算层产出的面板数据
   panel: BlueprintPanel;
+  techPoints: number;   // ★已消耗技能点总数（强化项 ENHANCE_COST 累加），供技术值徽章显示
 }
 
 /** 取舰船面板数据（含火力/属性，走蓝图计算层）
@@ -208,10 +209,16 @@ export function getShipPanel(
   const techStr = enhanceLevels && Object.keys(enhanceLevels).length > 0
     ? levelsToTechStr(store, entry.shipId, enhanceLevels)
     : "";
+  // ★统计已消耗技能点（强化项 ENHANCE_COST 累加），用于版本号加成 + 技术值徽章显示
+  const techPoints = techStr ? countTechPoints(store, techStr).totalPoints : 0;
   const needsResolver = peakLevel > 0 || moduleStructureBonus > 0 || techStr !== "";
 
   const blueprint = needsResolver
-    ? resolveBlueprint(store, entry.shipId, techStr, { peakLevel, moduleStructureBonus })
+    ? resolveBlueprint(store, entry.shipId, techStr, {
+        peakLevel,
+        moduleStructureBonus,
+        techPoints,   // ★使版本号加成（techPoints × shipHpAdd）进入 finalStructure
+      })
     : null;
   const panel = resolveBlueprintPanel(store, entry.shipId, shipName, blueprint, enabledSlots);
 
@@ -225,6 +232,7 @@ export function getShipPanel(
     command: Number(shipRow[7] ?? 0),
     shipId: entry.shipId,
     panel,
+    techPoints,
   };
 }
 

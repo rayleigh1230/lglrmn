@@ -41,6 +41,8 @@ export interface ClientDataParts {
   systemSkill?: Record<string, Record<string, unknown>>;
   /** ★强化项科技树前置依赖(可选) */
   systemEnhanceTree?: Record<string, [string, number]>;
+  /** ★EFFECT_ID→三通道映射（frida dump 的 cfg_weapon_num_attr，34条；决定 EID 走 ratio_add/num_add 等） */
+  weaponNumAttr?: Record<string, { EFFECT_ATTR_NAME: string; TABLE_NAME: string; EFFECT_TYPE: string }>;
 }
 
 /**
@@ -68,5 +70,6 @@ export function createClientData(parts: ClientDataParts): ClientDataStore {
     peakLevelAuth: parts.peakLevelAuth,
     systemSkill: parts.systemSkill,
     systemEnhanceTree: parts.systemEnhanceTree,
+    weaponNumAttr: parts.weaponNumAttr,
   };
 }

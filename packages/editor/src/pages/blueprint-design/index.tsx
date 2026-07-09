@@ -220,7 +220,7 @@ export default function BlueprintDesign() {
           </View>
           <View className="bp-badge bp-badge--tech">
             <Text className="bp-badge__label">技术值</Text>
-            <Text className="bp-badge__value">1.00</Text>
+            <Text className="bp-badge__value">{(1 + panel.techPoints / 100).toFixed(2)}</Text>
           </View>
         </View>
 

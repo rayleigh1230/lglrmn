@@ -127,6 +127,50 @@ export interface EnhanceSheetVM {
 }
 
 /**
+ * ★计算某系统槽下各普通强化项(optIdx)被巅峰等级提升的"额外 maxLevel"。
+ *
+ * 机制（对齐客户端 `common.blueprint_utils.get_enhancement_peak_extra_max_level`）：
+ *   - 普通强化项(optIdx 01-18) 调 get_peak_ex_enhance_id 找到它对应的巅峰 ex 项(optIdx 70/71)，
+ *     关联通过 ex 项的 ADJUST_ENHANCE_INDEX 反向匹配（ex 项的 ADJ = 被扩展的普通 optIdx）。
+ *   - 返回该 ex 项在 field[1] EXCLUSIVE_EFFECT 里的 level 值（= 额外 maxLevel 数）。
+ *   - 例：斗牛40501 peak5，405010270 在 field[1] level=2，ADJ=1 → 普通optIdx01 额外+2 → 5/7。
+ *   - ★不分 EFFECT_TYPE：ETYPE=3(ENHANCE_EX) 的 ex 项同样扩展普通项 maxLevel
+ *     （客户端 get_peak_ex_enhance_id 走 SYSTEM_ENHANCE_TAKE_EX，不按 ETYPE 过滤）。
+ *
+ * @returns { 被扩展的普通optIdx → 额外 maxLevel 数 }
+ */
+export function computePeakExtraByOptIdx(
+  store: ClientDataStore,
+  shipId: string,
+  slotId: string,
+  peakLevel: number
+): Record<number, number> {
+  const result: Record<number, number> = {};
+  if (peakLevel <= 0) return result;
+  const peakTable = store.shipPeakLevel as Record<string, [string, string]> | undefined;
+  const peakKey = shipId + String(peakLevel).padStart(2, "0");
+  const peakEntry = peakTable?.[peakKey];
+  if (!peakEntry || !peakEntry[1]) return result;
+  const sysEnh = store.systemEnhance as
+    | Record<string, { ADJUST_ENHANCE_INDEX?: number }>
+    | undefined;
+  const segs = peakEntry[1].split(";").filter((s) => s.trim());
+  for (const seg of segs) {
+    const [enhanceIdStr, lvStr] = seg.split(",").map((s) => s.trim());
+    if (!enhanceIdStr || enhanceIdStr.slice(0, 7) !== slotId) continue;
+    const peakOptIdx = parseInt(enhanceIdStr.slice(7, 9), 10);
+    if (peakOptIdx < 70) continue;
+    // ex 项的 ADJUST_ENHANCE_INDEX = 被扩展的普通 optIdx（ex项→普通项的反向映射）
+    const peakRec = sysEnh?.[enhanceIdStr];
+    const targetOptIdx = peakRec?.ADJUST_ENHANCE_INDEX;
+    if (targetOptIdx) {
+      result[targetOptIdx] = (result[targetOptIdx] ?? 0) + (Number(lvStr) || 0);
+    }
+  }
+  return result;
+}
+
+/**
  * 解析某系统槽的科技树为 UI 节点（含状态 + 二选一合并 + 巅峰扩展）。
  * @param enabledSlots 蓝图页装配选择，影响切换组门控（与蓝图页一致）
  */
@@ -224,31 +268,9 @@ export function resolveEnhanceTreeVM(
   const rowOfUi: Record<number, number> = {};
   uiLevels.forEach((u, i) => { rowOfUi[u] = i; });
 
-  // ★巅峰等级扩展——按普通强化项逐个匹配（不是按 slot 统一）
-  //   机制(frida 实证): optIdx70 的 ADJUST_ENHANCE_INDEX 字段 = 被扩展的普通强化项 optIdx
-  //   字段1里 "slotId70,level" 的 level = 该普通强化项的 extra maxLevel
-  //   先解析字段1 + 查 ADJUST_ENHANCE_INDEX 建映射 {被扩展optIdx → extraLevel}
-  const peakExtraByOptIdx: Record<number, number> = {};
-  if (peakLevel > 0) {
-    const peakTable = store.shipPeakLevel as Record<string, [string, string]> | undefined;
-    const peakKey = shipId + String(peakLevel).padStart(2, "0");
-    const peakEntry = peakTable?.[peakKey];
-    if (peakEntry && peakEntry[1]) {
-      const segs = peakEntry[1].split(";").filter((s) => s.trim());
-      for (const seg of segs) {
-        const [enhanceIdStr, lvStr] = seg.split(",").map((s) => s.trim());
-        if (!enhanceIdStr || enhanceIdStr.slice(0, 7) !== slotId) continue;
-        const peakOptIdx = parseInt(enhanceIdStr.slice(7, 9), 10);
-        if (peakOptIdx < 70) continue;
-        // 查该 optIdx70 的 ADJUST_ENHANCE_INDEX = 被扩展的普通 optIdx
-        const peakRec = (store.systemEnhance as Record<string, { ADJUST_ENHANCE_INDEX?: number }>)[enhanceIdStr];
-        const targetOptIdx = peakRec?.ADJUST_ENHANCE_INDEX;
-        if (targetOptIdx) {
-          peakExtraByOptIdx[targetOptIdx] = (peakExtraByOptIdx[targetOptIdx] ?? 0) + (Number(lvStr) || 0);
-        }
-      }
-    }
-  }
+  // ★巅峰等级扩展——复用 computePeakExtraByOptIdx
+  //   通过 ex 项(optIdx70/71) 的 ADJUST_ENHANCE_INDEX 反向匹配普通 optIdx，不分 ETYPE
+  const peakExtraByOptIdx = computePeakExtraByOptIdx(store, shipId, slotId, peakLevel);
 
   // 构建 VM（含网格坐标 gridCol=BFS跳数, gridRow=行号）
   const columns: Record<number, EnhanceNodeVM[]> = {};
@@ -649,17 +671,64 @@ export function levelText(currentLevel: number, maxLevel: number, preview = fals
   };
 }
 
-/** 单级消耗（+1 级），从原始 enhance 记录取 ENHANCE_COST */
-export function singleCost(store: ClientDataStore, slot: EnhanceSlot, currentLevel: number): number {
-  const rec = (store.systemEnhance as Record<string, { ENHANCE_COST?: number[] }>)[slot.enhanceId];
-  const costs = rec?.ENHANCE_COST ?? [];
+/**
+ * ★取强化项的完整成本链（对齐客户端 `common.blueprint_utils.get_enhance_cost_list`）。
+ *
+ * 基础成本 = 普通项 ENHANCE_COST（如 [2,2,2,2,2]，5级）。
+ * 若该普通项被巅峰 ex 项(optIdx70/71) 扩展了 maxLevel，则把 ex 项的
+ * ENHANCE_COST 前 peakExtraMaxLevel 级拼接到基础链末尾（如 +[2,2] = 共7级成本）。
+ *
+ * ex 项的查找：通过 ADJUST_ENHANCE_INDEX 反向匹配（ex 项的 ADJ = 当前普通 optIdx），
+ * 与 computePeakExtraByOptIdx 一致，不分 EFFECT_TYPE。
+ *
+ * @param store 配置数据
+ * @param slot 普通强化项（optIdx 01-18）
+ * @param peakExtra 该 optIdx 的巅峰额外 maxLevel（来自 computePeakExtraByOptIdx）
+ */
+export function getEnhanceCostList(
+  store: ClientDataStore,
+  slot: EnhanceSlot,
+  peakExtra = 0
+): number[] {
+  const sysEnh = store.systemEnhance as
+    | Record<string, { ENHANCE_COST?: number[]; ADJUST_ENHANCE_INDEX?: number }>
+    | undefined;
+  const baseCosts = sysEnh?.[slot.enhanceId]?.ENHANCE_COST ?? [];
+  if (peakExtra <= 0) return baseCosts;
+  // 找该 slot 下 optIdx70/71 的 ex 项（ADJUST_ENHANCE_INDEX 指向当前 slot.optIdx）
+  const slotId = slot.slotId;
+  let exCosts: number[] = [];
+  for (let oi = 70; oi <= 71; oi++) {
+    const exId = slotId + String(oi).padStart(2, "0");
+    const rec = sysEnh?.[exId];
+    if (!rec) continue;
+    if (Number(rec.ADJUST_ENHANCE_INDEX) !== slot.optIdx) continue;
+    const full = rec.ENHANCE_COST ?? [];
+    exCosts = full.slice(0, peakExtra);
+    break;
+  }
+  return [...baseCosts, ...exCosts];
+}
+
+/** 单级消耗（+1 级），含巅峰扩展级（对齐客户端 get_enhance_cost_list 拼接） */
+export function singleCost(
+  store: ClientDataStore,
+  slot: EnhanceSlot,
+  currentLevel: number,
+  peakExtra = 0
+): number {
+  const costs = getEnhanceCostList(store, slot, peakExtra);
   return costs[currentLevel] ?? 0;
 }
 
-/** 加满总额（从 currentLevel 加到 maxLevel） */
-export function fullCost(store: ClientDataStore, slot: EnhanceSlot, currentLevel: number): number {
-  const rec = (store.systemEnhance as Record<string, { ENHANCE_COST?: number[] }>)[slot.enhanceId];
-  const costs = rec?.ENHANCE_COST ?? [];
+/** 加满总额（从 currentLevel 加到 maxLevel，含巅峰扩展级） */
+export function fullCost(
+  store: ClientDataStore,
+  slot: EnhanceSlot,
+  currentLevel: number,
+  peakExtra = 0
+): number {
+  const costs = getEnhanceCostList(store, slot, peakExtra);
   let sum = 0;
   for (let i = currentLevel; i < costs.length; i++) sum += costs[i];
   return sum;
