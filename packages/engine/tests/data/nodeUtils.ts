@@ -66,8 +66,10 @@ export function loadClientDataFromDir(dir: string): ClientDataStore {
     (store as any).weaponDamageType = read(dir, 'weapon_damage_type.json');
   } catch { /* 可选，跳过 */ }
   // ★EFFECT_ID→三通道映射（frida dump，calc_effect_add 用）
+  //   cfg_weapon_num_attr: 每条强化效果按 EFFECT_TYPE 分到 ratio_add/num_add/base_num_add 通道。
+  //   没有这张表 getEnhanceAdd 对所有 EID 返回 {0,0,0}——强化加成不生效。
   try {
-    (store as any).weaponDamageType = read(dir, 'weapon_damage_type.json');
+    (store as any).weaponNumAttr = read(dir, 'cfg_weapon_num_attr.json');
   } catch { /* 可选，跳过 */ }
   try {
     (store as any).cfgModule = read(dir, 'cfg_module.json');

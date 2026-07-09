@@ -123,6 +123,14 @@ export async function loadStore(): Promise<ClientDataStore> {
     console.warn("武器伤害类型映射未加载");
   }
 
+  // 加载 EFFECT_ID→三通道映射(frida dump, calc_effect_add 用, 决定强化效果进 ratio_add/num_add/base_num_add)
+  // 没有这张表 getEnhanceAdd 对所有 EID 返回 {0,0,0}——强化加成不生效
+  try {
+    (_store as any).weaponNumAttr = await readJson(CONFIG_BASE + "cfg_weapon_num_attr.json");
+  } catch {
+    console.warn("weaponNumAttr 三通道映射未加载");
+  }
+
   console.log("[loadStore] 加载完成, ship表:", Object.keys(_store.ship).length, "条");
 
   // 加载武器优先级表（火力计算用）

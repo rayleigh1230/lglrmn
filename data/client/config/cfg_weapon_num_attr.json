@@ -1,0 +1,172 @@
+{
+  "1": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_speed",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "2": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_warp",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "8": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_cost",
+    "EFFECT_TYPE": "base_num_add"
+  },
+  "9": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_cost",
+    "EFFECT_TYPE": "base_num_del"
+  },
+  "10": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_hp",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_hp",
+    "EFFECT_TYPE": "num_add"
+  },
+  "14": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_speed",
+    "EFFECT_TYPE": "num_add"
+  },
+  "16": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_warp",
+    "EFFECT_TYPE": "num_add"
+  },
+  "20": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "ship_capacity",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "1010": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "system_hp",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "2033": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "mine_speed",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "2034": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "module_capacity",
+    "EFFECT_TYPE": "base_num_add"
+  },
+  "2035": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "module_capacity",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "10021": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "shield",
+    "EFFECT_TYPE": "num_add"
+  },
+  "10033": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "armor",
+    "EFFECT_TYPE": "num_add"
+  },
+  "10086": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "armor_repair",
+    "EFFECT_TYPE": "num_add"
+  },
+  "10518": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "action_param",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12020": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "action_param",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12021": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "action_param",
+    "EFFECT_TYPE": "ratio_del"
+  },
+  "12030": {
+    "TABLE_NAME": "",
+    "EFFECT_ATTR_NAME": "firepower",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12040": {
+    "TABLE_NAME": "cfg_weapon",
+    "EFFECT_ATTR_NAME": "cd_time",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12041": {
+    "TABLE_NAME": "cfg_weapon",
+    "EFFECT_ATTR_NAME": "cd_time",
+    "EFFECT_TYPE": "ratio_del"
+  },
+  "12050": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "action_param",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12060": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "action_param",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12062": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "action_param",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12090": {
+    "TABLE_NAME": "cfg_weapon",
+    "EFFECT_ATTR_NAME": "init_perpare_time",
+    "EFFECT_TYPE": "ratio_del"
+  },
+  "12140": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "duration",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12141": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "duration",
+    "EFFECT_TYPE": "ratio_del"
+  },
+  "12142": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "repeat_times",
+    "EFFECT_TYPE": "num_add"
+  },
+  "12291": {
+    "TABLE_NAME": "cfg_weapon",
+    "EFFECT_ATTR_NAME": "early_warning_efficiency",
+    "EFFECT_TYPE": "num_add"
+  },
+  "12292": {
+    "TABLE_NAME": "cfg_weapon",
+    "EFFECT_ATTR_NAME": "early_warning_efficiency",
+    "EFFECT_TYPE": "num_del"
+  },
+  "12293": {
+    "TABLE_NAME": "cfg_weapon",
+    "EFFECT_ATTR_NAME": "flight_time_before_cd",
+    "EFFECT_TYPE": "ratio_add"
+  },
+  "12294": {
+    "TABLE_NAME": "cfg_weapon",
+    "EFFECT_ATTR_NAME": "flight_time_before_cd",
+    "EFFECT_TYPE": "ratio_del"
+  },
+  "12350": {
+    "TABLE_NAME": "cfg_weapon_action",
+    "EFFECT_ATTR_NAME": "action_param",
+    "EFFECT_TYPE": "num_add"
+  }
+}
