@@ -65,3 +65,40 @@ export function parseTechString(techStr: string): TechModule[] {
   }
   return result;
 }
+
+/**
+ * 把 enhance 等级映射 → 客户端科技串（levelsToTechStr，从 editor codec 下沉到 engine）。
+ *
+ * 格式: "slotId,optIdx,techId,level,optIdx,techId,level;slotId,..."
+ * enhanceId(9位) = slotId(7) + optIdx(2)，techId = systemEnhance[enhanceId].SYSTEM_EFFECT_PREFIX。
+ *
+ * @param store 配置表（读 systemEnhance）
+ * @param shipId 舰船 ID（当前未直接使用，保留参数与 editor codec 签名一致）
+ * @param levels enhanceId → level 映射
+ */
+export function levelsToTechStr(
+  store: { systemEnhance?: Record<string, Record<string, unknown>> },
+  shipId: string,
+  levels: Record<string, number>,
+): string {
+  void shipId;
+  if (!store.systemEnhance) return "";
+  const bySlot: Record<string, { optIdx: number; techId: number; level: number }[]> = {};
+  for (const enhanceId in levels) {
+    const lvl = levels[enhanceId];
+    if (!lvl || lvl < 1) continue;
+    const rec = store.systemEnhance[enhanceId];
+    if (!rec) continue;
+    const slotId = enhanceId.slice(0, 7);
+    const optIdx = parseInt(enhanceId.slice(7, 9), 10);
+    const techId = Number(rec.SYSTEM_EFFECT_PREFIX) || 0;
+    if (!bySlot[slotId]) bySlot[slotId] = [];
+    bySlot[slotId].push({ optIdx, techId, level: lvl });
+  }
+  const parts: string[] = [];
+  for (const slotId in bySlot) {
+    const triples = bySlot[slotId].map((t) => `${t.optIdx},${t.techId},${t.level}`).join(",");
+    parts.push(`${slotId},${triples}`);
+  }
+  return parts.join(";");
+}

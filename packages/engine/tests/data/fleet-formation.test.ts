@@ -60,21 +60,21 @@ test('resolveFormation：载机 aircrafts 透传到面板（双轨入口）', ()
 test('resolveFormation：指挥值超限 → valid=false', () => {
   const team: TeamConfigInput = { id: 't4', flagshipUid: 'u1', memberUids: ['u1', 'u2'] };
   const ships: Record<string, ShipRecordInput> = {
-    u1: { uid: 'u1', shipId: '80101' }, // 130000
-    u2: { uid: 'u2', shipId: '80201' }, // 150000 → 280000
+    u1: { uid: 'u1', shipId: '80101' }, // 55
+    u2: { uid: 'u2', shipId: '80201' }, // 40 → 95
   };
-  const f = resolveFormation(store, team, ships, 200000);
+  const f = resolveFormation(store, team, ships, 80); // 用小 cap 测校验逻辑
   assert.equal(f.valid, false, '超限 valid=false');
   assert.equal(f.capacity.overflow, true);
-  assert.equal(f.capacity.used, 280000);
+  assert.equal(f.capacity.used, 95);
 });
 
 test('resolveFormation：指挥值未超限 → valid=true', () => {
   const team: TeamConfigInput = { id: 't5', flagshipUid: 'u1', memberUids: ['u1'] };
   const ships: Record<string, ShipRecordInput> = { u1: { uid: 'u1', shipId: '80101' } };
-  const f = resolveFormation(store, team, ships, 200000);
+  const f = resolveFormation(store, team, ships, 420); // 舰队上限量级
   assert.equal(f.valid, true, '未超限 valid=true');
-  assert.equal(f.capacity.used, 130000);
+  assert.equal(f.capacity.used, 55);
 });
 
 test('resolveFormation：成员不存在跳过（不抛错）', () => {

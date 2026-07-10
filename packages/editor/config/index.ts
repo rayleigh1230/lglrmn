@@ -91,6 +91,17 @@ export default defineConfig(async (merge) => {
             generateScopedName: "[name]__[local]___[hash:base64:5]"
           }
         }
+      },
+      // engine 数据层 (editor/src/engine/data) 用 TS ESM 风格导入 './xxx.js'，
+      // 但实际文件是 .ts。tsc/moduleResolution:Bundler 能解析，webpack 5.78 默认不能。
+      // extensionAlias 让 './xxx.js' 解析到 './xxx.ts'，保持 engine/editor 两份数据层一致。
+      webpackChain(chain) {
+        chain.resolve.merge({
+          extensionAlias: {
+            ".js": [".ts", ".js"],
+            ".jsx": [".tsx", ".jsx"]
+          }
+        });
       }
     },
     rn: { appName: "taroDemo", postcss: { cssModules: { enable: false } } }

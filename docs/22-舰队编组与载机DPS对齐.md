@@ -61,6 +61,16 @@ PARAM 解码：`ship_id = PARAM / 100`，`num = PARAM % 100`。
 - **修复**：`blueprintSelector.ts:232` `shipRow[7]` → `shipRow[13]`；`rawTypes.ts` SHIP 常量补 `EXPLOIT_CAPACITY: 13`。
 - **测试**：`capacity.test.ts`「cfg_ship[13] 是 EXPLOIT_CAPACITY」断言通过。
 
+> ⚠️ **【2026-07-10 复核：缺陷1 判断有误，已回滚】**
+>
+> 上述"修复"建立在一个错误推断上：把 `EXPLOIT_CAPACITY`([13]) 当成了游戏 UI 的"指挥值"。经复核，**[13] 不是指挥值**：
+> - 量级矛盾：单艘航母 `[13]=150000`，但舰队指挥值上限仅 300-420（docs/01 §9.3），两者差三个数量级，逻辑不可能成立。
+> - `[7]` 才是真正的单舰指挥值：白名单值域 1-55，按舰种递增（航母 40-55、战列 45、战巡 28-35、护卫 3-8、战机/护航艇 1-2），与"3-55"和舰队上限完全自洽。docs/10 把 [7] 标成 `slot_weapon_max` 是命名误导（其注1 也承认"不是真正的武器槽数"）。
+> - 声称对齐的客户端函数 `common.ship_utils.get_ship_capicity` / `get_team_capacity` 在反编译树中**不存在**（穷举搜索 0 命中），"对齐链"无依据。
+> - `[13]`(EXPLOIT_CAPACITY) 实为开采/驻泊容量（资源采集相关），与编队指挥值是两个不同概念。
+>
+> **已回滚**：`getShipCapacity` / `blueprintSelector.command` 改回取 `cfg_ship[7]`（SHIP.COMMAND）；`capacity.test.ts` / `fleet-formation.test.ts` 断言更新为 [7] 的正确值（80101=55、80201=40、48101=15）；`validateFormation` 的 capacityCap 注释更新为"300-420"。
+
 ### 缺陷2【中·已修】get_aircraft_dps 缺口（蓝图系统遗留）
 - **现象**：`computeFirepower` 只算 `Σ weapon×group_num`，缺 `+ get_aircraft_dps` 项（docs/17/21 deferred）。
 - **客户端真相**：见 §五 公式。
@@ -68,10 +78,16 @@ PARAM 解码：`ship_id = PARAM / 100`，`num = PARAM % 100`。
 - **测试**：`aircraft-dps.test.ts` 10 项全通过；CV3000 启机库后面板对舰 6500→8750（载机贡献 2250）。
 - **回归**：`firepower-anchor.ts` 无载机武器结果不变（FG300 等）。
 
-### 缺陷3【低·已知简化】_filter_drone_enhance 未完整实现
+### 缺陷3【低·已修】_filter_drone_enhance 母舰强化过滤透传
 - **现状**：载机递归用空 effectList（载机自身模块效果由 resolveShipWeapons 内部补回），未实现母舰强化过滤。
 - **影响**：面板基线载机（无额外强化）结果正确；母舰强化影响载机的场景（如强化"载机伤害"类词条）暂未对齐。
-- **后续**：需用 `systemEffectEnhanceData` 表重建 effect 链触达 DRONE_EFFECT_IDS 的判定。
+- **修复（2026-07-10）**：从 `E:\星际猎人\dumped\modules_all_decompiled_v2\` 取得客户端
+  `AttrCalcBase._filter_drone_enhance` 完整反编译源（23 行，反编译源归档见 docs/23），
+  照搬到 TS：新增 `filterDroneEnhance(store, curEnhanceDic)` + `buildChildEffectList` + 辅助函数。
+  `resolveBlueprintPanel` 从 `blueprint.effects[].tech` 重建 `cur_enhance_dic`，
+  经 `filterDroneEnhance` 剥除触达 DRONE_EFFECT_IDS 的强化（防套娃）后透传给子载机。
+  实测：CV3000 + 10320×5，基线 2250 → 带武器伤害强化 3255（+44.7%，强化正确透传放大载机火力）。
+- **测试**：`drone-enhance-filter.test.ts`（9 项全过）+ `aircraft-dps.test.ts`（10 项回归保护全过）。
 
 ## 五、核心公式
 

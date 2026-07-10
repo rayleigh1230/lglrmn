@@ -316,6 +316,9 @@ export function resolveShipWeapons(store: ClientDataStore, shipId: string, enabl
 
 import { computeFirepower } from './effectList.js';
 import { DPS_TYPE } from './effectList.js';
+import type { EffectEntry } from './effectList.js';
+import { resolveBlueprint } from './blueprintResolver.js';
+import { levelsToTechStr } from './techString.js';
 // Re-export for backward compatibility (index.ts)
 export { computeFirepower } from './effectList.js';
 
@@ -368,6 +371,13 @@ export function computeAircraftDps(
   enabledSlots: string[] | undefined,
   dpsType: number,
   aircraftsOverride?: Record<string, number[]>,
+  /** 母舰强化字典（{systemId: {enhanceId: level}}），用于过滤后透传给载机。
+   *  对齐客户端 get_aircraft_dps → _filter_drone_enhance(cur_enhance_dic)。 */
+  curEnhanceDic?: Record<string, Record<string, number>>,
+  /** B类载机（战机/护航艇）实例池：uid → ShipRecordInput（含载机自身强化/巅峰）。
+   *  aircraftsOverride 的 value 解读为 uid 列表时，从此池查载机配置。
+   *  无此参数时载机按白板算（A类无人机路径）。 */
+  aircraftRecords?: Record<string, { shipId: string; peakLevel?: number; enhanceLevels?: Record<string, number>; enabledSlots?: string[] }>,
 ): number {
   // 收集载机清单：{shipId: 总数}
   const aircraftMap = new Map<string, number>();
@@ -395,22 +405,189 @@ export function computeAircraftDps(
 
   if (aircraftMap.size === 0) return 0;
 
+  // ★母舰强化过滤后透传给载机（对齐 _filter_drone_enhance + set_mother_ship_info）。
+  //   剥除触达 DRONE_EFFECT_IDS 的强化项（防载机→载机无限套娃），其余透传给子载机。
+  //   无母舰强化字典时（如纯载机路径）传空 effectList，载机只算自身模块效果。
+  const filteredDic = curEnhanceDic ? filterDroneEnhance(store, curEnhanceDic) : undefined;
+
   // 递归：每型载机当独立船算火力 × num
   let total = 0;
   for (const [aircraftShipId, num] of aircraftMap) {
     // ★对齐 prepare_by_ship_id(ship_id) → get_ship_dps(dps_type)
     const acWeapons = resolveShipWeapons(store, aircraftShipId);
     if (acWeapons.length === 0) continue;
-    // 母舰强化过滤后透传给载机（_filter_drone_enhance：剥除触达 DRONE_EFFECT_IDS 的强化项）。
-    // 当前简化：载机用空 effectList（其自身模块效果由 resolveShipWeapons 内部 moduleEffect 装配补回），
-    //   因客户端 _filter_drone_enhance 主要影响"影响载机的强化"，而面板基线载机无额外强化。
-    const acFp = computeFirepower(acWeapons, [], store);
-    const dps = dpsType === DPS_TYPE.ANTI_SHIP ? acFp.antiShip
-      : dpsType === DPS_TYPE.ANTI_AIR ? acFp.antiAir
-      : acFp.siege;
+    // 子载机 effectList = 过滤后的母舰强化重建（对齐 set_mother_ship_info → get_effect_list）。
+    //   无母舰强化时用空（载机自身模块效果由 resolveShipWeapons 内部 moduleEffect 装配补回）。
+    const acEffectList = filteredDic ? buildChildEffectList(store, filteredDic) : [];
+    // ★B类载机强化（缺陷3扩展）：若 aircraftRecords 有该 shipId 的实例，
+    //   用载机自身的 peakLevel/enhanceLevels 走完整面板解析（含载机自身强化）。
+    //   否则按白板算（A类无人机路径）。
+    let dps: number;
+    const acRecord = aircraftRecords ? findAircraftRecord(aircraftRecords, aircraftShipId) : undefined;
+    if (acRecord) {
+      // B类载机完整面板（含自身强化 + 母舰强化透传）
+      const acTechStr = acRecord.enhanceLevels && Object.keys(acRecord.enhanceLevels).length > 0
+        ? levelsToTechStr(store, aircraftShipId, acRecord.enhanceLevels) : "";
+      const acBlueprint = (acTechStr || acRecord.peakLevel)
+        ? resolveBlueprint(store, aircraftShipId, acTechStr, { peakLevel: acRecord.peakLevel ?? 0 })
+        : null;
+      // 载机面板 = 自身强化 + 母舰强化透传（resolveBlueprintPanel 内部从 blueprint.effects 重建
+      //   curEnhanceDic 经 filterDroneEnhance 过滤后传给嵌套 computeAircraftDps）。
+      const acPanel = resolveBlueprintPanel(
+        store, aircraftShipId, '', acBlueprint, acRecord.enabledSlots, undefined,
+      );
+      dps = dpsType === DPS_TYPE.ANTI_SHIP ? acPanel.firepower.antiShip
+        : dpsType === DPS_TYPE.ANTI_AIR ? acPanel.firepower.antiAir
+        : acPanel.firepower.siege;
+    } else {
+      // A类无人机/白板路径
+      const acFp = computeFirepower(acWeapons, acEffectList, store);
+      dps = dpsType === DPS_TYPE.ANTI_SHIP ? acFp.antiShip
+        : dpsType === DPS_TYPE.ANTI_AIR ? acFp.antiAir
+        : acFp.siege;
+    }
     total += dps * num;
   }
   return total;
+}
+
+/** 从 aircraftRecords 池找匹配 shipId 的第一个实例（B类载机强化用）。 */
+function findAircraftRecord(
+  pool: Record<string, { shipId: string; peakLevel?: number; enhanceLevels?: Record<string, number>; enabledSlots?: string[] }>,
+  shipId: string,
+): { shipId: string; peakLevel?: number; enhanceLevels?: Record<string, number>; enabledSlots?: string[] } | undefined {
+  for (const uid in pool) {
+    if (pool[uid].shipId === shipId) return pool[uid];
+  }
+  return undefined;
+}
+
+// ===== 母舰强化过滤（对齐 AttrCalcBase._filter_drone_enhance）=====
+/**
+ * 判断强化项是否影响数值（对齐 blueprint_utils.is_enhance_influence_effect_value）。
+ *   调校→父强化重定向（SYSTEM_ADJUST_IN_ENHANCE）后取 effect_id，
+ *   若 effect_id 在 system_skill 表（技能触发器）→ 不影响数值（return false），否则 true。
+ */
+function isEnhanceInfluenceEffectValue(store: ClientDataStore, enhanceId: string): boolean {
+  // 调校 → 父强化重定向
+  const parentId = (store.systemAdjustInEnhance ?? {})[enhanceId];
+  const realEnhanceId = parentId !== undefined ? String(parentId) : enhanceId;
+  const effectId = getEnhanceEffectId(store, realEnhanceId);
+  if (effectId > 0 && store.systemSkill?.[String(effectId)]) return false; // 技能触发器 → 不影响数值
+  return true;
+}
+
+/** 取强化的 effect_id（对齐 blueprint_utils.get_enhance_effect_id）。
+ *  查 systemEnhance[enhanceId].SYSTEM_EFFECT_PREFIX（逆向科技 re_tech 表本实现暂略，走 systemEnhance 主路径）。 */
+function getEnhanceEffectId(store: ClientDataStore, enhanceId: string): number {
+  const cfg = store.systemEnhance?.[enhanceId];
+  if (!cfg) return 0;
+  return Number(cfg.SYSTEM_EFFECT_PREFIX ?? 0) || 0;
+}
+
+/**
+ * 母舰强化过滤给载机（对齐 AttrCalcBase._filter_drone_enhance，反编译源见 docs/23 §一）。
+ *
+ * 遍历 cur_enhance_dic，对每个"会影响数值的强化项"：
+ *   - 查 SYSTEM_EFFECT_ENHANCE_DATA 看它关联的 system_effect 是否触达 DRONE_EFFECT_IDS。
+ *   - 触达载机搭载效果的强化被剥除（防止载机→载机无限递归），其余透传给载机。
+ *   - 不影响数值的强化（技能触发器等）直接保留。
+ *
+ * @returns 过滤后的强化字典（同结构）
+ */
+export function filterDroneEnhance(
+  store: ClientDataStore,
+  curEnhanceDic: Record<string, Record<string, number>>,
+): Record<string, Record<string, number>> {
+  const sysEnhData = store.systemEffectEnhanceData as Record<string, unknown[]> | undefined;
+  const filtered: Record<string, Record<string, number>> = {};
+  for (const [systemId, enhanceDic] of Object.entries(curEnhanceDic)) {
+    const filteredEnhance: Record<string, number> = {};
+    for (const [enhanceId, level] of Object.entries(enhanceDic)) {
+      if (!isEnhanceInfluenceEffectValue(store, enhanceId)) {
+        filteredEnhance[enhanceId] = level; // 不影响数值的强化直接保留
+        continue;
+      }
+      const effectId = getEnhanceEffectId(store, enhanceId);
+      const sysEffectIds = (sysEnhData?.[String(effectId)] ?? []) as number[];
+      // 判定：任一关联 system_effect 的 EFFECT_ID ∈ DRONE_EFFECT_IDS → 触达载机
+      let hasDroneEffect = false;
+      for (const seId of sysEffectIds) {
+        const cfg = store.systemEffect?.[String(seId)];
+        if (cfg && DRONE_EFFECT_IDS.has(Number(cfg.EFFECT_ID))) {
+          hasDroneEffect = true;
+          break;
+        }
+      }
+      if (!hasDroneEffect) filteredEnhance[enhanceId] = level;
+    }
+    if (Object.keys(filteredEnhance).length) filtered[systemId] = filteredEnhance;
+  }
+  return filtered;
+}
+
+/**
+ * 把过滤后的 enhance_dic 重建为 EffectEntry[]（对齐客户端子载机 set_mother_ship_info → get_effect_list）。
+ *
+ * 遍历 filteredDic 的每个 enhance_id → 查 systemEnhance.SYSTEM_EFFECT_PREFIX →
+ * 用 prefix+level 查 system_effect 取 EFFECT_ID/EFFECT_PARAM/TARGET_* → 构造 EffectEntry。
+ * B类缩放 value = PARAM × level / maxLevel（对齐 lookupEffect）。
+ *
+ * 注意：载机自身模块效果（EID=12020 等）不在此重建——它们由 resolveShipWeapons 装配到武器对象的
+ * modDamageInc/modAircraftInc/modDestroyInc，在 evalAttack 里以 skillRatio 形式生效。
+ * 这里只补"母舰透传的强化部分"（isSystemEffect=true 的条目）。
+ */
+function buildChildEffectList(
+  store: ClientDataStore,
+  filteredDic: Record<string, Record<string, number>>,
+): EffectEntry[] {
+  const out: EffectEntry[] = [];
+  const systemEffect = store.systemEffect;
+  const systemEnhance = store.systemEnhance;
+  if (!systemEffect || !systemEnhance) return out;
+  for (const [systemId, enhanceDic] of Object.entries(filteredDic)) {
+    for (const [enhanceId, level] of Object.entries(enhanceDic)) {
+      const prefix = Number(systemEnhance[enhanceId]?.SYSTEM_EFFECT_PREFIX ?? 0);
+      if (!prefix) continue;
+      // 查 PREFIX + level补零2位
+      const key = String(prefix) + String(level).padStart(2, '0');
+      const eff = systemEffect[key] ?? systemEffect[String(prefix) + '01']; // 回退到 level1 基础条目
+      if (!eff) continue;
+      const effectId = Number(eff.EFFECT_ID ?? 0);
+      if (effectId <= 0) continue;
+      // B类缩放（maxLevel 取 ENHANCE_COST 长度，简化：用 level 本身，A类查表略）
+      const param = Number(eff.EFFECT_PARAM ?? 0);
+      const maxLevel = Array.isArray(systemEnhance[enhanceId]?.ENHANCE_COST)
+        ? (systemEnhance[enhanceId]?.ENHANCE_COST as unknown[]).length || 1 : 1;
+      const value = eff.EFFECT_PARAM_LEVEL
+        ? lookupParamLevelLocal(String(eff.EFFECT_PARAM_LEVEL), level)
+        : (param * level / Math.max(maxLevel, 1));
+      out.push({
+        effectId,
+        value,
+        sourceSlotId: systemId,
+        targetShip: Number(eff.TARGET_SHIP ?? 0),
+        targetSystem: Number(eff.TARGET_SYSTEM ?? 0),
+        targetIndex: Number(eff.TARGET_INDEX ?? 0),
+        targetModuleType: Number(eff.TARGET_MODULE_TYPE ?? 0),
+        targetCompany: Number(eff.TARGET_COMPANY ?? 0),
+        isSystemEffect: true,
+      });
+    }
+  }
+  return out;
+}
+
+/** 解析 EFFECT_PARAM_LEVEL "1,200;2,400;..." 取指定 level 的值（对齐 lookupParamLevel）。 */
+function lookupParamLevelLocal(paramLevel: string, level: number): number {
+  const entries = paramLevel.split(';').filter(Boolean);
+  let value = 0;
+  for (const entry of entries) {
+    const [lv, val] = entry.split(',').map(Number);
+    if (lv === level) { value = val; break; }
+    if (lv < level) value = val; // 取不超过 level 的最大值（兜底）
+  }
+  return value;
 }
 
 /**
@@ -706,6 +883,9 @@ export function resolveBlueprintPanel(
   enabledSlots?: string[],
   /** 玩家自选载机覆写（ShipRecord.aircrafts），非空时优先于机库模块推导。双轨对齐客户端 AIRCRAFTS 装备串。 */
   aircraftsOverride?: Record<string, number[]>,
+  /** B类载机（战机/护航艇）实例池：uid → ShipRecordInput（含载机自身强化/巅峰）。
+   *  传给 computeAircraftDps 让载机走完整面板解析（含自身强化）。 */
+  aircraftRecords?: Record<string, { shipId: string; peakLevel?: number; enhanceLevels?: Record<string, number>; enabledSlots?: string[] }>,
 ): BlueprintPanel {
   void shipName; // 兼容旧调用（舰种改用 cfg_ship[11] 字段判定）
   const shipRow = store.ship?.[shipId] as unknown[] | undefined;
@@ -769,15 +949,17 @@ export function resolveBlueprintPanel(
   //   get_aircraft_dps 此前是蓝图系统已知缺口（docs/17/21 标记 deferred），现回填进面板火力。
   //   母舰 effectList 中 EID∈DRONE_EFFECT_IDS 的 effect 即机库搭载载机，递归算载机自身火力×num。
   //   aircrafts 覆写优先于模块推导（双轨，对齐玩家 AIRCRAFTS 装备串）。
-  firepower.antiShip += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.ANTI_SHIP, aircraftsOverride);
-  firepower.antiAir += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.ANTI_AIR, aircraftsOverride);
-  firepower.siege += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.SIEGE, aircraftsOverride);
-  // ★临时诊断
-  console.log('[resolveBlueprintPanel-diag] ' + JSON.stringify({
-    shipId, bpEffectListLen: blueprint?.effectList?.length ?? 0, finalELLen: effectList.length,
-    wnaLen: (store as any).weaponNumAttr ? Object.keys((store as any).weaponNumAttr).length : 0,
-    weaponCount: weapons.length, fp: firepower,
-  }));
+  // ★母舰强化过滤透传给载机（缺陷3 修复，对齐 _filter_drone_enhance，反编译源见 docs/23）：
+  //   从 blueprint.effects[].tech 重建 cur_enhance_dic {systemId: {enhanceId: level}}，
+  //   computeAircraftDps 内部过滤掉触达 DRONE_EFFECT_IDS 的强化后透传给子载机。
+  const curEnhanceDic: Record<string, Record<string, number>> = {};
+  for (const eff of (blueprint?.effects ?? [])) {
+    const sid = eff.tech.slotId.slice(0, 7);
+    (curEnhanceDic[sid] ??= {})[eff.tech.enhanceId] = eff.tech.level;
+  }
+  firepower.antiShip += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.ANTI_SHIP, aircraftsOverride, curEnhanceDic, aircraftRecords);
+  firepower.antiAir += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.ANTI_AIR, aircraftsOverride, curEnhanceDic, aircraftRecords);
+  firepower.siege += computeAircraftDps(store, shipId, enabledSlots, DPS_TYPE.SIEGE, aircraftsOverride, curEnhanceDic, aircraftRecords);
 
   // ★受维修量提升（百分比）= 装甲抵抗值 × 舰种系数(REPAIR_ADJUST_COEF)
   // 装甲抵抗 = 模块EID=10033 + 强化EID=10033（不含ship_type基础抵抗）

@@ -23,11 +23,11 @@ export type {
   ClientDataStore,
 } from './rawTypes.js';
 
-export { SHIP } from './rawTypes.js';
+export { SHIP, SHIP_BP, AIRCRAFT_TYPE } from './rawTypes.js';
 
 export { createClientData, type ClientDataParts } from './loader.js';
 
-export { parseTechString, type TechModule } from './techString.js';
+export { parseTechString, levelsToTechStr, type TechModule } from './techString.js';
 
 export {
   resolveBlueprint,
@@ -65,6 +65,7 @@ export {
   resolveShipWeapons,
   computeFirepower,
   computeAircraftDps,
+  filterDroneEnhance,
   DRONE_EFFECT_IDS,
   getBaseDefense,
   resolveBlueprintPanel,
@@ -111,6 +112,11 @@ export {
   getShipCapacity,
   getTeamCapacity,
   validateFormation,
+  getServiceLimit,
+  countByBlueprint,
+  getAircraftType,
+  isAircraftAvailableForShip,
+  type FormationValidateOptions,
   type ResolvedFormation,
   type FormationMember,
   type FormationCapacity,

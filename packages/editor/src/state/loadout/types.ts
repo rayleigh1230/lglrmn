@@ -33,8 +33,12 @@ export interface ShipRecord {
   enabledSlots: string[];
   /** 蓝图方案 UID。对应客户端 ShipField.SUPER_MAIN_SHIP_BP_SYSTEM_SCHEME_UNIQUE_ID */
   bpSystemSchemeUniqueId?: string;
-  /** 飞机/无人机搭载。对应客户端 ShipField.AIRCRAFTS */
+  /** A类载机（无人机）搭载：shipId → 各槽数量（模块路径用）。
+   *  对应客户端 ShipField.AIRCRAFTS。B类载机改用 aircraftUids 引用 ships 池实例。 */
   aircrafts?: Record<string, number[]>;
+  /** B类载机（战机/护航艇）实例引用：shipId → uid 列表（指向 Loadout.ships 池）。
+   *  载机自身强化/巅峰存在 ships 池对应的 ShipRecord 里（和普通舰船同构）。 */
+  aircraftUids?: Record<string, string[]>;
   /** 备注/自定义名（模拟器专用，无客户端对应） */
   note?: string;
 }

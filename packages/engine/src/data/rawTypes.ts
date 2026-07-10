@@ -17,20 +17,20 @@ export type RawShipRow = [
   number, // [3]  ship_class 舰种分类码
   number, // [4]  structure ★本体结构值 HP
   number, // [5]  speed 航行速度
-  number, // [6]  slot_weapon_max
-  number, // [7]  slot_weapon_max2（恒等于[6]）
+  number, // [6]  reserved（恒等于[7]，冗余；docs/10 旧标 slot_weapon_max 有误）
+  number, // [7]  ★command 指挥值（白名单 1-55，按舰种递增：航母 40-55、战列 45、战巡 28-35、护卫 3-8、战机/护航艇 1-2；舰队上限 300-420）
   number, // [8]  ★curvature_speed 曲率速度（9船锚点全验证，之前误标unknown）
   string, // [9]  cost_str 建造成本
   number, // [10] build_cost_total
   number, // [11] ★ship_type 舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列，对照白名单169艘全验证）
   number, // [12] ship_type2（恒等于[11]）
-  number, // [13] ★exploit_capacity 指挥值/容量（随舰级递增：航母110000-150000，护卫1000-2200，战机/无人机=0）
+  number, // [13] exploit_capacity 开采/驻泊容量（航母110000-150000，护卫1000-2200，战机/无人机=0）。★非游戏"指挥值"，勿用于编队校验
   number, // [14] reserved
   number, // [15] reserved
   number, // [16] reserved
   number, // [17] reserved
   number, // [18] reserved
-  number, // [19] reserved
+  number, // [19] ★aircraft_type 战机规格（LIGHT=1/MID=2/HEAVY=3，护航艇=0无规格；frida dump 实测确认）
   number, // [20] ★aircraft_group_num 编队架数（战机/护航艇>1，主力舰=1）
   number, // [21] size_class ★体型等级
   number, // [22] flag2
@@ -47,18 +47,41 @@ export const SHIP = {
   STRUCTURE: 4,
   SPEED: 5,
   CURVATURE: 8, // ★曲率速度（9船锚点全验证，docs/10 把[8]标成unknown是错的）
+  COMMAND: 7, // ★指挥值（白名单 1-55，按舰种递增：航母40-55、战列45、战巡28-35、护卫3-8、战机/护航艇1-2）
   SHIP_TYPE: 11, // ★舰种（1战机2护航艇3护卫4驱逐5巡洋6战巡7支援8航母9战列）
-  /** ★指挥值/容量（对齐 CfgShipField.EXPLOIT_CAPACITY = 'exploit_capacity'）。
+  /** exploit_capacity 开采/驻泊容量（CfgShipField.EXPLOIT_CAPACITY，索引[13]）。
    *  实证：航母 110000-150000，战列 150000，护卫 1000-2200，战机/无人机=0。
-   *  注意 docs/10 标为 unknown_f13，但 03_ship_attribute.txt:1497/1517 确认此字段。
-   *  blueprintSelector.ts 旧实现误用 [7]（武器槽数）——已修正为 [13]。 */
+   *  ★这是开采/驻泊容量，不是游戏 UI 的"指挥值"——单艘就 15 万，与舰队指挥值上限
+   *  （300-420）差三个数量级，逻辑不可能成立。编队指挥值请用 COMMAND([7])。
+   *  2026-07 交接提交 7ad524d 曾误把 [13] 当指挥值，已回滚。 */
   EXPLOIT_CAPACITY: 13,
+  AIRCRAFT_TYPE: 19, // ★战机规格（LIGHT=1/MID=2/HEAVY=3，护航艇=0；frida dump 实测确认 [19]）
   AIRCRAFT_GROUP_NUM: 20, // ★编队架数（战机/护航艇>1，主力舰=1；火力=单武器DPS×此值，dump确认）
   SIZE_CLASS: 21,
   MODEL_CODE: 23,
 } as const;
 
+/** 战机规格枚举（对齐 CfgShipField.AircraftType，frida dump 确认）
+ *  - LIGHT(1): 轻型（砂龙拦截机/SC002侦察机）
+ *  - MID(2): 中型（B192攻击机/AT021攻击机）
+ *  - HEAVY(3): 重型（BR050轰炸机）
+ *  机库规格匹配（对齐 is_aircraft_avaliable_for_ship）：
+ *    HEAVY 机库收 HEAVY+MID+LIGHT；MID 机库收 MID+LIGHT；LIGHT 机库只收 LIGHT。
+ *  护航艇 aircraft_type=0（无规格，所有护航艇坞舱都能进）。 */
+export const AIRCRAFT_TYPE = { LIGHT: 1, MID: 2, HEAVY: 3 } as const;
+
 export type RawShipTable = Record<string, RawShipRow>;
+
+// ===== cfg_ship_blueprint 字段索引常量 =====
+/** cfg_ship_blueprint 字段索引（对齐 Tb_cfg_ship_blueprint，避免魔法数字）。
+ *  数据来源：反编译 common.ship_utils.get_ship_blueprint_max_num 读 MAX_NUM 做服役数校验。 */
+export const SHIP_BP = {
+  /** MAX_NUM 服役数上限（该蓝图最多能造/上阵多少艘）。
+   *  实测档位：护卫/驱逐/战机/护航艇=10(未央15/雷火战机8)、巡洋=8(未央12)、
+   *  战巡=6(雷火之星/安东塔斯3)、支援=2-3、航母=5(特殊3)、战列=3。
+   *  特殊船直接硬编码在此字段，无需派系判断。 */
+  MAX_NUM: 7,
+} as const;
 
 // ===== cfg_system_effect.json（系统效果表）=====
 // 格式：{ effect_id: {字段} }，effect_id = PREFIX + level（如 889001 = 8890 + level1）

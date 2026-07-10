@@ -6,7 +6,7 @@
  *   只有白名单内的 bpId 才显示，分类(舰型)也以白名单为准，不再靠关键词推断。
  */
 import type { ClientDataStore } from "../engine";
-import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense, countTechPoints } from "../engine";
+import { resolveAssembly, resolveBlueprintPanel, resolveBlueprint, getBaseDefense, countTechPoints, SHIP } from "../engine";
 import type { BlueprintPanel } from "../engine";
 import { levelsToTechStr } from "./codec";
 
@@ -231,7 +231,7 @@ export function getShipPanel(
     subTypeName: subType,
     category: entry.category,
     rowLabel: entry.rowLabel || "无",
-    command: Number(shipRow[13] ?? 0),
+    command: Number(shipRow[SHIP.COMMAND] ?? 0),  // 指挥值 = cfg_ship[7]（白名单值域 1-55）
     shipId: entry.shipId,
     panel,
     techPoints,
