@@ -43,3 +43,4 @@ __pycache__/
 dumped/
 .zcode/
 .test_simple.py
+data/client/tools/pycdc.exe

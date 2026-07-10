@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "files_processed": 10,
+    "derived_from": "disasm.txt cross-reference with marshal.bin",
+    "note": "data_manager.game_data_utils specific opmap"
+  },
+  "gdu_opmap": {
+    "19": {
+      "mnemonic": "GET_ITER",
+      "std_opcode": 68,
+      "confidence": 1.0,
+      "count": 4,
+      "total": 4
+    },
+    "20": {
+      "mnemonic": "STORE_SUBSCR",
+      "std_opcode": 60,
+      "confidence": 1.0,
+      "count": 6,
+      "total": 6
+    },
+    "27": {
+      "mnemonic": "BINARY_SUBSCR",
+      "std_opcode": 25,
+      "confidence": 1.0,
+      "count": 31,
+      "total": 31
+    },
+    "40": {
+      "mnemonic": "PRECALL",
+      "std_opcode": 166,
+      "confidence": 0.926,
+      "count": 50,
+      "total": 54
+    },
+    "57": {
+      "mnemonic": "RETURN_VALUE",
+      "std_opcode": 83,
+      "confidence": 1.0,
+      "count": 22,
+      "total": 22
+    },
+    "72": {
+      "mnemonic": "LOAD_GLOBAL",
+      "std_opcode": 116,
+      "confidence": 1.0,
+      "count": 43,
+      "total": 43
+    },
+    "82": {
+      "mnemonic": "POP_JUMP_FORWARD_IF_FALSE",
+      "std_opcode": 114,
+      "confidence": 1.0,
+      "count": 28,
+      "total": 28
+    },
+    "92": {
+      "mnemonic": "POP_TOP",
+      "std_opcode": 1,
+      "confidence": 1.0,
+      "count": 9,
+      "total": 9
+    },
+    "93": {
+      "mnemonic": "KW_NAMES",
+      "std_opcode": 172,
+      "confidence": 1.0,
+      "count": 3,
+      "total": 3
+    },
+    "96": {
+      "mnemonic": "JUMP_FORWARD",
+      "std_opcode": 110,
+      "confidence": 1.0,
+      "count": 1,
+      "total": 1
+    },
+    "102": {
+      "mnemonic": "COMPARE_OP",
+      "std_opcode": 107,
+      "confidence": 1.0,
+      "count": 18,
+      "total": 18
+    },
+    "111": {
+      "mnemonic": "LOAD_ATTR",
+      "std_opcode": 106,
+      "confidence": 1.0,
+      "count": 48,
+      "total": 48
+    },
+    "114": {
+      "mnemonic": "BUILD_MAP",
+      "std_opcode": 105,
+      "confidence": 1.0,
+      "count": 2,
+      "total": 2
+    },
+    "117": {
+      "mnemonic": "STORE_FAST",
+      "std_opcode": 125,
+      "confidence": 1.0,
+      "count": 67,
+      "total": 67
+    }
+  },
+  "game2std": {
+    "19": 68,
+    "20": 60,
+    "27": 25,
+    "40": 166,
+    "57": 83,
+    "72": 116,
+    "82": 114,
+    "92": 1,
+    "93": 172,
+    "96": 110,
+    "102": 107,
+    "111": 106,
+    "114": 105,
+    "117": 125
+  }
+}
